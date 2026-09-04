@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMI Calculator — Metric &amp; Imperial | Toolcrate</title>
+<meta name="description" content="Calculate Body Mass Index in metric or imperial units, with WHO weight category ranges. Educational tool, not medical advice.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>BMI Calculator</h1>
+    <p>Body Mass Index in metric or imperial units, with the WHO adult weight category ranges.</p>
+  </div>
+
+  <div class="disclaimer-note"><strong>Educational tool, not medical advice.</strong> BMI is a simple screening measure and doesn't account for muscle mass, bone density, age, sex, or ethnicity. See our <a href="/terms.html">terms</a> for details.</div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="unitSystem">Units</label>
+      <select id="unitSystem">
+        <option value="metric">Metric (cm, kg)</option>
+        <option value="imperial">Imperial (ft/in, lb)</option>
+      </select>
+    </div>
+    <div class="row" id="metricRow">
+      <div class="field">
+        <label for="heightCm">Height (cm)</label>
+        <input type="number" id="heightCm" value="175" min="0" step="any">
+      </div>
+      <div class="field">
+        <label for="weightKg">Weight (kg)</label>
+        <input type="number" id="weightKg" value="70" min="0" step="any">
+      </div>
+    </div>
+    <div class="row" id="imperialRow" style="display: none;">
+      <div class="field">
+        <label for="heightFt">Height (ft)</label>
+        <input type="number" id="heightFt" value="5" min="0" step="1">
+      </div>
+      <div class="field">
+        <label for="heightIn">Height (in)</label>
+        <input type="number" id="heightIn" value="9" min="0" max="11" step="any">
+      </div>
+      <div class="field">
+        <label for="weightLb">Weight (lb)</label>
+        <input type="number" id="weightLb" value="154" min="0" step="any">
+      </div>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="bmiValue">—</span><span class="stat-label">BMI</span></div>
+    <div class="stat"><span class="stat-value" id="bmiCategory">—</span><span class="stat-label">WHO category</span></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>The formula</h2>
+    <p><code>BMI = weight (kg) ÷ height (m)²</code>. The World Health Organization's adult categories are: under 18.5 = underweight, 18.5–24.9 = normal weight, 25–29.9 = overweight, 30 and above = obese. These ranges were developed from population-level data and are a rough screening tool, not a diagnosis — talk to a healthcare provider for an assessment that accounts for your individual body composition.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const unitSystem = document.getElementById('unitSystem');
+const metricRow = document.getElementById('metricRow');
+const imperialRow = document.getElementById('imperialRow');
+const heightCm = document.getElementById('heightCm');
+const weightKg = document.getElementById('weightKg');
+const heightFt = document.getElementById('heightFt');
+const heightIn = document.getElementById('heightIn');
+const weightLb = document.getElementById('weightLb');
+const errorEl = document.getElementById('error');
+const bmiValueEl = document.getElementById('bmiValue');
+const bmiCategoryEl = document.getElementById('bmiCategory');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function categorize(bmi) {
+  if (bmi < 18.5) return 'Underweight';
+  if (bmi < 25) return 'Normal weight';
+  if (bmi < 30) return 'Overweight';
+  return 'Obese';
+}
+
+function calc() {
+  showError('');
+  let heightM, weightKgVal;
+
+  if (unitSystem.value === 'metric') {
+    const h = parseFloat(heightCm.value);
+    const w = parseFloat(weightKg.value);
+    if (isNaN(h) || isNaN(w) || h <= 0 || w <= 0) {
+      bmiValueEl.textContent = '—';
+      bmiCategoryEl.textContent = '—';
+      return;
+    }
+    heightM = h / 100;
+    weightKgVal = w;
+  } else {
+    const ft = parseFloat(heightFt.value) || 0;
+    const inch = parseFloat(heightIn.value) || 0;
+    const w = parseFloat(weightLb.value);
+    const totalIn = ft * 12 + inch;
+    if (totalIn <= 0 || isNaN(w) || w <= 0) {
+      bmiValueEl.textContent = '—';
+      bmiCategoryEl.textContent = '—';
+      return;
+    }
+    heightM = totalIn * 0.0254;
+    weightKgVal = w * 0.453592;
+  }
+
+  const bmi = weightKgVal / (heightM * heightM);
+  bmiValueEl.textContent = bmi.toFixed(1);
+  bmiCategoryEl.textContent = categorize(bmi);
+}
+
+unitSystem.addEventListener('change', () => {
+  metricRow.style.display = unitSystem.value === 'metric' ? 'flex' : 'none';
+  imperialRow.style.display = unitSystem.value === 'imperial' ? 'flex' : 'none';
+  calc();
+});
+[heightCm, weightKg, heightFt, heightIn, weightLb].forEach(el => el.addEventListener('input', calc));
+calc();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
