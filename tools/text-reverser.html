@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text Reverser — Characters, Words, or Lines | Toolcrate</title>
+<meta name="description" content="Reverse text by character, word order, or line order. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Text Reverser</h1>
+    <p>Reverse text character by character, reverse the order of words, or reverse the order of lines.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Input</label>
+      <textarea id="input" rows="8" placeholder="Type or paste text here…" spellcheck="false"></textarea>
+    </div>
+    <div class="btn-row">
+      <button id="charsBtn">Reverse characters</button>
+      <button id="wordsBtn" class="secondary">Reverse word order</button>
+      <button id="linesBtn" class="secondary">Reverse line order</button>
+      <button id="clearBtn" class="secondary">Clear</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="output">Result</label>
+    <div id="output" class="output-panel empty">Reversed text will appear here.</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy result</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>"Reverse characters" reverses by Unicode code point using a grapheme-aware split, so multi-byte characters like emoji and accented letters come out intact instead of corrupted — a plain <code>string.split('')</code> reversal breaks on those. "Reverse word order" keeps each word spelled normally but flips their order in the sentence; "Reverse line order" does the same for whole lines, useful for flipping a chronological list end-to-end.</p>
+    <p>Nothing you type here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const input = document.getElementById('input');
+const output = document.getElementById('output');
+
+function showOutput(text) {
+  output.textContent = text;
+  output.classList.remove('empty');
+}
+
+function reverseChars(str) {
+  return Array.from(str).reverse().join('');
+}
+
+function reverseWords(str) {
+  return str.split(/(\s+)/).reverse().join('');
+}
+
+function reverseLines(str) {
+  return str.split(/\r\n|\r|\n/).reverse().join('\n');
+}
+
+function convert(fn) {
+  if (!input.value) { output.textContent = 'Reversed text will appear here.'; output.classList.add('empty'); return; }
+  showOutput(fn(input.value));
+}
+
+document.getElementById('charsBtn').addEventListener('click', () => convert(reverseChars));
+document.getElementById('wordsBtn').addEventListener('click', () => convert(reverseWords));
+document.getElementById('linesBtn').addEventListener('click', () => convert(reverseLines));
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  input.value = '';
+  output.textContent = 'Reversed text will appear here.';
+  output.classList.add('empty');
+  input.focus();
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
