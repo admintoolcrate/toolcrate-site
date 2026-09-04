@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Card Calculator — Hours, Overtime &amp; Pay | Toolcrate</title>
+<meta name="description" content="Calculate work hours, overtime, and pay from a week of clock-in and clock-out times. Free, instant, browser-only.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .day-row { display: grid; grid-template-columns: 90px 1fr 1fr 90px 90px; gap: 0.5rem; align-items: end; margin-bottom: 0.6rem; }
+  .day-row .field { margin-bottom: 0; }
+  .day-label { font-size: 0.85rem; color: var(--ink-soft); padding-bottom: 0.68rem; }
+  .day-hours { font-size: 0.85rem; color: var(--muted); padding-bottom: 0.68rem; text-align: right; }
+  @media (max-width: 640px) {
+    .day-row { grid-template-columns: 1fr 1fr; }
+    .day-label { grid-column: span 2; padding-bottom: 0.2rem; font-weight: 600; }
+    .day-hours { grid-column: span 2; text-align: left; padding-bottom: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Time Card Calculator</h1>
+    <p>Enter clock-in and clock-out times for the week to get total hours, overtime, and pay.</p>
+  </div>
+
+  <div class="panel">
+    <div id="daysList"></div>
+    <div class="row">
+      <div class="field">
+        <label for="overtimeThreshold">Overtime after (hours/week)</label>
+        <input type="number" id="overtimeThreshold" value="40" min="0" step="any">
+      </div>
+      <div class="field">
+        <label for="overtimeMultiplier">Overtime rate multiplier</label>
+        <input type="number" id="overtimeMultiplier" value="1.5" min="1" step="any">
+      </div>
+      <div class="field">
+        <label for="hourlyRate">Hourly rate (optional)</label>
+        <input type="number" id="hourlyRate" value="" min="0" step="any" placeholder="e.g. 22.50">
+      </div>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="totalHours">—</span><span class="stat-label">Total hours</span></div>
+    <div class="stat"><span class="stat-value" id="regularHours">—</span><span class="stat-label">Regular hours</span></div>
+    <div class="stat"><span class="stat-value" id="overtimeHours">—</span><span class="stat-label">Overtime hours</span></div>
+    <div class="stat"><span class="stat-value" id="totalPay">—</span><span class="stat-label">Total pay</span></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Each day's hours are clock-out minus clock-in, minus any unpaid break, with overnight shifts (clock-out earlier than clock-in) automatically treated as crossing midnight. Overtime is calculated on the week as a whole, past the threshold you set — the default of 40 hours/week and 1.5× pay matches the U.S. federal standard, but adjust both fields to match your own timesheet rules.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+const daysList = document.getElementById('daysList');
+const overtimeThreshold = document.getElementById('overtimeThreshold');
+const overtimeMultiplier = document.getElementById('overtimeMultiplier');
+const hourlyRate = document.getElementById('hourlyRate');
+const errorEl = document.getElementById('error');
+
+const totalHoursEl = document.getElementById('totalHours');
+const regularHoursEl = document.getElementById('regularHours');
+const overtimeHoursEl = document.getElementById('overtimeHours');
+const totalPayEl = document.getElementById('totalPay');
+
+let days = DAY_NAMES.map(name => ({ name, in: '', out: '', breakMin: 0 }));
+const dayHoursEls = [];
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function timeToMinutes(hhmm) {
+  if (!hhmm) return null;
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function dayHours(day) {
+  const inMin = timeToMinutes(day.in);
+  const outMin = timeToMinutes(day.out);
+  if (inMin === null || outMin === null) return 0;
+  let diff = outMin - inMin;
+  if (diff < 0) diff += 24 * 60;
+  diff -= Math.max(0, day.breakMin || 0);
+  return Math.max(0, diff / 60);
+}
+
+function fmt(n, digits) {
+  if (!isFinite(n)) return '—';
+  return n.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+}
+
+function renderDays() {
+  daysList.innerHTML = '';
+  days.forEach((day, i) => {
+    const row = document.createElement('div');
+    row.className = 'day-row';
+
+    const label = document.createElement('div');
+    label.className = 'day-label';
+    label.textContent = day.name;
+    row.appendChild(label);
+
+    const inField = document.createElement('div');
+    inField.className = 'field';
+    const inInput = document.createElement('input');
+    inInput.type = 'time';
+    inInput.value = day.in;
+    inInput.setAttribute('aria-label', `${day.name} clock in`);
+    inInput.addEventListener('input', () => { days[i].in = inInput.value; calc(); });
+    inField.appendChild(inInput);
+    row.appendChild(inField);
+
+    const outField = document.createElement('div');
+    outField.className = 'field';
+    const outInput = document.createElement('input');
+    outInput.type = 'time';
+    outInput.value = day.out;
+    outInput.setAttribute('aria-label', `${day.name} clock out`);
+    outInput.addEventListener('input', () => { days[i].out = outInput.value; calc(); });
+    outField.appendChild(outInput);
+    row.appendChild(outField);
+
+    const breakField = document.createElement('div');
+    breakField.className = 'field';
+    const breakInput = document.createElement('input');
+    breakInput.type = 'number';
+    breakInput.min = '0';
+    breakInput.step = '1';
+    breakInput.placeholder = 'Break';
+    breakInput.value = day.breakMin || '';
+    breakInput.setAttribute('aria-label', `${day.name} break minutes`);
+    breakInput.addEventListener('input', () => { days[i].breakMin = parseFloat(breakInput.value) || 0; calc(); });
+    breakField.appendChild(breakInput);
+    row.appendChild(breakField);
+
+    const hoursEl = document.createElement('div');
+    hoursEl.className = 'day-hours';
+    dayHoursEls[i] = hoursEl;
+    row.appendChild(hoursEl);
+
+    daysList.appendChild(row);
+  });
+}
+
+function calc() {
+  showError('');
+  const otThreshold = parseFloat(overtimeThreshold.value);
+  const otMultiplier = parseFloat(overtimeMultiplier.value);
+  const rate = parseFloat(hourlyRate.value);
+
+  if (isNaN(otThreshold) || otThreshold < 0 || isNaN(otMultiplier) || otMultiplier < 1) {
+    showError('Overtime threshold must be 0 or more, and the multiplier must be 1 or more.');
+  }
+
+  let total = 0;
+  days.forEach((day, i) => {
+    const h = dayHours(day);
+    total += h;
+    if (dayHoursEls[i]) dayHoursEls[i].textContent = h > 0 ? `${fmt(h, 2)} h` : '';
+  });
+
+  const threshold = (!isNaN(otThreshold) && otThreshold >= 0) ? otThreshold : Infinity;
+  const regular = Math.min(total, threshold);
+  const overtime = Math.max(0, total - threshold);
+
+  totalHoursEl.textContent = fmt(total, 2);
+  regularHoursEl.textContent = fmt(regular, 2);
+  overtimeHoursEl.textContent = fmt(overtime, 2);
+
+  if (!isNaN(rate) && rate >= 0) {
+    const mult = (!isNaN(otMultiplier) && otMultiplier >= 1) ? otMultiplier : 1.5;
+    const pay = regular * rate + overtime * rate * mult;
+    totalPayEl.textContent = fmt(pay, 2);
+  } else {
+    totalPayEl.textContent = '—';
+  }
+}
+
+[overtimeThreshold, overtimeMultiplier, hourlyRate].forEach(el => el.addEventListener('input', calc));
+
+renderDays();
+calc();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
