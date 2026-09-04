@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text-to-Speech Reader | Toolcrate</title>
+<meta name="description" content="Have any text read aloud using your browser's built-in voices. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Text-to-Speech Reader</h1>
+    <p>Have any text read aloud using your browser's built-in voices.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="textInput">Text to read</label>
+      <textarea id="textInput" rows="6" placeholder="Paste or type anything here…">Welcome to Toolcrate. This text is being read aloud entirely by your browser.</textarea>
+    </div>
+    <div class="row">
+      <div class="field" style="flex: 2;">
+        <label for="voiceSelect">Voice</label>
+        <select id="voiceSelect"></select>
+      </div>
+      <div class="field">
+        <label for="rateInput">Rate: <span id="rateValue">1.0</span>×</label>
+        <input type="range" id="rateInput" min="0.5" max="2" step="0.1" value="1">
+      </div>
+      <div class="field">
+        <label for="pitchInput">Pitch: <span id="pitchValue">1.0</span></label>
+        <input type="range" id="pitchInput" min="0" max="2" step="0.1" value="1">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button id="playBtn">Play</button>
+      <button id="pauseBtn" class="secondary" disabled>Pause</button>
+      <button id="stopBtn" class="secondary" disabled>Stop</button>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>This uses the Web Speech API's speech synthesis built into your browser and operating system — the available voices, their quality, and language coverage all depend on what's installed on your device, not on this page, which is why the voice list may look different on a phone, a Mac, or a Windows PC. If no voices are listed, your browser either hasn't loaded them yet or doesn't support speech synthesis.</p>
+    <p>Nothing you type here is sent to a server — the text is read entirely by your device's own speech engine.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const textInput = document.getElementById('textInput');
+const voiceSelect = document.getElementById('voiceSelect');
+const rateInput = document.getElementById('rateInput');
+const rateValue = document.getElementById('rateValue');
+const pitchInput = document.getElementById('pitchInput');
+const pitchValue = document.getElementById('pitchValue');
+const playBtn = document.getElementById('playBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const stopBtn = document.getElementById('stopBtn');
+const errorEl = document.getElementById('error');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+const supported = typeof window.speechSynthesis !== 'undefined';
+let voices = [];
+
+function populateVoices() {
+  if (!supported) return;
+  voices = window.speechSynthesis.getVoices();
+  voiceSelect.innerHTML = '';
+  if (voices.length === 0) {
+    const opt = document.createElement('option');
+    opt.textContent = 'No voices available';
+    voiceSelect.appendChild(opt);
+    voiceSelect.disabled = true;
+    return;
+  }
+  voiceSelect.disabled = false;
+  voices.forEach((v, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${v.name} (${v.lang})${v.default ? ' — default' : ''}`;
+    voiceSelect.appendChild(opt);
+  });
+}
+
+if (!supported) {
+  showError('Speech synthesis is not supported in this browser.');
+  playBtn.disabled = true;
+} else {
+  populateVoices();
+  window.speechSynthesis.onvoiceschanged = populateVoices;
+}
+
+rateInput.addEventListener('input', () => { rateValue.textContent = parseFloat(rateInput.value).toFixed(1); });
+pitchInput.addEventListener('input', () => { pitchValue.textContent = parseFloat(pitchInput.value).toFixed(1); });
+
+function setPlayingState(playing) {
+  playBtn.disabled = playing;
+  pauseBtn.disabled = !playing;
+  stopBtn.disabled = !playing;
+  pauseBtn.textContent = 'Pause';
+}
+
+playBtn.addEventListener('click', () => {
+  showError('');
+  if (!supported) return;
+  const text = textInput.value.trim();
+  if (!text) { showError('Enter some text to read.'); return; }
+
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = parseFloat(rateInput.value);
+  utterance.pitch = parseFloat(pitchInput.value);
+  const selectedVoice = voices[parseInt(voiceSelect.value, 10)];
+  if (selectedVoice) utterance.voice = selectedVoice;
+
+  utterance.onend = () => setPlayingState(false);
+  utterance.onerror = () => { setPlayingState(false); showError('Playback was interrupted.'); };
+
+  window.speechSynthesis.speak(utterance);
+  setPlayingState(true);
+});
+
+pauseBtn.addEventListener('click', () => {
+  if (!supported) return;
+  if (window.speechSynthesis.paused) {
+    window.speechSynthesis.resume();
+    pauseBtn.textContent = 'Pause';
+  } else {
+    window.speechSynthesis.pause();
+    pauseBtn.textContent = 'Resume';
+  }
+});
+
+stopBtn.addEventListener('click', () => {
+  if (!supported) return;
+  window.speechSynthesis.cancel();
+  setPlayingState(false);
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Clock — Time Zone Comparison | Toolcrate</title>
+<meta name="description" content="Compare the current time across any cities and time zones, updating live. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .clock-row { display: grid; grid-template-columns: 1fr auto auto; gap: 0.9rem; align-items: center; padding: 0.85rem 0; border-bottom: 1px solid var(--line); }
+  .clock-row:last-child { border-bottom: none; }
+  .clock-zone { font-weight: 600; }
+  .clock-date { font-size: 0.78rem; color: var(--muted); }
+  .clock-time { font-size: 1.3rem; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+  .clock-remove { flex-shrink: 0; }
+  @media (max-width: 560px) {
+    .clock-row { grid-template-columns: 1fr auto; }
+    .clock-remove { grid-column: span 2; width: 100%; margin-top: 0.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>World Clock</h1>
+    <p>Compare the current time across any cities and time zones, live.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field" style="flex: 2;">
+        <label for="zoneSelect">Add a time zone</label>
+        <select id="zoneSelect"></select>
+      </div>
+      <div class="field" style="justify-content: flex-end; display: flex; align-items: flex-end;">
+        <button id="addBtn">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div id="clockList"></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Each clock reads the current time directly in its own IANA time zone using your browser's built-in <code>Intl</code> API — daylight saving transitions are handled automatically and correctly for each zone on its own schedule, so two zones that are 8 hours apart in January might be 7 or 9 hours apart in July. The zone list comes from your browser's time zone database, so it's always current.</p>
+    <p>Nothing entered here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const zoneSelect = document.getElementById('zoneSelect');
+const addBtn = document.getElementById('addBtn');
+const clockList = document.getElementById('clockList');
+
+const FALLBACK_ZONES = [
+  'UTC', 'America/Los_Angeles', 'America/Denver', 'America/Chicago', 'America/New_York',
+  'America/Sao_Paulo', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Europe/Moscow',
+  'Africa/Cairo', 'Africa/Johannesburg', 'Asia/Dubai', 'Asia/Kolkata', 'Asia/Bangkok',
+  'Asia/Shanghai', 'Asia/Tokyo', 'Asia/Seoul', 'Australia/Sydney', 'Pacific/Auckland'
+];
+
+function getZoneList() {
+  if (typeof Intl.supportedValuesOf === 'function') {
+    try {
+      const zones = Intl.supportedValuesOf('timeZone');
+      if (zones && zones.length) return zones;
+    } catch (e) { /* fall through */ }
+  }
+  return FALLBACK_ZONES;
+}
+
+const ALL_ZONES = getZoneList();
+const DEFAULT_ZONES = ['America/New_York', 'Europe/London', 'Asia/Tokyo', 'Australia/Sydney'];
+let zones = DEFAULT_ZONES.filter(z => ALL_ZONES.includes(z));
+let localZone;
+try { localZone = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { localZone = 'UTC'; }
+if (!zones.includes(localZone)) zones.unshift(localZone);
+
+ALL_ZONES.forEach(z => {
+  const opt = document.createElement('option');
+  opt.value = z;
+  opt.textContent = z.replace(/_/g, ' ');
+  zoneSelect.appendChild(opt);
+});
+
+function formatZoneNow(timeZone) {
+  const now = new Date();
+  const dateStr = new Intl.DateTimeFormat('en-US', { timeZone, weekday: 'short', month: 'short', day: 'numeric' }).format(now);
+  const timeStr = new Intl.DateTimeFormat('en-US', { timeZone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }).format(now);
+  return { dateStr, timeStr };
+}
+
+function render() {
+  clockList.innerHTML = '';
+  zones.forEach((zone, i) => {
+    const { dateStr, timeStr } = formatZoneNow(zone);
+
+    const row = document.createElement('div');
+    row.className = 'clock-row';
+
+    const info = document.createElement('div');
+    const zoneName = document.createElement('div');
+    zoneName.className = 'clock-zone';
+    zoneName.textContent = zone.replace(/_/g, ' ') + (zone === localZone ? ' (your time)' : '');
+    const dateEl = document.createElement('div');
+    dateEl.className = 'clock-date';
+    dateEl.textContent = dateStr;
+    info.appendChild(zoneName);
+    info.appendChild(dateEl);
+
+    const timeEl = document.createElement('div');
+    timeEl.className = 'clock-time';
+    timeEl.textContent = timeStr;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'secondary clock-remove';
+    removeBtn.textContent = 'Remove';
+    removeBtn.disabled = zones.length <= 1;
+    removeBtn.addEventListener('click', () => {
+      if (zones.length <= 1) return;
+      zones.splice(i, 1);
+      render();
+    });
+
+    row.appendChild(info);
+    row.appendChild(timeEl);
+    row.appendChild(removeBtn);
+    clockList.appendChild(row);
+  });
+}
+
+addBtn.addEventListener('click', () => {
+  const zone = zoneSelect.value;
+  if (!zone || zones.includes(zone)) return;
+  zones.push(zone);
+  render();
+});
+
+render();
+setInterval(render, 1000);
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

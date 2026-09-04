@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Blindness Simulator | Toolcrate</title>
+<meta name="description" content="Preview any color as it might appear under common color vision deficiencies. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .color-field { display: flex; align-items: center; gap: 0.6rem; }
+  .color-field input[type="color"] {
+    width: 44px; height: 40px; padding: 2px; flex-shrink: 0;
+    border: 1px solid var(--line); border-radius: 6px; background: var(--panel); cursor: pointer;
+  }
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .swatch { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .swatch-color { height: 90px; }
+  .swatch-label { padding: 0.65rem 0.8rem; background: var(--panel); }
+  .swatch-name { font-weight: 600; font-size: 0.88rem; }
+  .swatch-hex { font-size: 0.78rem; color: var(--muted); font-family: 'Courier New', monospace; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Color Blindness Simulator</h1>
+    <p>Preview a color as it might appear under common color vision deficiencies.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="colorHex">Color</label>
+      <div class="color-field">
+        <input type="color" id="colorPicker" value="#2255DD">
+        <input type="text" id="colorHex" value="#2255DD">
+      </div>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="swatch-grid" id="swatchGrid"></div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this simulation</h2>
+    <p>Each variant applies a fixed transformation matrix to the color's red/green/blue channels — a widely used simplified approximation for each deficiency type, not an exact physiological model of any individual's vision (real color vision deficiency varies in severity and exact character from person to person). Protanopia and deuteranopia (red and green cone deficiencies) are the most common forms, affecting roughly 1 in 12 men and a much smaller share of women; tritanopia (blue) and full achromatopsia (no color vision) are far rarer.</p>
+    <p>Nothing entered here is sent to a server — the entire simulation runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const colorPicker = document.getElementById('colorPicker');
+const colorHex = document.getElementById('colorHex');
+const errorEl = document.getElementById('error');
+const swatchGrid = document.getElementById('swatchGrid');
+
+const VARIANTS = [
+  { key: 'normal', name: 'Normal vision' },
+  { key: 'protanopia', name: 'Protanopia (no red)' },
+  { key: 'deuteranopia', name: 'Deuteranopia (no green)' },
+  { key: 'tritanopia', name: 'Tritanopia (no blue)' },
+  { key: 'achromatopsia', name: 'Achromatopsia (no color)' }
+];
+
+const MATRICES = {
+  protanopia: [
+    [0.567, 0.433, 0.000],
+    [0.558, 0.442, 0.000],
+    [0.000, 0.242, 0.758]
+  ],
+  deuteranopia: [
+    [0.625, 0.375, 0.000],
+    [0.700, 0.300, 0.000],
+    [0.000, 0.300, 0.700]
+  ],
+  tritanopia: [
+    [0.950, 0.050, 0.000],
+    [0.000, 0.433, 0.567],
+    [0.000, 0.475, 0.525]
+  ]
+};
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function parseHex(hex) {
+  const m = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i.exec(hex.trim());
+  if (!m) return null;
+  let h = m[1];
+  if (h.length === 3) h = h.split('').map(c => c + c).join('');
+  return {
+    r: parseInt(h.slice(0, 2), 16),
+    g: parseInt(h.slice(2, 4), 16),
+    b: parseInt(h.slice(4, 6), 16)
+  };
+}
+
+function toHex({ r, g, b }) {
+  const c = (v) => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, '0');
+  return '#' + c(r) + c(g) + c(b);
+}
+
+function applyMatrix(rgb, matrix) {
+  const [row1, row2, row3] = matrix;
+  return {
+    r: rgb.r * row1[0] + rgb.g * row1[1] + rgb.b * row1[2],
+    g: rgb.r * row2[0] + rgb.g * row2[1] + rgb.b * row2[2],
+    b: rgb.r * row3[0] + rgb.g * row3[1] + rgb.b * row3[2]
+  };
+}
+
+function toGrayscale(rgb) {
+  const l = 0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b;
+  return { r: l, g: l, b: l };
+}
+
+function simulate(rgb, key) {
+  if (key === 'normal') return rgb;
+  if (key === 'achromatopsia') return toGrayscale(rgb);
+  return applyMatrix(rgb, MATRICES[key]);
+}
+
+function render() {
+  showError('');
+  const rgb = parseHex(colorHex.value);
+  if (!rgb) {
+    showError('Enter a valid hex color (e.g. #2255DD).');
+    return;
+  }
+
+  swatchGrid.innerHTML = '';
+  VARIANTS.forEach(v => {
+    const result = simulate(rgb, v.key);
+    const hex = toHex(result);
+
+    const swatch = document.createElement('div');
+    swatch.className = 'swatch';
+
+    const colorBox = document.createElement('div');
+    colorBox.className = 'swatch-color';
+    colorBox.style.background = hex;
+
+    const label = document.createElement('div');
+    label.className = 'swatch-label';
+    const name = document.createElement('div');
+    name.className = 'swatch-name';
+    name.textContent = v.name;
+    const hexEl = document.createElement('div');
+    hexEl.className = 'swatch-hex';
+    hexEl.textContent = hex.toUpperCase();
+    label.appendChild(name);
+    label.appendChild(hexEl);
+
+    swatch.appendChild(colorBox);
+    swatch.appendChild(label);
+    swatchGrid.appendChild(swatch);
+  });
+}
+
+colorPicker.addEventListener('input', () => { colorHex.value = colorPicker.value; render(); });
+colorHex.addEventListener('input', () => {
+  const parsed = parseHex(colorHex.value);
+  if (parsed) colorPicker.value = '#' + colorHex.value.replace('#', '').padStart(6, '0');
+  render();
+});
+
+render();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
