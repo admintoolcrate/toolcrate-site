@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day of the Week Finder | Toolcrate</title>
+<meta name="description" content="Find what day of the week any date fell or falls on, plus its day and week number in the year. Free, instant, browser-only.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Day of the Week Finder</h1>
+    <p>Find what day of the week any date fell — or will fall — on.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="dateInput">Date</label>
+      <input type="date" id="dateInput">
+    </div>
+  </div>
+
+  <div class="field">
+    <div id="output" class="output-panel empty">Pick a date above.</div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="dayOfYear">—</span><span class="stat-label">Day of the year</span></div>
+    <div class="stat"><span class="stat-value" id="isoDayNum">—</span><span class="stat-label">ISO weekday (1=Mon)</span></div>
+    <div class="stat"><span class="stat-value" id="isWeekend">—</span><span class="stat-label">Weekend?</span></div>
+    <div class="stat"><span class="stat-value" id="daysAway">—</span><span class="stat-label">From today</span></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>The Gregorian calendar repeats its weekday pattern on a 400-year cycle, so this works the same way for a date centuries in the past or future as it does for next week — there's no special-casing, just calendar-day arithmetic done consistently with UTC dates so the result doesn't depend on your time zone.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const dateInput = document.getElementById('dateInput');
+const output = document.getElementById('output');
+const dayOfYearEl = document.getElementById('dayOfYear');
+const isoDayNumEl = document.getElementById('isoDayNum');
+const isWeekendEl = document.getElementById('isWeekend');
+const daysAwayEl = document.getElementById('daysAway');
+
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+function parseIsoToUTCDate(value) {
+  const [y, m, d] = value.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d));
+}
+
+function todayUTCDate() {
+  const t = new Date();
+  return new Date(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate()));
+}
+
+function calc() {
+  if (!dateInput.value) {
+    output.textContent = 'Pick a date above.';
+    output.classList.add('empty');
+    [dayOfYearEl, isoDayNumEl, isWeekendEl, daysAwayEl].forEach(el => el.textContent = '—');
+    return;
+  }
+
+  const date = parseIsoToUTCDate(dateInput.value);
+  const dow = date.getUTCDay();
+  const weekdayName = WEEKDAYS[dow];
+
+  output.classList.remove('empty');
+  output.textContent = weekdayName;
+
+  const startOfYear = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  const dayOfYear = Math.round((date.getTime() - startOfYear.getTime()) / 86400000) + 1;
+  dayOfYearEl.textContent = dayOfYear;
+
+  isoDayNumEl.textContent = dow === 0 ? 7 : dow;
+  isWeekendEl.textContent = (dow === 0 || dow === 6) ? 'Yes' : 'No';
+
+  const today = todayUTCDate();
+  const daysAway = Math.round((date.getTime() - today.getTime()) / 86400000);
+  if (daysAway === 0) daysAwayEl.textContent = 'Today';
+  else if (daysAway > 0) daysAwayEl.textContent = `${daysAway.toLocaleString()} days from now`;
+  else daysAwayEl.textContent = `${Math.abs(daysAway).toLocaleString()} days ago`;
+}
+
+dateInput.addEventListener('input', calc);
+
+const today = new Date();
+dateInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+calc();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
