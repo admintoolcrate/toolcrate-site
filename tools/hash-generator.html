@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hash Generator — MD5, SHA-1, SHA-256 | Toolcrate</title>
+<meta name="description" content="Generate MD5, SHA-1, and SHA-256 hashes from text instantly in your browser. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Hash Generator</h1>
+    <p>Compute MD5, SHA-1, and SHA-256 hashes of any text, updated as you type.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Input text</label>
+      <textarea id="input" rows="6" placeholder="Type or paste text here…" spellcheck="false"></textarea>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>MD5</label>
+    <div id="md5Output" class="output-panel empty">—</div>
+  </div>
+  <div class="field">
+    <label>SHA-1</label>
+    <div id="sha1Output" class="output-panel empty">—</div>
+  </div>
+  <div class="field">
+    <label>SHA-256</label>
+    <div id="sha256Output" class="output-panel empty">—</div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>About these hashes</h2>
+    <p>A hash function turns input of any length into a fixed-length fingerprint — the same input always produces the same hash, and even a one-character change produces a completely different one. SHA-1 and SHA-256 are computed with the browser's native <code>crypto.subtle.digest</code>, part of the Web Crypto API, so results match any standard implementation exactly.</p>
+    <p>MD5 isn't supported by <code>crypto.subtle</code> — modern browsers dropped it because it's cryptographically broken — so this tool uses a small, well-tested JavaScript implementation for it instead. MD5 and SHA-1 are fine for checksums and cache keys, but neither should be relied on for security purposes like password storage or verifying that a file hasn't been tampered with by an adversary; SHA-256 is the safer choice there.</p>
+    <p>All hashing happens locally in your browser — the text you enter is never sent anywhere.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+// Minimal, well-tested MD5 implementation (public domain, adapted for compactness).
+function md5(str) {
+  function rotl(x, c) { return (x << c) | (x >>> (32 - c)); }
+  function toHex(n) {
+    let s = '';
+    for (let i = 0; i < 4; i++) {
+      s += ((n >> (i * 8)) & 0xff).toString(16).padStart(2, '0');
+    }
+    return s;
+  }
+  const K = [];
+  for (let i = 0; i < 64; i++) K[i] = Math.floor(Math.abs(Math.sin(i + 1)) * 4294967296);
+  const S = [7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,
+             5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,
+             4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,
+             6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21];
+
+  const bytes = Array.from(new TextEncoder().encode(str));
+  const origLenBits = bytes.length * 8;
+  bytes.push(0x80);
+  while (bytes.length % 64 !== 56) bytes.push(0);
+  for (let i = 0; i < 8; i++) bytes.push((origLenBits / Math.pow(2, i * 8)) & 0xff);
+
+  let a0 = 0x67452301, b0 = 0xefcdab89, c0 = 0x98badcfe, d0 = 0x10325476;
+
+  for (let chunkStart = 0; chunkStart < bytes.length; chunkStart += 64) {
+    const M = [];
+    for (let j = 0; j < 16; j++) {
+      const offset = chunkStart + j * 4;
+      M[j] = bytes[offset] | (bytes[offset + 1] << 8) | (bytes[offset + 2] << 16) | (bytes[offset + 3] << 24);
+    }
+    let A = a0, B = b0, C = c0, D = d0;
+    for (let i = 0; i < 64; i++) {
+      let F, g;
+      if (i < 16) { F = (B & C) | (~B & D); g = i; }
+      else if (i < 32) { F = (D & B) | (~D & C); g = (5 * i + 1) % 16; }
+      else if (i < 48) { F = B ^ C ^ D; g = (3 * i + 5) % 16; }
+      else { F = C ^ (B | ~D); g = (7 * i) % 16; }
+      F = (F + A + K[i] + M[g]) | 0;
+      A = D; D = C; C = B;
+      B = (B + rotl(F, S[i])) | 0;
+    }
+    a0 = (a0 + A) | 0; b0 = (b0 + B) | 0; c0 = (c0 + C) | 0; d0 = (d0 + D) | 0;
+  }
+
+  return [a0, b0, c0, d0].map(toHex).join('');
+}
+
+async function sha(algo, str) {
+  const data = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest(algo, data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+const input = document.getElementById('input');
+const md5Output = document.getElementById('md5Output');
+const sha1Output = document.getElementById('sha1Output');
+const sha256Output = document.getElementById('sha256Output');
+
+async function update() {
+  const text = input.value;
+  if (text === '') {
+    [md5Output, sha1Output, sha256Output].forEach(el => { el.textContent = '—'; el.classList.add('empty'); });
+    return;
+  }
+  md5Output.textContent = md5(text);
+  md5Output.classList.remove('empty');
+  sha1Output.textContent = await sha('SHA-1', text);
+  sha1Output.classList.remove('empty');
+  sha256Output.textContent = await sha('SHA-256', text);
+  sha256Output.classList.remove('empty');
+}
+
+input.addEventListener('input', update);
+update();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
