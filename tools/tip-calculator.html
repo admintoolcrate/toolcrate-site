@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tip Calculator — Split the Bill | Toolcrate</title>
+<meta name="description" content="Calculate a tip and split the bill between any number of people. Free, instant, browser-only.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .tip-presets { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.4rem; }
+  .tip-preset { padding: 0.5rem 0.9rem; }
+  .tip-preset.active { background: var(--accent); color: var(--accent-ink, #fff); border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Tip Calculator</h1>
+    <p>Work out the tip and split the total between any number of people.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="bill">Bill amount</label>
+        <input type="number" id="bill" value="50" min="0" step="any">
+      </div>
+      <div class="field">
+        <label for="people">Split between</label>
+        <input type="number" id="people" value="1" min="1" step="1">
+      </div>
+    </div>
+    <div class="field">
+      <label for="tipPct">Tip percent: <span id="tipPctValue">18</span>%</label>
+      <input type="range" id="tipPct" min="0" max="40" value="18" step="1">
+      <div class="tip-presets" id="tipPresets">
+        <button type="button" class="secondary tip-preset" data-pct="10">10%</button>
+        <button type="button" class="secondary tip-preset" data-pct="15">15%</button>
+        <button type="button" class="secondary tip-preset" data-pct="18">18%</button>
+        <button type="button" class="secondary tip-preset" data-pct="20">20%</button>
+        <button type="button" class="secondary tip-preset" data-pct="25">25%</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="tipAmount">—</span><span class="stat-label">Tip amount</span></div>
+    <div class="stat"><span class="stat-value" id="totalAmount">—</span><span class="stat-label">Total with tip</span></div>
+    <div class="stat"><span class="stat-value" id="perPersonTotal">—</span><span class="stat-label">Each person pays</span></div>
+    <div class="stat"><span class="stat-value" id="perPersonTip">—</span><span class="stat-label">Tip per person</span></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>The formula</h2>
+    <p><code>tip = bill × (percent ÷ 100)</code>, and <code>total = bill + tip</code>. Splitting divides both the tip and the total evenly by the number of people — it doesn't account for anyone ordering more or less than the group average.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const bill = document.getElementById('bill');
+const people = document.getElementById('people');
+const tipPct = document.getElementById('tipPct');
+const tipPctValue = document.getElementById('tipPctValue');
+const tipPresets = document.getElementById('tipPresets');
+
+const tipAmountEl = document.getElementById('tipAmount');
+const totalAmountEl = document.getElementById('totalAmount');
+const perPersonTotalEl = document.getElementById('perPersonTotal');
+const perPersonTipEl = document.getElementById('perPersonTip');
+
+function fmt(n) {
+  if (!isFinite(n)) return '—';
+  return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function highlightPreset() {
+  const val = String(tipPct.value);
+  [...tipPresets.children].forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.pct === val);
+  });
+}
+
+function calc() {
+  const b = parseFloat(bill.value);
+  const p = Math.max(1, parseInt(people.value, 10) || 1);
+  const pct = parseFloat(tipPct.value);
+
+  tipPctValue.textContent = pct;
+  highlightPreset();
+
+  if (isNaN(b) || b < 0) {
+    [tipAmountEl, totalAmountEl, perPersonTotalEl, perPersonTipEl].forEach(el => el.textContent = '—');
+    return;
+  }
+
+  const tip = b * (pct / 100);
+  const total = b + tip;
+
+  tipAmountEl.textContent = fmt(tip);
+  totalAmountEl.textContent = fmt(total);
+  perPersonTotalEl.textContent = fmt(total / p);
+  perPersonTipEl.textContent = fmt(tip / p);
+}
+
+tipPresets.addEventListener('click', (e) => {
+  const btn = e.target.closest('.tip-preset');
+  if (!btn) return;
+  tipPct.value = btn.dataset.pct;
+  calc();
+});
+
+[bill, people, tipPct].forEach(el => el.addEventListener('input', calc));
+calc();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

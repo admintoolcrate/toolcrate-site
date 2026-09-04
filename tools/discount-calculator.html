@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discount Calculator — Sale Price &amp; Savings | Toolcrate</title>
+<meta name="description" content="Calculate a sale price and the amount saved, including stacked discounts. Free, instant, browser-only.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Discount Calculator</h1>
+    <p>Find the sale price and amount saved — including a second, stacked discount if there is one.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="price">Original price</label>
+        <input type="number" id="price" value="80" min="0" step="any">
+      </div>
+      <div class="field">
+        <label for="discount1">Discount (%)</label>
+        <input type="number" id="discount1" value="25" min="0" max="100" step="any">
+      </div>
+      <div class="field">
+        <label for="discount2">Extra discount (%) — optional</label>
+        <input type="number" id="discount2" value="0" min="0" max="100" step="any">
+      </div>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="salePrice">—</span><span class="stat-label">Sale price</span></div>
+    <div class="stat"><span class="stat-value" id="youSave">—</span><span class="stat-label">You save</span></div>
+    <div class="stat"><span class="stat-value" id="effectivePct">—</span><span class="stat-label">Effective discount</span></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>The formula</h2>
+    <p>A single discount: <code>sale price = price × (1 − rate ÷ 100)</code>. A second "extra" discount is applied to the already-discounted price, not the original — this is how "25% off, then an extra 10% off" actually works at checkout, and it's why two discounts never simply add together: 25% + 10% off stacked comes out to a 32.5% effective discount, not 35%.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const price = document.getElementById('price');
+const discount1 = document.getElementById('discount1');
+const discount2 = document.getElementById('discount2');
+const errorEl = document.getElementById('error');
+
+const salePriceEl = document.getElementById('salePrice');
+const youSaveEl = document.getElementById('youSave');
+const effectivePctEl = document.getElementById('effectivePct');
+
+function fmt(n) {
+  if (!isFinite(n)) return '—';
+  return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function calc() {
+  showError('');
+  const p = parseFloat(price.value);
+  const d1 = parseFloat(discount1.value);
+  const d2 = parseFloat(discount2.value) || 0;
+
+  if (isNaN(p) || p < 0 || isNaN(d1)) {
+    [salePriceEl, youSaveEl, effectivePctEl].forEach(el => el.textContent = '—');
+    return;
+  }
+  if (d1 < 0 || d1 > 100 || d2 < 0 || d2 > 100) {
+    showError('Discounts must be between 0 and 100%.');
+    [salePriceEl, youSaveEl, effectivePctEl].forEach(el => el.textContent = '—');
+    return;
+  }
+
+  const afterFirst = p * (1 - d1 / 100);
+  const afterSecond = afterFirst * (1 - d2 / 100);
+  const saved = p - afterSecond;
+  const effectivePct = p > 0 ? (saved / p) * 100 : 0;
+
+  salePriceEl.textContent = fmt(afterSecond);
+  youSaveEl.textContent = fmt(saved);
+  effectivePctEl.textContent = fmt(effectivePct) + '%';
+}
+
+[price, discount1, discount2].forEach(el => el.addEventListener('input', calc));
+calc();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
