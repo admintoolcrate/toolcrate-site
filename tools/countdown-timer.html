@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Countdown Timer | Toolcrate</title>
+<meta name="description" content="Set a countdown timer and get notified when it's done. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .timer-display { text-align: center; font-size: 4rem; font-weight: 800; letter-spacing: -0.02em; margin: 0.5rem 0; font-variant-numeric: tabular-nums; }
+  .timer-display.done { color: var(--danger); }
+  #startBtn, #pauseBtn { width: 100%; padding: 1.1rem; font-size: 1.1rem; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Countdown Timer</h1>
+    <p>Set a timer and get a sound, title flash, and (if allowed) a browser notification when it's done.</p>
+  </div>
+
+  <div class="panel">
+    <div class="timer-display" id="timerDisplay">05:00</div>
+    <div class="row">
+      <div class="field">
+        <label for="minutesInput">Minutes</label>
+        <input type="number" id="minutesInput" value="5" min="0" max="999" step="1">
+      </div>
+      <div class="field">
+        <label for="secondsInput">Seconds</label>
+        <input type="number" id="secondsInput" value="0" min="0" max="59" step="1">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button id="startBtn">Start</button>
+      <button id="pauseBtn" class="secondary" disabled>Pause</button>
+      <button id="resetBtn" class="secondary">Reset</button>
+    </div>
+    <div id="doneMessage" class="error-text"></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>The countdown tracks a real end timestamp rather than just decrementing a counter each second, so it stays accurate even if the tab is backgrounded or the browser throttles timers for a while. When it reaches zero it plays a short tone, flashes the browser tab's title, and — if you've granted permission — shows a system notification, so you don't have to keep the tab in view.</p>
+    <p>Nothing here is sent to a server — the entire timer runs as JavaScript in your browser tab, and stops if you close the tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const timerDisplay = document.getElementById('timerDisplay');
+const minutesInput = document.getElementById('minutesInput');
+const secondsInput = document.getElementById('secondsInput');
+const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const resetBtn = document.getElementById('resetBtn');
+const doneMessage = document.getElementById('doneMessage');
+
+let endTime = null;
+let remainingMs = 0;
+let tickTimer = null;
+let isPaused = false;
+let titleFlashTimer = null;
+const originalTitle = document.title;
+
+function formatTime(ms) {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function inputMs() {
+  const m = parseInt(minutesInput.value, 10) || 0;
+  const s = parseInt(secondsInput.value, 10) || 0;
+  return (m * 60 + s) * 1000;
+}
+
+function updateDisplayFromInputs() {
+  timerDisplay.textContent = formatTime(inputMs());
+  timerDisplay.classList.remove('done');
+}
+
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    for (let i = 0; i < 3; i++) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = 880;
+      const start = ctx.currentTime + i * 0.35;
+      gain.gain.setValueAtTime(0.3, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.25);
+    }
+  } catch (e) { /* audio unavailable */ }
+}
+
+function flashTitle() {
+  let on = false;
+  clearInterval(titleFlashTimer);
+  titleFlashTimer = setInterval(() => {
+    document.title = on ? originalTitle : '⏰ Time\'s up!';
+    on = !on;
+  }, 1000);
+}
+
+function stopTitleFlash() {
+  clearInterval(titleFlashTimer);
+  document.title = originalTitle;
+}
+
+function notify() {
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+    try { new Notification('Toolcrate Countdown Timer', { body: "Time's up!" }); } catch (e) { /* ignore */ }
+  }
+}
+
+function finish() {
+  clearInterval(tickTimer);
+  tickTimer = null;
+  remainingMs = 0;
+  timerDisplay.textContent = formatTime(0);
+  timerDisplay.classList.add('done');
+  doneMessage.textContent = "Time's up!";
+  startBtn.disabled = false;
+  startBtn.textContent = 'Start';
+  pauseBtn.disabled = true;
+  playBeep();
+  flashTitle();
+  notify();
+}
+
+function tick() {
+  remainingMs = endTime - Date.now();
+  if (remainingMs <= 0) {
+    finish();
+    return;
+  }
+  timerDisplay.textContent = formatTime(remainingMs);
+}
+
+function start() {
+  if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+  stopTitleFlash();
+  doneMessage.textContent = '';
+  timerDisplay.classList.remove('done');
+
+  const startMs = isPaused ? remainingMs : inputMs();
+  if (startMs <= 0) return;
+
+  endTime = Date.now() + startMs;
+  isPaused = false;
+  clearInterval(tickTimer);
+  tickTimer = setInterval(tick, 200);
+  tick();
+
+  startBtn.disabled = true;
+  pauseBtn.disabled = false;
+  pauseBtn.textContent = 'Pause';
+  minutesInput.disabled = true;
+  secondsInput.disabled = true;
+}
+
+function pause() {
+  clearInterval(tickTimer);
+  tickTimer = null;
+  isPaused = true;
+  startBtn.disabled = false;
+  startBtn.textContent = 'Resume';
+  pauseBtn.disabled = true;
+}
+
+function reset() {
+  clearInterval(tickTimer);
+  tickTimer = null;
+  isPaused = false;
+  remainingMs = 0;
+  stopTitleFlash();
+  doneMessage.textContent = '';
+  startBtn.disabled = false;
+  startBtn.textContent = 'Start';
+  pauseBtn.disabled = true;
+  minutesInput.disabled = false;
+  secondsInput.disabled = false;
+  updateDisplayFromInputs();
+}
+
+startBtn.addEventListener('click', start);
+pauseBtn.addEventListener('click', pause);
+resetBtn.addEventListener('click', reset);
+[minutesInput, secondsInput].forEach(el => el.addEventListener('input', updateDisplayFromInputs));
+
+updateDisplayFromInputs();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

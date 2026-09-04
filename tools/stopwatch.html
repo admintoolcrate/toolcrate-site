@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stopwatch — With Lap Tracking | Toolcrate</title>
+<meta name="description" content="A stopwatch with lap tracking, accurate to the hundredth of a second. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .sw-display { text-align: center; font-size: 3.2rem; font-weight: 800; letter-spacing: -0.01em; margin: 0.5rem 0; font-variant-numeric: tabular-nums; }
+  .lap-list { font-size: 0.88rem; }
+  .lap-row { display: grid; grid-template-columns: 3rem 1fr 1fr; gap: 0.6rem; padding: 0.4rem 0; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  .lap-row:last-child { border-bottom: none; }
+  .lap-row.best { color: var(--ok); }
+  .lap-row.worst { color: var(--danger); }
+  .lap-header { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Stopwatch</h1>
+    <p>Accurate to the hundredth of a second, with lap tracking.</p>
+  </div>
+
+  <div class="panel">
+    <div class="sw-display" id="swDisplay">00:00.00</div>
+    <div class="btn-row" style="justify-content: center;">
+      <button id="startBtn">Start</button>
+      <button id="lapBtn" class="secondary" disabled>Lap</button>
+      <button id="resetBtn" class="secondary">Reset</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Laps</label>
+    <div id="lapsOutput" class="output-panel empty">No laps yet.</div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Elapsed time is measured from a real start timestamp rather than accumulated tick-by-tick, so pausing and resuming stays accurate over long sessions. Each lap records both the split (time since the previous lap) and the cumulative total, with the fastest and slowest splits highlighted once you have three or more laps.</p>
+    <p>Nothing here is sent to a server — the entire stopwatch runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const swDisplay = document.getElementById('swDisplay');
+const startBtn = document.getElementById('startBtn');
+const lapBtn = document.getElementById('lapBtn');
+const resetBtn = document.getElementById('resetBtn');
+const lapsOutput = document.getElementById('lapsOutput');
+
+let running = false;
+let startTime = 0;
+let elapsedBeforeStart = 0;
+let rafId = null;
+let laps = [];
+
+function formatElapsed(ms) {
+  const totalCentis = Math.floor(ms / 10);
+  const centis = totalCentis % 100;
+  const totalSeconds = Math.floor(totalCentis / 100);
+  const s = totalSeconds % 60;
+  const m = Math.floor(totalSeconds / 60) % 60;
+  const h = Math.floor(totalSeconds / 3600);
+  const base = h > 0
+    ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+    : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${base}.${String(centis).padStart(2, '0')}`;
+}
+
+function currentElapsed() {
+  return running ? elapsedBeforeStart + (performance.now() - startTime) : elapsedBeforeStart;
+}
+
+function frame() {
+  swDisplay.textContent = formatElapsed(currentElapsed());
+  if (running) rafId = requestAnimationFrame(frame);
+}
+
+function renderLaps() {
+  if (laps.length === 0) {
+    lapsOutput.textContent = 'No laps yet.';
+    lapsOutput.classList.add('empty');
+    return;
+  }
+  lapsOutput.classList.remove('empty');
+
+  let bestIdx = -1, worstIdx = -1;
+  if (laps.length >= 3) {
+    let bestSplit = Infinity, worstSplit = -Infinity;
+    laps.forEach((lap, i) => {
+      if (lap.split < bestSplit) { bestSplit = lap.split; bestIdx = i; }
+      if (lap.split > worstSplit) { worstSplit = lap.split; worstIdx = i; }
+    });
+  }
+
+  lapsOutput.innerHTML = '';
+  const list = document.createElement('div');
+  list.className = 'lap-list';
+
+  const header = document.createElement('div');
+  header.className = 'lap-row lap-header';
+  header.innerHTML = '<div>Lap</div><div>Split</div><div>Total</div>';
+  list.appendChild(header);
+
+  laps.forEach((lap, i) => {
+    const row = document.createElement('div');
+    row.className = 'lap-row';
+    if (i === bestIdx) row.classList.add('best');
+    if (i === worstIdx) row.classList.add('worst');
+    row.innerHTML = `<div>#${i + 1}</div><div>${formatElapsed(lap.split)}</div><div>${formatElapsed(lap.total)}</div>`;
+    list.appendChild(row);
+  });
+
+  lapsOutput.appendChild(list);
+}
+
+function start() {
+  running = true;
+  startTime = performance.now();
+  startBtn.textContent = 'Pause';
+  lapBtn.disabled = false;
+  frame();
+}
+
+function pause() {
+  running = false;
+  elapsedBeforeStart = currentElapsed();
+  cancelAnimationFrame(rafId);
+  startBtn.textContent = 'Resume';
+  lapBtn.disabled = true;
+}
+
+function reset() {
+  running = false;
+  cancelAnimationFrame(rafId);
+  elapsedBeforeStart = 0;
+  laps = [];
+  swDisplay.textContent = formatElapsed(0);
+  startBtn.textContent = 'Start';
+  lapBtn.disabled = true;
+  renderLaps();
+}
+
+function lap() {
+  const total = currentElapsed();
+  const prevTotal = laps.length > 0 ? laps[laps.length - 1].total : 0;
+  laps.push({ split: total - prevTotal, total });
+  renderLaps();
+}
+
+startBtn.addEventListener('click', () => { running ? pause() : start(); });
+lapBtn.addEventListener('click', lap);
+resetBtn.addEventListener('click', reset);
+
+renderLaps();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

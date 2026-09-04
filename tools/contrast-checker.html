@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contrast Checker — WCAG AA/AAA | Toolcrate</title>
+<meta name="description" content="Check the WCAG AA/AAA contrast ratio between two colors, with a live preview. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .color-field { display: flex; align-items: center; gap: 0.6rem; }
+  .color-field input[type="color"] {
+    width: 44px; height: 40px; padding: 2px; flex-shrink: 0;
+    border: 1px solid var(--line); border-radius: 6px; background: var(--panel); cursor: pointer;
+  }
+  .preview-box { border-radius: 8px; border: 1px solid var(--line); padding: 2rem 1.5rem; margin-bottom: 1.2rem; }
+  .preview-box .big { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .preview-box .small { font-size: 0.9rem; }
+  .ratio-value { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.02em; }
+  .pass { color: var(--ok); }
+  .fail { color: var(--danger); }
+  .swap-btn { flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Contrast Checker</h1>
+    <p>Check the WCAG contrast ratio between a text color and a background color.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="fgHex">Text color</label>
+        <div class="color-field">
+          <input type="color" id="fgColor" value="#141414">
+          <input type="text" id="fgHex" value="#141414">
+        </div>
+      </div>
+      <div class="field">
+        <label for="bgHex">Background color</label>
+        <div class="color-field">
+          <input type="color" id="bgColor" value="#FFFFFF">
+          <input type="text" id="bgHex" value="#FFFFFF">
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button id="swapBtn" class="secondary swap-btn">Swap colors</button>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="preview-box" id="previewBox">
+    <div class="big" id="previewBig">Large text preview (24px)</div>
+    <div class="small" id="previewSmall">Normal text preview (16px) — the quick brown fox jumps over the lazy dog.</div>
+  </div>
+
+  <div class="panel" style="text-align: center;">
+    <div class="ratio-value" id="ratioValue">21.00:1</div>
+    <div style="color: var(--muted); font-size: 0.85rem;">Contrast ratio</div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="aaNormal">—</span><span class="stat-label">AA — Normal text (4.5:1)</span></div>
+    <div class="stat"><span class="stat-value" id="aaLarge">—</span><span class="stat-label">AA — Large text (3:1)</span></div>
+    <div class="stat"><span class="stat-value" id="aaaNormal">—</span><span class="stat-label">AAA — Normal text (7:1)</span></div>
+    <div class="stat"><span class="stat-value" id="aaaLarge">—</span><span class="stat-label">AAA — Large text (4.5:1)</span></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>The formula</h2>
+    <p>WCAG's contrast ratio compares relative luminance: <code>(L1 + 0.05) ÷ (L2 + 0.05)</code>, where L1 and L2 are the lighter and darker color's luminance and each channel is gamma-corrected before being weighted (0.2126×R + 0.7152×G + 0.0722×B) — this is why the ratio isn't simply "how different the colors look." "Large text" means 18pt+ (24px) regular weight or 14pt+ (~18.7px) bold; everything else counts as normal text and needs the stricter ratio.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const fgColor = document.getElementById('fgColor');
+const fgHex = document.getElementById('fgHex');
+const bgColor = document.getElementById('bgColor');
+const bgHex = document.getElementById('bgHex');
+const swapBtn = document.getElementById('swapBtn');
+const errorEl = document.getElementById('error');
+const previewBox = document.getElementById('previewBox');
+const previewBig = document.getElementById('previewBig');
+const previewSmall = document.getElementById('previewSmall');
+const ratioValueEl = document.getElementById('ratioValue');
+const aaNormalEl = document.getElementById('aaNormal');
+const aaLargeEl = document.getElementById('aaLarge');
+const aaaNormalEl = document.getElementById('aaaNormal');
+const aaaLargeEl = document.getElementById('aaaLarge');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function parseHex(hex) {
+  const m = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i.exec(hex.trim());
+  if (!m) return null;
+  let h = m[1];
+  if (h.length === 3) h = h.split('').map(c => c + c).join('');
+  return {
+    r: parseInt(h.slice(0, 2), 16),
+    g: parseInt(h.slice(2, 4), 16),
+    b: parseInt(h.slice(4, 6), 16)
+  };
+}
+
+function relLuminance({ r, g, b }) {
+  const channel = (c) => {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+}
+
+function contrastRatio(rgb1, rgb2) {
+  const l1 = relLuminance(rgb1);
+  const l2 = relLuminance(rgb2);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function setPassFail(el, pass) {
+  el.textContent = pass ? 'Pass' : 'Fail';
+  el.classList.toggle('pass', pass);
+  el.classList.toggle('fail', !pass);
+}
+
+function calc() {
+  showError('');
+  const fg = parseHex(fgHex.value);
+  const bg = parseHex(bgHex.value);
+
+  if (!fg || !bg) {
+    showError('Enter valid hex colors (e.g. #141414).');
+    return;
+  }
+
+  const fgNormalized = '#' + fgHex.value.replace('#', '').padStart(6, '0');
+  const bgNormalized = '#' + bgHex.value.replace('#', '').padStart(6, '0');
+
+  const ratio = contrastRatio(fg, bg);
+
+  previewBox.style.background = bgNormalized;
+  previewBig.style.color = fgNormalized;
+  previewSmall.style.color = fgNormalized;
+
+  ratioValueEl.textContent = ratio.toFixed(2) + ':1';
+
+  setPassFail(aaNormalEl, ratio >= 4.5);
+  setPassFail(aaLargeEl, ratio >= 3);
+  setPassFail(aaaNormalEl, ratio >= 7);
+  setPassFail(aaaLargeEl, ratio >= 4.5);
+}
+
+fgColor.addEventListener('input', () => { fgHex.value = fgColor.value; calc(); });
+bgColor.addEventListener('input', () => { bgHex.value = bgColor.value; calc(); });
+fgHex.addEventListener('input', () => {
+  const parsed = parseHex(fgHex.value);
+  if (parsed) fgColor.value = '#' + fgHex.value.replace('#', '').padStart(6, '0');
+  calc();
+});
+bgHex.addEventListener('input', () => {
+  const parsed = parseHex(bgHex.value);
+  if (parsed) bgColor.value = '#' + bgHex.value.replace('#', '').padStart(6, '0');
+  calc();
+});
+
+swapBtn.addEventListener('click', () => {
+  const tmp = fgHex.value;
+  fgHex.value = bgHex.value;
+  bgHex.value = tmp;
+  fgColor.value = fgHex.value;
+  bgColor.value = bgHex.value;
+  calc();
+});
+
+calc();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
