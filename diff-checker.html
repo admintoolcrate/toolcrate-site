@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diff Checker — Compare Text or Code | Toolcrate</title>
+<meta name="description" content="Compare two blocks of text or code line by line and see exactly what was added, removed, or changed. Runs entirely in your browser.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<style>
+  .diff-output {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+  .diff-line {
+    display: flex;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .diff-line:last-child { border-bottom: none; }
+  .diff-gutter {
+    flex: 0 0 2.4rem;
+    text-align: right;
+    padding: 0.35rem 0.6rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+    border-right: 1px solid var(--line-soft);
+  }
+  .diff-marker {
+    flex: 0 0 1.6rem;
+    text-align: center;
+    padding: 0.35rem 0;
+    font-weight: 600;
+    user-select: none;
+  }
+  .diff-text { flex: 1; padding: 0.35rem 0.75rem 0.35rem 0; }
+  .diff-added { background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .diff-added .diff-marker { color: var(--ok); }
+  .diff-removed { background: color-mix(in srgb, var(--danger) 12%, transparent); }
+  .diff-removed .diff-marker { color: var(--danger); }
+  .diff-unchanged .diff-text { color: var(--ink-soft); }
+  .diff-empty { padding: 1.35rem 1.55rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Diff Checker</h1>
+    <p>Compare two blocks of text or code line by line and see exactly what changed.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="original">Original</label>
+        <textarea id="original" rows="9" placeholder="Paste the original version here…" spellcheck="false"></textarea>
+      </div>
+      <div class="field">
+        <label for="changed">Changed</label>
+        <textarea id="changed" rows="9" placeholder="Paste the new version here…" spellcheck="false"></textarea>
+      </div>
+    </div>
+    <div class="field" style="margin-top: 0.9rem; margin-bottom: 0;">
+      <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" id="ignoreWhitespace" style="width: auto;">
+        <span style="font-size: 0.85rem; color: var(--ink-soft);">Ignore leading/trailing whitespace on each line</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="addedCount">0</span><span class="stat-label">Lines added</span></div>
+    <div class="stat"><span class="stat-value" id="removedCount">0</span><span class="stat-label">Lines removed</span></div>
+    <div class="stat"><span class="stat-value" id="unchangedCount">0</span><span class="stat-label">Lines unchanged</span></div>
+  </div>
+
+  <div class="field">
+    <label>Diff</label>
+    <div id="diffOutput" class="diff-output"><div class="diff-empty">Paste text into both boxes above to see the difference.</div></div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>How this comparison works</h2>
+    <p>This tool compares your two blocks of text line by line using a longest-common-subsequence approach — the same underlying idea behind tools like <code>diff</code> and Git's change view. Lines present in both versions are matched up as "unchanged" even if other lines were added or removed around them; lines only in the original are marked removed, and lines only in the new version are marked added.</p>
+    <p>It's a line-level diff, not a character-level one — a single-character edit to a long line will show the whole line as removed and re-added rather than highlighting just the change within it. Nothing you paste here is uploaded; the comparison runs locally in your browser.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const originalEl = document.getElementById('original');
+const changedEl = document.getElementById('changed');
+const ignoreWsEl = document.getElementById('ignoreWhitespace');
+const diffOutput = document.getElementById('diffOutput');
+const addedCountEl = document.getElementById('addedCount');
+const removedCountEl = document.getElementById('removedCount');
+const unchangedCountEl = document.getElementById('unchangedCount');
+
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+
+// Classic LCS-based line diff. Returns an array of {type, line} where type is
+// 'same', 'add', or 'remove', in the order needed to render a readable diff.
+function diffLines(a, b) {
+  const n = a.length, m = b.length;
+  // dp[i][j] = length of LCS of a[i:] and b[j:]
+  const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    }
+  }
+  const result = [];
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (a[i] === b[j]) {
+      result.push({ type: 'same', line: a[i] });
+      i++; j++;
+    } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+      result.push({ type: 'remove', line: a[i] });
+      i++;
+    } else {
+      result.push({ type: 'add', line: b[j] });
+      j++;
+    }
+  }
+  while (i < n) { result.push({ type: 'remove', line: a[i] }); i++; }
+  while (j < m) { result.push({ type: 'add', line: b[j] }); j++; }
+  return result;
+}
+
+function run() {
+  const rawOriginal = originalEl.value;
+  const rawChanged = changedEl.value;
+
+  if (rawOriginal === '' && rawChanged === '') {
+    diffOutput.innerHTML = '<div class="diff-empty">Paste text into both boxes above to see the difference.</div>';
+    addedCountEl.textContent = '0';
+    removedCountEl.textContent = '0';
+    unchangedCountEl.textContent = '0';
+    return;
+  }
+
+  const normalize = line => ignoreWsEl.checked ? line.trim() : line;
+
+  let aLines = rawOriginal.split('\n');
+  let bLines = rawChanged.split('\n');
+  const aCompare = aLines.map(normalize);
+  const bCompare = bLines.map(normalize);
+
+  const diff = diffLines(aCompare, bCompare);
+
+  let added = 0, removed = 0, unchanged = 0;
+  let origLineNum = 0, newLineNum = 0;
+  const rows = [];
+
+  // Re-map back to original (non-normalized) text for display, tracking line numbers.
+  let aIdx = 0, bIdx = 0;
+  diff.forEach(entry => {
+    if (entry.type === 'same') {
+      origLineNum++; newLineNum++;
+      unchanged++;
+      rows.push({ type: 'same', gutter: origLineNum, text: aLines[aIdx] });
+      aIdx++; bIdx++;
+    } else if (entry.type === 'remove') {
+      origLineNum++;
+      removed++;
+      rows.push({ type: 'remove', gutter: origLineNum, text: aLines[aIdx] });
+      aIdx++;
+    } else {
+      newLineNum++;
+      added++;
+      rows.push({ type: 'add', gutter: newLineNum, text: bLines[bIdx] });
+      bIdx++;
+    }
+  });
+
+  addedCountEl.textContent = added;
+  removedCountEl.textContent = removed;
+  unchangedCountEl.textContent = unchanged;
+
+  diffOutput.innerHTML = rows.map(row => {
+    const cls = row.type === 'same' ? 'diff-unchanged' : row.type === 'add' ? 'diff-added' : 'diff-removed';
+    const marker = row.type === 'same' ? '' : row.type === 'add' ? '+' : '\u2212';
+    const text = row.text === '' ? '&nbsp;' : escapeHtml(row.text);
+    return '<div class="diff-line ' + cls + '"><span class="diff-gutter">' + row.gutter + '</span><span class="diff-marker">' + marker + '</span><span class="diff-text">' + text + '</span></div>';
+  }).join('');
+}
+
+originalEl.addEventListener('input', run);
+changedEl.addEventListener('input', run);
+ignoreWsEl.addEventListener('change', run);
+run();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
