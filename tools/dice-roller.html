@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dice Roller | Toolcrate</title>
+<meta name="description" content="Roll any number and size of dice, with a running total and roll history. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .dice-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+  .die {
+    display: flex; align-items: center; justify-content: center;
+    width: 48px; height: 48px;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--panel); font-weight: 700; font-size: 1.1rem;
+  }
+  .history-list { font-size: 0.85rem; color: var(--ink-soft); }
+  .history-list div { padding: 0.35rem 0; border-bottom: 1px solid var(--line); }
+  .history-list div:last-child { border-bottom: none; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Dice Roller</h1>
+    <p>Roll any number and size of dice.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="countInput">Number of dice</label>
+        <input type="number" id="countInput" value="2" min="1" max="50">
+      </div>
+      <div class="field">
+        <label for="sidesSelect">Die type</label>
+        <select id="sidesSelect">
+          <option value="4">d4</option>
+          <option value="6" selected>d6</option>
+          <option value="8">d8</option>
+          <option value="10">d10</option>
+          <option value="12">d12</option>
+          <option value="20">d20</option>
+          <option value="100">d100</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      <div class="field" id="customSidesField" style="display: none;">
+        <label for="customSides">Custom sides</label>
+        <input type="number" id="customSides" value="6" min="2" max="1000">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button id="rollBtn">Roll</button>
+      <button id="clearHistoryBtn" class="secondary">Clear history</button>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label>Result</label>
+    <div id="diceRow" class="dice-row"></div>
+    <div id="totalOutput" style="margin-top: 0.75rem; font-weight: 700; font-size: 1.1rem;"></div>
+  </div>
+
+  <div class="field">
+    <label>Roll history</label>
+    <div id="historyOutput" class="output-panel empty">Your rolls will appear here.</div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Each die rolls independently using <code>Math.random()</code>, uniformly across every face — a d20 is exactly as likely to land on 1 as on 20. The history keeps your last 20 rolls so you can review a session without writing anything down.</p>
+    <p>Nothing rolled here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const countInput = document.getElementById('countInput');
+const sidesSelect = document.getElementById('sidesSelect');
+const customSidesField = document.getElementById('customSidesField');
+const customSides = document.getElementById('customSides');
+const diceRow = document.getElementById('diceRow');
+const totalOutput = document.getElementById('totalOutput');
+const historyOutput = document.getElementById('historyOutput');
+const errorEl = document.getElementById('error');
+
+let history = [];
+
+function showError(msg) { errorEl.textContent = msg; }
+
+sidesSelect.addEventListener('change', () => {
+  customSidesField.style.display = sidesSelect.value === 'custom' ? '' : 'none';
+});
+
+function getSides() {
+  return sidesSelect.value === 'custom' ? parseInt(customSides.value, 10) : parseInt(sidesSelect.value, 10);
+}
+
+document.getElementById('rollBtn').addEventListener('click', () => {
+  showError('');
+  const count = parseInt(countInput.value, 10);
+  const sides = getSides();
+
+  if (isNaN(count) || count < 1) { showError('Enter a valid number of dice.'); return; }
+  if (count > 50) { showError('Number of dice is capped at 50.'); return; }
+  if (isNaN(sides) || sides < 2) { showError('Enter a valid number of sides (2 or more).'); return; }
+
+  const rolls = [];
+  for (let i = 0; i < count; i++) rolls.push(1 + Math.floor(Math.random() * sides));
+  const total = rolls.reduce((a, b) => a + b, 0);
+
+  diceRow.innerHTML = '';
+  rolls.forEach(r => {
+    const die = document.createElement('div');
+    die.className = 'die';
+    die.textContent = r;
+    diceRow.appendChild(die);
+  });
+  totalOutput.textContent = `Total: ${total}` + (count > 1 ? ` (${count}d${sides})` : ` (d${sides})`);
+
+  history.unshift({ rolls, total, sides, count });
+  if (history.length > 20) history.pop();
+  renderHistory();
+});
+
+function renderHistory() {
+  if (history.length === 0) {
+    historyOutput.textContent = 'Your rolls will appear here.';
+    historyOutput.classList.add('empty');
+    return;
+  }
+  historyOutput.classList.remove('empty');
+  historyOutput.innerHTML = '';
+  const list = document.createElement('div');
+  list.className = 'history-list';
+  history.forEach(h => {
+    const row = document.createElement('div');
+    row.textContent = `${h.count}d${h.sides}: [${h.rolls.join(', ')}] = ${h.total}`;
+    list.appendChild(row);
+  });
+  historyOutput.appendChild(list);
+}
+
+document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+  history = [];
+  renderHistory();
+  diceRow.innerHTML = '';
+  totalOutput.textContent = '';
+});
+
+document.getElementById('rollBtn').click();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
