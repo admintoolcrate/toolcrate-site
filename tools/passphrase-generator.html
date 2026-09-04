@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Passphrase Generator — Memorable &amp; Secure | Toolcrate</title>
+<meta name="description" content="Generate a memorable, word-based passphrase with an entropy indicator. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .strength-bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; margin-top: 0.5rem; }
+  .strength-fill { height: 100%; border-radius: 4px; transition: width 0.2s ease, background 0.2s ease; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Passphrase Generator</h1>
+    <p>Generate a memorable, word-based passphrase — easier to type and recall than a random string.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="wordCountInput">Number of words</label>
+        <input type="number" id="wordCountInput" value="4" min="3" max="10">
+      </div>
+      <div class="field">
+        <label for="separatorSelect">Separator</label>
+        <select id="separatorSelect">
+          <option value="-">Hyphen</option>
+          <option value=" ">Space</option>
+          <option value="_">Underscore</option>
+          <option value=".">Dot</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="capitalize" checked style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Capitalize each word</span>
+        </label>
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="addNumber" checked style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Add a random number</span>
+        </label>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button id="generateBtn">Generate</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="output">Passphrase</label>
+    <div id="output" class="output-panel empty" style="font-family: 'Courier New', monospace; font-size: 1.1rem;">Your passphrase will appear here.</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy passphrase</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+    <div class="strength-bar"><div class="strength-fill" id="strengthFill" style="width: 0%;"></div></div>
+    <div id="strengthLabel" style="font-size: 0.85rem; color: var(--muted); margin-top: 0.4rem;"></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Words are drawn from a built-in list of about 240 common English words using <code>crypto.getRandomValues</code>, the same cryptographically secure source the <a href="/tools/password-generator.html">Password Generator</a> uses. The entropy shown is <code>words × log₂(240)</code> plus a bit more if you add a number — a 4-word passphrase from this list has roughly 32 bits, a 6-word one about 47 bits; a real Diceware wordlist (7,776 words) gets nearly twice as many bits per word, so treat the count shown here as this tool's actual figure, not a universal passphrase benchmark.</p>
+    <p>Nothing generated here is sent to a server or stored anywhere — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const WORDS = ('apple beach bridge candle desert eagle forest garden harbor island jungle kettle ' +
+  'lantern meadow needle orange pencil quartz river summer thunder umbrella valley willow ' +
+  'anchor breeze castle dragon ember falcon glacier harvest ivory jasper knight lagoon ' +
+  'marble nectar oasis pebble quarry ribbon shadow temple unity velvet walnut yellow zephyr ' +
+  'acorn banjo cactus dolphin engine feather goblet horizon ivy jacket kernel ladder ' +
+  'magnet nugget onion parcel quiver rocket saddle timber urchin violet wagon zenith ' +
+  'almond basket cedar dinner echo flute granite hazel indigo jungle koala lentil ' +
+  'mango nectar olive pepper quilt raisin sailor tulip urban velvet whisper yogurt ' +
+  'amber blanket copper diamond emerald frost golden hunter ivory jester kingdom lumber ' +
+  'meteor nomad orbit prairie quest ranger sunset trophy uplift vapor wander yonder ' +
+  'august barrel canyon drift ensign fable grove haven insight jubilee kayak legend ' +
+  'mirror nectar oracle plume quarry ridge saffron tunnel unicorn vessel willow xylophone ' +
+  'atlas boulder cavern dawn ellipse fjord glimmer harbor iceberg journey kelp lighthouse ' +
+  'moss nimbus orchard pinnacle quiet ripple sapphire thicket ultra vertex wisdom yarn ' +
+  'anvil bramble crest driftwood elm foxglove grotto hollow iris juniper knoll larkspur ' +
+  'moonlight nettle oakleaf pinewood quail rosewood sparrow thistle underbrush vine woodland ' +
+  'zinnia amberly bracken clover dewdrop evergreen fern gully hillside inlet jade ' +
+  'kestrel linden marsh nook overlook plateau quartzite ravine sundew thorn uplandwood ' +
+  'violetleaf woodpecker adder bumble crocus dahlia elmwood fireweed gorse hazelnut ' +
+  'ironwood juniperberry kingfisher larch marigold northwind ochre pinewood quenchless ' +
+  'redwood spruce timberline umberglow verdant windflower wrenbird').split(' ');
+
+const capitalize = document.getElementById('capitalize');
+const addNumber = document.getElementById('addNumber');
+const wordCountInput = document.getElementById('wordCountInput');
+const separatorSelect = document.getElementById('separatorSelect');
+const output = document.getElementById('output');
+const strengthFill = document.getElementById('strengthFill');
+const strengthLabel = document.getElementById('strengthLabel');
+
+function secureRandomInt(max) {
+  const arr = new Uint32Array(1);
+  const limit = Math.floor(0xFFFFFFFF / max) * max;
+  let val;
+  do {
+    crypto.getRandomValues(arr);
+    val = arr[0];
+  } while (val >= limit);
+  return val % max;
+}
+
+function updateStrength(wordCount, hasNumber) {
+  let entropy = wordCount * Math.log2(WORDS.length);
+  if (hasNumber) entropy += Math.log2(100);
+  const pct = Math.min(100, (entropy / 90) * 100);
+  let color, label;
+  if (entropy < 30) { color = 'var(--danger)'; label = 'Weak'; }
+  else if (entropy < 45) { color = '#F59E0B'; label = 'Fair'; }
+  else if (entropy < 60) { color = '#22C55E'; label = 'Strong'; }
+  else { color = 'var(--ok)'; label = 'Very strong'; }
+  strengthFill.style.width = pct + '%';
+  strengthFill.style.background = color;
+  strengthLabel.textContent = `${label} — ~${entropy.toFixed(1)} bits of entropy`;
+}
+
+document.getElementById('generateBtn').addEventListener('click', () => {
+  const count = Math.min(10, Math.max(3, parseInt(wordCountInput.value, 10) || 4));
+  const words = [];
+  for (let i = 0; i < count; i++) {
+    let w = WORDS[secureRandomInt(WORDS.length)];
+    if (capitalize.checked) w = w.charAt(0).toUpperCase() + w.slice(1);
+    words.push(w);
+  }
+  if (addNumber.checked) words.push(String(secureRandomInt(100)).padStart(2, '0'));
+
+  output.textContent = words.join(separatorSelect.value);
+  output.classList.remove('empty');
+  updateStrength(count, addNumber.checked);
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+
+document.getElementById('generateBtn').click();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

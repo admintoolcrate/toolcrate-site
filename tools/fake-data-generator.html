@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fake / Placeholder Data Generator | Toolcrate</title>
+<meta name="description" content="Generate fake names, emails, addresses, and phone numbers for testing. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  #output { white-space: pre; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 0.82rem; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Fake / Placeholder Data Generator</h1>
+    <p>Generate realistic-looking fake names, emails, addresses, and phone numbers for testing forms and databases.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="countInput">How many records</label>
+        <input type="number" id="countInput" value="10" min="1" max="500">
+      </div>
+      <div class="field">
+        <label for="formatSelect">Output format</label>
+        <select id="formatSelect">
+          <option value="table">Readable list</option>
+          <option value="csv">CSV</option>
+          <option value="json">JSON</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="fieldName" checked style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Name</span>
+        </label>
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="fieldEmail" checked style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Email</span>
+        </label>
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="fieldPhone" checked style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Phone</span>
+        </label>
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="fieldAddress" checked style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Address</span>
+        </label>
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="fieldCompany" style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Company</span>
+        </label>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button id="generateBtn">Generate</button>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label for="output">Result</label>
+    <div id="output" class="output-panel empty">Generated data will appear here.</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy result</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Every value is randomly assembled from built-in name, street, city, and company word lists — none of it is looked up from a real person or business, and phone numbers use the North American 555 exchange reserved for fiction so they can never collide with a real number. This is meant for populating test databases, demos, and UI mockups where you need plausible-looking data without using anyone's real information.</p>
+    <p>Nothing generated here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const FIRST_NAMES = ['James', 'Mary', 'Robert', 'Patricia', 'John', 'Jennifer', 'Michael', 'Linda', 'David', 'Elizabeth',
+  'William', 'Barbara', 'Richard', 'Susan', 'Joseph', 'Jessica', 'Thomas', 'Sarah', 'Charles', 'Karen',
+  'Daniel', 'Nancy', 'Matthew', 'Lisa', 'Anthony', 'Betty', 'Mark', 'Margaret', 'Donald', 'Sandra',
+  'Steven', 'Ashley', 'Paul', 'Kimberly', 'Andrew', 'Emily', 'Joshua', 'Donna', 'Kenneth', 'Michelle',
+  'Kevin', 'Amanda', 'Brian', 'Melissa', 'George', 'Deborah', 'Edward', 'Stephanie', 'Ronald', 'Rebecca'];
+
+const LAST_NAMES = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez',
+  'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin',
+  'Lee', 'Perez', 'Thompson', 'White', 'Harris', 'Sanchez', 'Clark', 'Ramirez', 'Lewis', 'Robinson',
+  'Walker', 'Young', 'Allen', 'King', 'Wright', 'Scott', 'Torres', 'Nguyen', 'Hill', 'Flores'];
+
+const STREET_NAMES = ['Maple', 'Oak', 'Pine', 'Cedar', 'Elm', 'Washington', 'Lake', 'Hill', 'Sunset', 'Main',
+  'Park', 'River', 'Willow', 'Highland', 'Meadow', 'Forest', 'Spring', 'Ridge', 'Church', 'School'];
+const STREET_TYPES = ['St', 'Ave', 'Blvd', 'Dr', 'Ln', 'Rd', 'Way', 'Ct'];
+
+const CITIES = ['Springfield', 'Franklin', 'Georgetown', 'Clinton', 'Salem', 'Fairview', 'Riverside', 'Madison',
+  'Ashland', 'Bristol', 'Greenville', 'Manchester', 'Oakland', 'Auburn', 'Dover', 'Milton'];
+const STATES = ['AL', 'AK', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'IL', 'IN', 'MA', 'MI', 'NY', 'OH', 'OR', 'TX', 'WA'];
+
+const EMAIL_DOMAINS = ['example.com', 'mailinator.com', 'testmail.dev', 'placeholder.net'];
+const COMPANY_SUFFIXES = ['Inc', 'LLC', 'Group', 'Co', 'Partners', 'Solutions'];
+const COMPANY_WORDS = ['Summit', 'Horizon', 'Vertex', 'Cascade', 'Beacon', 'Nova', 'Pioneer', 'Crest', 'Anchor', 'Zenith'];
+
+function randInt(max) { return Math.floor(Math.random() * max); }
+function pick(arr) { return arr[randInt(arr.length)]; }
+
+function generateRecord() {
+  const first = pick(FIRST_NAMES);
+  const last = pick(LAST_NAMES);
+  const name = `${first} ${last}`;
+  const email = `${first.toLowerCase()}.${last.toLowerCase()}${randInt(100)}@${pick(EMAIL_DOMAINS)}`;
+  const phone = `(${100 + randInt(900)}) 555-${String(randInt(10000)).padStart(4, '0')}`;
+  const address = `${1 + randInt(9998)} ${pick(STREET_NAMES)} ${pick(STREET_TYPES)}, ${pick(CITIES)}, ${pick(STATES)} ${10000 + randInt(90000)}`;
+  const company = `${pick(COMPANY_WORDS)} ${pick(COMPANY_WORDS)} ${pick(COMPANY_SUFFIXES)}`;
+  return { name, email, phone, address, company };
+}
+
+const countInput = document.getElementById('countInput');
+const formatSelect = document.getElementById('formatSelect');
+const output = document.getElementById('output');
+const errorEl = document.getElementById('error');
+const fieldChecks = {
+  name: document.getElementById('fieldName'),
+  email: document.getElementById('fieldEmail'),
+  phone: document.getElementById('fieldPhone'),
+  address: document.getElementById('fieldAddress'),
+  company: document.getElementById('fieldCompany')
+};
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function activeFields() {
+  return Object.keys(fieldChecks).filter(k => fieldChecks[k].checked);
+}
+
+function formatTable(records, fields) {
+  return records.map((r, i) => {
+    const lines = fields.map(f => `  ${f[0].toUpperCase() + f.slice(1)}: ${r[f]}`);
+    return `#${i + 1}\n` + lines.join('\n');
+  }).join('\n\n');
+}
+
+function csvEscape(val) {
+  return /[",\n]/.test(val) ? '"' + val.replace(/"/g, '""') + '"' : val;
+}
+
+function formatCsv(records, fields) {
+  const header = fields.join(',');
+  const rows = records.map(r => fields.map(f => csvEscape(r[f])).join(','));
+  return [header, ...rows].join('\n');
+}
+
+function formatJson(records, fields) {
+  return JSON.stringify(records.map(r => {
+    const obj = {};
+    fields.forEach(f => obj[f] = r[f]);
+    return obj;
+  }), null, 2);
+}
+
+document.getElementById('generateBtn').addEventListener('click', () => {
+  showError('');
+  const count = parseInt(countInput.value, 10);
+  if (isNaN(count) || count < 1) { showError('Enter a valid count.'); return; }
+  if (count > 500) { showError('Count is capped at 500.'); return; }
+
+  const fields = activeFields();
+  if (fields.length === 0) { showError('Select at least one field.'); return; }
+
+  const records = Array.from({ length: count }, generateRecord);
+  let text;
+  if (formatSelect.value === 'csv') text = formatCsv(records, fields);
+  else if (formatSelect.value === 'json') text = formatJson(records, fields);
+  else text = formatTable(records, fields);
+
+  output.textContent = text;
+  output.classList.remove('empty');
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+
+document.getElementById('generateBtn').click();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

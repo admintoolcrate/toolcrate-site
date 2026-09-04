@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Username Generator | Toolcrate</title>
+<meta name="description" content="Generate random usernames from adjective and noun combinations. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Username Generator</h1>
+    <p>Generate random handles from adjective and noun combinations.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="countInput">How many</label>
+        <input type="number" id="countInput" value="10" min="1" max="100">
+      </div>
+      <div class="field">
+        <label for="separatorSelect">Separator</label>
+        <select id="separatorSelect">
+          <option value="">None (CamelCase)</option>
+          <option value="_">Underscore</option>
+          <option value="-">Hyphen</option>
+          <option value=".">Dot</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="addNumber" checked style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Add a random number</span>
+        </label>
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="lowercase" style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Force lowercase</span>
+        </label>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button id="generateBtn">Generate</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="output">Usernames</label>
+    <div id="output" class="output-panel empty">Usernames will appear here.</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy all</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Each username pairs a random adjective with a random noun from a built-in word list of about 100 of each, optionally followed by a 2 or 3-digit number to further reduce collisions. With both lists this size and a number suffix, there are well over a million possible combinations — plenty for picking a handle, though it's not intended as a substitute for checking whether a specific name is actually available on the platform you're using it for.</p>
+    <p>Nothing generated here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const ADJECTIVES = ['Swift', 'Brave', 'Clever', 'Gentle', 'Bold', 'Calm', 'Eager', 'Fierce', 'Jolly', 'Kind',
+  'Lively', 'Mighty', 'Noble', 'Proud', 'Quiet', 'Rapid', 'Silent', 'Steady', 'Witty', 'Zesty',
+  'Amber', 'Azure', 'Coral', 'Crimson', 'Golden', 'Indigo', 'Ivory', 'Jade', 'Scarlet', 'Silver',
+  'Arctic', 'Cosmic', 'Desert', 'Electric', 'Frozen', 'Hidden', 'Lunar', 'Misty', 'Solar', 'Stormy',
+  'Ancient', 'Curious', 'Daring', 'Dazzling', 'Distant', 'Epic', 'Fearless', 'Glowing', 'Grand', 'Happy',
+  'Humble', 'Icy', 'Keen', 'Loyal', 'Lucky', 'Merry', 'Nimble', 'Playful', 'Quick', 'Radiant',
+  'Sharp', 'Shiny', 'Sleepy', 'Sneaky', 'Sturdy', 'Sunny', 'Tiny', 'Vivid', 'Wandering', 'Wild',
+  'Wise', 'Wobbly', 'Zealous', 'Bright', 'Cheerful', 'Cosmic', 'Dreamy', 'Elegant', 'Feisty', 'Free',
+  'Gallant', 'Graceful', 'Honest', 'Jovial', 'Just', 'Legendary', 'Magnetic', 'Mellow', 'Mystic', 'Neat',
+  'Odd', 'Peaceful', 'Rare', 'Regal', 'Rustic', 'Serene', 'Snappy', 'Speedy', 'Spry', 'Vibrant'];
+
+const NOUNS = ['Falcon', 'Tiger', 'Otter', 'Panda', 'Wolf', 'Eagle', 'Fox', 'Bear', 'Hawk', 'Lion',
+  'Dolphin', 'Panther', 'Raven', 'Shark', 'Owl', 'Lynx', 'Cobra', 'Heron', 'Badger', 'Falcon',
+  'Comet', 'Nebula', 'Meteor', 'Planet', 'Galaxy', 'Aurora', 'Horizon', 'Summit', 'Canyon', 'Glacier',
+  'River', 'Forest', 'Mountain', 'Island', 'Desert', 'Valley', 'Reef', 'Lagoon', 'Tundra', 'Prairie',
+  'Voyager', 'Ranger', 'Pioneer', 'Wanderer', 'Explorer', 'Nomad', 'Drifter', 'Rover', 'Seeker', 'Scout',
+  'Ember', 'Ash', 'Storm', 'Thunder', 'Frost', 'Blaze', 'Shadow', 'Echo', 'Spark', 'Flare',
+  'Knight', 'Wizard', 'Rogue', 'Sage', 'Hunter', 'Archer', 'Warrior', 'Guardian', 'Phantom', 'Nomad',
+  'Coder', 'Pixel', 'Circuit', 'Byte', 'Cipher', 'Vector', 'Signal', 'Beacon', 'Compass', 'Anchor',
+  'Maple', 'Willow', 'Cedar', 'Birch', 'Oak', 'Fern', 'Lotus', 'Sage', 'Clover', 'Reed',
+  'Comet', 'Zephyr', 'Cascade', 'Ripple', 'Current', 'Tide', 'Breeze', 'Gale', 'Mist', 'Dune'];
+
+function randInt(max) { return Math.floor(Math.random() * max); }
+
+function generateUsername(separator, addNumber, lowercase) {
+  const adj = ADJECTIVES[randInt(ADJECTIVES.length)];
+  const noun = NOUNS[randInt(NOUNS.length)];
+  const numDigits = Math.random() < 0.5 ? 2 : 3;
+  const number = addNumber ? String(randInt(10 ** numDigits)).padStart(1, '0') : '';
+  let parts = [adj, noun];
+  if (number) parts.push(number);
+  let username = parts.join(separator);
+  if (lowercase) username = username.toLowerCase();
+  return username;
+}
+
+const countInput = document.getElementById('countInput');
+const separatorSelect = document.getElementById('separatorSelect');
+const addNumber = document.getElementById('addNumber');
+const lowercase = document.getElementById('lowercase');
+const output = document.getElementById('output');
+
+document.getElementById('generateBtn').addEventListener('click', () => {
+  const count = Math.min(100, Math.max(1, parseInt(countInput.value, 10) || 1));
+  const names = [];
+  for (let i = 0; i < count; i++) {
+    names.push(generateUsername(separatorSelect.value, addNumber.checked, lowercase.checked));
+  }
+  output.textContent = names.join('\n');
+  output.classList.remove('empty');
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+
+document.getElementById('generateBtn').click();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
