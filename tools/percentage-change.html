@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Percentage Increase / Decrease Calculator | Toolcrate</title>
+<meta name="description" content="Calculate percentage increase or decrease between two numbers, or apply a percentage change to a starting value. Free, instant, browser-only.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <span class="tool-kicker">Instrument No. 009 — Math</span>
+    <h1>Percentage Increase / Decrease</h1>
+    <p>Two directions in one tool: find the % change between two numbers, or apply a % change to a starting number.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="mode">What do you want to do?</label>
+      <select id="mode">
+        <option value="find">Find % change between two numbers</option>
+        <option value="apply">Apply a % change to a number</option>
+      </select>
+    </div>
+
+    <div id="findFields" class="row">
+      <div class="field">
+        <label for="from">From</label>
+        <input type="number" id="from" value="80" step="any">
+      </div>
+      <div class="field">
+        <label for="to">To</label>
+        <input type="number" id="to" value="100" step="any">
+      </div>
+    </div>
+
+    <div id="applyFields" class="row" style="display:none;">
+      <div class="field">
+        <label for="base">Starting number</label>
+        <input type="number" id="base" value="80" step="any">
+      </div>
+      <div class="field">
+        <label for="changePct">Change by (%)</label>
+        <input type="number" id="changePct" value="25" step="any">
+      </div>
+      <div class="field">
+        <label for="direction">Direction</label>
+        <select id="direction">
+          <option value="increase">Increase</option>
+          <option value="decrease">Decrease</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Result</label>
+    <div id="output" class="output-panel"></div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>The formulas</h2>
+    <p><code>% change = ((new − old) ÷ old) × 100</code> — a positive result is an increase, negative is a decrease.</p>
+    <p><code>new value = old × (1 ± percentage ÷ 100)</code> — add for an increase, subtract for a decrease.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const mode = document.getElementById('mode');
+const findFields = document.getElementById('findFields');
+const applyFields = document.getElementById('applyFields');
+const from = document.getElementById('from');
+const to = document.getElementById('to');
+const base = document.getElementById('base');
+const changePct = document.getElementById('changePct');
+const direction = document.getElementById('direction');
+const output = document.getElementById('output');
+
+function fmt(n) {
+  if (!isFinite(n)) return '—';
+  return n.toLocaleString(undefined, { maximumFractionDigits: 4 });
+}
+
+function calc() {
+  if (mode.value === 'find') {
+    const f = parseFloat(from.value);
+    const t = parseFloat(to.value);
+    if (isNaN(f) || isNaN(t)) {
+      output.textContent = 'Enter both values.';
+      output.classList.add('empty');
+      return;
+    }
+    if (f === 0) {
+      output.textContent = 'Starting value cannot be zero.';
+      output.classList.remove('empty');
+      return;
+    }
+    output.classList.remove('empty');
+    const change = ((t - f) / f) * 100;
+    const label = change >= 0 ? 'increase' : 'decrease';
+    output.textContent = `${fmt(f)} → ${fmt(t)} is a ${fmt(Math.abs(change))}% ${label}`;
+  } else {
+    const b = parseFloat(base.value);
+    const p = parseFloat(changePct.value);
+    if (isNaN(b) || isNaN(p)) {
+      output.textContent = 'Enter both values.';
+      output.classList.add('empty');
+      return;
+    }
+    output.classList.remove('empty');
+    const multiplier = direction.value === 'increase' ? (1 + p / 100) : (1 - p / 100);
+    const result = b * multiplier;
+    const verb = direction.value === 'increase' ? 'increased' : 'decreased';
+    output.textContent = `${fmt(b)} ${verb} by ${fmt(p)}% = ${fmt(result)}`;
+  }
+}
+
+mode.addEventListener('change', () => {
+  const isFind = mode.value === 'find';
+  findFields.style.display = isFind ? 'flex' : 'none';
+  applyFields.style.display = isFind ? 'none' : 'flex';
+  calc();
+});
+
+[from, to, base, changePct].forEach(el => el.addEventListener('input', calc));
+direction.addEventListener('change', calc);
+calc();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

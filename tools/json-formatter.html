@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON Formatter & Validator — Free, No Signup | Toolcrate</title>
+<meta name="description" content="Format, validate, and minify JSON instantly in your browser. No signup, nothing uploaded to a server — your data never leaves your device.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <span class="tool-kicker">Instrument No. 001 — Developer</span>
+    <h1>JSON Formatter &amp; Validator</h1>
+    <p>Paste JSON below to pretty-print, validate, or minify it. Runs entirely in your browser — nothing is uploaded.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Paste your JSON</label>
+      <textarea id="input" rows="10" placeholder='{"example": true, "nested": {"a": 1, "b": [1,2,3]}}' spellcheck="false"></textarea>
+    </div>
+    <div class="btn-row">
+      <button id="formatBtn">Format</button>
+      <button id="minifyBtn" class="secondary">Minify</button>
+      <button id="clearBtn" class="secondary">Clear</button>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label for="output">Result</label>
+    <div id="output" class="output-panel empty">Formatted or minified JSON will appear here.</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy result</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>This formatter parses your JSON with the browser's native <code>JSON.parse</code>, so validation errors match exactly what you'd get in your own code — including the character position of the problem. Formatting uses 2-space indentation; minify strips all whitespace to produce the smallest possible payload.</p>
+    <p>Nothing you paste here is sent to a server. The entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const input = document.getElementById('input');
+const output = document.getElementById('output');
+const errorEl = document.getElementById('error');
+const copyBtn = document.getElementById('copyBtn');
+const copyFeedback = document.getElementById('copyFeedback');
+
+function showOutput(text) {
+  output.textContent = text;
+  output.classList.remove('empty');
+}
+
+function showError(msg) {
+  errorEl.textContent = msg;
+}
+
+function clearError() {
+  errorEl.textContent = '';
+}
+
+document.getElementById('formatBtn').addEventListener('click', () => {
+  clearError();
+  try {
+    const parsed = JSON.parse(input.value);
+    showOutput(JSON.stringify(parsed, null, 2));
+  } catch (e) {
+    showError('Invalid JSON: ' + e.message);
+  }
+});
+
+document.getElementById('minifyBtn').addEventListener('click', () => {
+  clearError();
+  try {
+    const parsed = JSON.parse(input.value);
+    showOutput(JSON.stringify(parsed));
+  } catch (e) {
+    showError('Invalid JSON: ' + e.message);
+  }
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  input.value = '';
+  output.textContent = 'Formatted or minified JSON will appear here.';
+  output.classList.add('empty');
+  clearError();
+  input.focus();
+});
+
+copyBtn.addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    copyFeedback.classList.add('show');
+    setTimeout(() => copyFeedback.classList.remove('show'), 1500);
+  } catch (e) {
+    showError('Could not copy — select and copy manually.');
+  }
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

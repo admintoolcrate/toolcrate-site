@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fraction ↔ Decimal ↔ Percentage Converter | Toolcrate</title>
+<meta name="description" content="Convert between fractions, decimals, and percentages instantly. Free, browser-only, no signup.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <span class="tool-kicker">Instrument No. 014 — Math</span>
+    <h1>Fraction, Decimal &amp; Percentage Converter</h1>
+    <p>Type a value into any one field — the other two update automatically.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="numerator">Fraction — numerator</label>
+        <input type="number" id="numerator" value="3" step="any">
+      </div>
+      <div class="field">
+        <label for="denominator">Fraction — denominator</label>
+        <input type="number" id="denominator" value="4" step="any">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="decimal">Decimal</label>
+        <input type="number" id="decimal" value="0.75" step="any">
+      </div>
+      <div class="field">
+        <label for="percentage">Percentage</label>
+        <input type="number" id="percentage" value="75" step="any">
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>How this works</h2>
+    <p>Editing the fraction recalculates the decimal and percentage. Editing the decimal or percentage recalculates the other two, with the fraction shown in simplified lowest terms.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const numerator = document.getElementById('numerator');
+const denominator = document.getElementById('denominator');
+const decimal = document.getElementById('decimal');
+const percentage = document.getElementById('percentage');
+
+let updating = false;
+
+function gcd(x, y) {
+  x = Math.abs(x); y = Math.abs(y);
+  while (y) { [x, y] = [y, x % y]; }
+  return x || 1;
+}
+
+function decimalToFraction(dec) {
+  const decimalsOf = (dec.toString().split('.')[1] || '').length;
+  const denom = Math.pow(10, Math.min(decimalsOf, 10));
+  const num = Math.round(dec * denom);
+  const divisor = gcd(num, denom);
+  return [num / divisor, denom / divisor];
+}
+
+function fromFraction() {
+  if (updating) return;
+  updating = true;
+  const n = parseFloat(numerator.value);
+  const d = parseFloat(denominator.value);
+  if (!isNaN(n) && !isNaN(d) && d !== 0) {
+    const dec = n / d;
+    decimal.value = parseFloat(dec.toFixed(8));
+    percentage.value = parseFloat((dec * 100).toFixed(6));
+  }
+  updating = false;
+}
+
+function fromDecimal() {
+  if (updating) return;
+  updating = true;
+  const dec = parseFloat(decimal.value);
+  if (!isNaN(dec)) {
+    percentage.value = parseFloat((dec * 100).toFixed(6));
+    const [n, d] = decimalToFraction(dec);
+    numerator.value = n;
+    denominator.value = d;
+  }
+  updating = false;
+}
+
+function fromPercentage() {
+  if (updating) return;
+  updating = true;
+  const pct = parseFloat(percentage.value);
+  if (!isNaN(pct)) {
+    const dec = pct / 100;
+    decimal.value = parseFloat(dec.toFixed(8));
+    const [n, d] = decimalToFraction(dec);
+    numerator.value = n;
+    denominator.value = d;
+  }
+  updating = false;
+}
+
+numerator.addEventListener('input', fromFraction);
+denominator.addEventListener('input', fromFraction);
+decimal.addEventListener('input', fromDecimal);
+percentage.addEventListener('input', fromPercentage);
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
