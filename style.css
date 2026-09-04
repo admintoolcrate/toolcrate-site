@@ -350,13 +350,9 @@ button.secondary:hover { border-color: var(--ink); opacity: 1; background: var(-
 }
 
 .ad-slot {
-  border: 1px dashed var(--line);
-  color: var(--muted);
-  font-size: 0.72rem;
   text-align: center;
-  padding: 1rem;
   margin: 2.1rem 0;
-  border-radius: 8px;
+  overflow: hidden;
 }
 
 .explainer {
