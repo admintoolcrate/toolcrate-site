@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slug Generator — URL-Friendly Slugs | Toolcrate</title>
+<meta name="description" content="Turn any text into a clean, URL-friendly slug. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Slug Generator</h1>
+    <p>Type any text and get a clean, URL-friendly slug, updated as you type.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Text</label>
+      <textarea id="input" rows="3" placeholder="10 Best Café Recipes — You'll Love #3!" spellcheck="false"></textarea>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="separator">Separator</label>
+        <select id="separator">
+          <option value="-">Hyphen (-)</option>
+          <option value="_">Underscore (_)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1.6rem; cursor: pointer;">
+          <input type="checkbox" id="lowercase" checked style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Lowercase</span>
+        </label>
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1.6rem; cursor: pointer;">
+          <input type="checkbox" id="transliterate" checked style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Convert accented letters to plain ASCII</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="output">Slug</label>
+    <div id="output" class="output-panel empty">your-slug-will-appear-here</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy slug</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>A slug replaces every run of spaces or punctuation with a single separator, so <code>"10 Best Café Recipes — You'll Love #3!"</code> becomes a clean, predictable URL segment. With "Convert accented letters to plain ASCII" on, characters like <code>é</code>, <code>ñ</code>, or <code>ü</code> are converted to their closest plain letter (<code>e</code>, <code>n</code>, <code>u</code>) using Unicode normalization rather than being stripped out entirely.</p>
+    <p>Nothing you type here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const input = document.getElementById('input');
+const separator = document.getElementById('separator');
+const lowercase = document.getElementById('lowercase');
+const transliterate = document.getElementById('transliterate');
+const output = document.getElementById('output');
+
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Letters like ß, æ, ø have no NFKD decomposition (they aren't accented forms
+// of a base letter), so plain Unicode normalization can't transliterate them —
+// they need an explicit substitution instead.
+const EXTRA_TRANSLITERATIONS = {
+  'ß': 'ss', 'æ': 'ae', 'Æ': 'AE', 'œ': 'oe', 'Œ': 'OE',
+  'ø': 'o', 'Ø': 'O', 'ð': 'd', 'Ð': 'D',
+  'þ': 'th', 'Þ': 'Th', 'ł': 'l', 'Ł': 'L',
+  'đ': 'd', 'Đ': 'D'
+};
+const EXTRA_TRANSLITERATIONS_RE = new RegExp('[' + Object.keys(EXTRA_TRANSLITERATIONS).join('') + ']', 'g');
+
+function applyExtraTransliterations(str) {
+  return str.replace(EXTRA_TRANSLITERATIONS_RE, ch => EXTRA_TRANSLITERATIONS[ch]);
+}
+
+function slugify(text) {
+  let s = text;
+  if (transliterate.checked) {
+    s = applyExtraTransliterations(s);
+    s = s.normalize('NFKD').replace(new RegExp('[\\u0300-\\u036f]', 'g'), '');
+  }
+  if (lowercase.checked) {
+    s = s.toLowerCase();
+  }
+  const sep = separator.value;
+  s = s.replace(/[^a-zA-Z0-9]+/g, sep);
+  const sepEsc = escapeRegExp(sep);
+  s = s.replace(new RegExp(`^${sepEsc}+|${sepEsc}+$`, 'g'), '');
+  return s;
+}
+
+function render() {
+  const text = input.value;
+  if (!text.trim()) {
+    output.textContent = 'your-slug-will-appear-here';
+    output.classList.add('empty');
+    return;
+  }
+  const slug = slugify(text);
+  if (!slug) {
+    output.textContent = '(no valid characters left for a slug)';
+    output.classList.add('empty');
+    return;
+  }
+  output.textContent = slug;
+  output.classList.remove('empty');
+}
+
+[input, separator, lowercase, transliterate].forEach(el => el.addEventListener('input', render));
+render();
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
