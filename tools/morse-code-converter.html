@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morse Code Converter — Text to and from Morse | Toolcrate</title>
+<meta name="description" content="Convert text to Morse code or Morse code back to text, with audio playback. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Morse Code Converter</h1>
+    <p>Convert text to Morse code or Morse code back to text, and play it back as audio.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Text or Morse code</label>
+      <textarea id="input" rows="4" placeholder="Type text, or dots and dashes (letters separated by spaces, words by / )…" spellcheck="false"></textarea>
+    </div>
+    <div class="btn-row">
+      <button id="toMorseBtn">Text → Morse</button>
+      <button id="toTextBtn" class="secondary">Morse → Text</button>
+      <button id="clearBtn" class="secondary">Clear</button>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label for="output">Result</label>
+    <div id="output" class="output-panel empty">Result will appear here.</div>
+    <div class="btn-row">
+      <button id="playBtn" class="secondary" disabled>▶ Play</button>
+      <button id="copyBtn" class="secondary">Copy result</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Uses standard International Morse Code: letters within a word are separated by a single space, and words are separated by a forward slash (<code>/</code>). Text input is uppercased automatically, since Morse doesn't distinguish case; any character with no Morse equivalent is skipped. Playback follows standard Morse timing ratios — a dash is 3 units long, the gap between symbols in a letter is 1 unit, between letters is 3 units, and between words is 7 units — generated live with the Web Audio API, not a recorded sound file.</p>
+    <p>Nothing you enter here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const MORSE_MAP = {
+  A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.', H: '....',
+  I: '..', J: '.---', K: '-.-', L: '.-..', M: '--', N: '-.', O: '---', P: '.--.',
+  Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-', V: '...-', W: '.--', X: '-..-',
+  Y: '-.--', Z: '--..',
+  '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-',
+  '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.',
+  '.': '.-.-.-', ',': '--..--', '?': '..--..', "'": '.----.', '!': '-.-.--',
+  '/': '-..-.', '(': '-.--.', ')': '-.--.-', '&': '.-...', ':': '---...',
+  ';': '-.-.-.', '=': '-...-', '+': '.-.-.', '-': '-....-', '_': '..--.-',
+  '"': '.-..-.', '@': '.--.-.'
+};
+const REVERSE_MAP = Object.fromEntries(Object.entries(MORSE_MAP).map(([k, v]) => [v, k]));
+
+const input = document.getElementById('input');
+const output = document.getElementById('output');
+const errorEl = document.getElementById('error');
+const playBtn = document.getElementById('playBtn');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function textToMorse(text) {
+  const words = text.trim().toUpperCase().split(/\s+/);
+  return words.map(word => {
+    return word.split('').map(ch => MORSE_MAP[ch]).filter(Boolean).join(' ');
+  }).filter(Boolean).join(' / ');
+}
+
+function morseToText(morse) {
+  const words = morse.trim().split('/');
+  return words
+    .map(word => word.trim().split(/\s+/).map(code => REVERSE_MAP[code] || '').join(''))
+    .filter(Boolean)
+    .join(' ');
+}
+
+function isMorseLike(str) {
+  return /^[.\-\/\s]+$/.test(str.trim()) && /[.\-]/.test(str);
+}
+
+function setOutput(text, playable) {
+  output.textContent = text;
+  output.classList.toggle('empty', !text);
+  playBtn.disabled = !playable || !text;
+}
+
+document.getElementById('toMorseBtn').addEventListener('click', () => {
+  showError('');
+  if (!input.value.trim()) { showError('Enter some text first.'); return; }
+  const morse = textToMorse(input.value);
+  if (!morse) { showError('No characters in the input have a Morse code equivalent.'); return; }
+  setOutput(morse, true);
+});
+
+document.getElementById('toTextBtn').addEventListener('click', () => {
+  showError('');
+  if (!input.value.trim()) { showError('Enter some Morse code first.'); return; }
+  if (!isMorseLike(input.value)) { showError('That doesn\'t look like Morse code — use only dots, dashes, spaces, and /.'); return; }
+  setOutput(morseToText(input.value), true);
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  input.value = '';
+  setOutput('', false);
+  output.textContent = 'Result will appear here.';
+  output.classList.add('empty');
+  showError('');
+  input.focus();
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+
+let audioCtx = null;
+function playMorse(morseText) {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const unit = 0.09;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.frequency.value = 650;
+  gain.gain.value = 0;
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start();
+
+  let t = audioCtx.currentTime + 0.15;
+  const words = morseText.trim().split('/').map(w => w.trim()).filter(Boolean);
+  words.forEach((word, wi) => {
+    const letters = word.split(/\s+/).filter(Boolean);
+    letters.forEach((letter, li) => {
+      for (const sym of letter) {
+        const dur = sym === '-' ? unit * 3 : unit;
+        gain.gain.setValueAtTime(0.25, t);
+        gain.gain.setValueAtTime(0, t + dur);
+        t += dur + unit;
+      }
+      if (li < letters.length - 1) t += unit * 2;
+    });
+    if (wi < words.length - 1) t += unit * 6;
+  });
+
+  osc.stop(t + 0.2);
+}
+
+playBtn.addEventListener('click', () => {
+  if (playBtn.disabled) return;
+  playMorse(output.textContent);
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

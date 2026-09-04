@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASCII Art Generator — Text to Banner | Toolcrate</title>
+<meta name="description" content="Turn text into a large block-letter ASCII banner. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  #output {
+    font-family: 'Courier New', Courier, monospace;
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.2;
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>ASCII Art Generator</h1>
+    <p>Turn short text into a large block-letter banner made of ASCII characters.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Text</label>
+      <input type="text" id="input" value="HELLO" maxlength="20" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="fillChar">Fill character</label>
+      <input type="text" id="fillChar" value="#" maxlength="1" style="max-width: 80px;">
+    </div>
+    <div class="btn-row">
+      <button id="generateBtn">Generate</button>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label for="output">Result</label>
+    <div id="output" class="output-panel empty">Your banner will appear here.</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy result</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Each letter is drawn from a small built-in 5-row pixel font — this covers A–Z, 0–9, and spaces, converted to uppercase automatically since the font has no separate lowercase glyphs. Any character outside that set (accented letters, most punctuation) is rendered as a blank column rather than breaking the banner. Paste the result anywhere monospace text is preserved — code comments, plain-text emails, terminal banners, READMEs.</p>
+    <p>Nothing you type here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const FONT = {
+  'A': ['.###.', '#...#', '#####', '#...#', '#...#'],
+  'B': ['####.', '#...#', '####.', '#...#', '####.'],
+  'C': ['.####', '#....', '#....', '#....', '.####'],
+  'D': ['####.', '#...#', '#...#', '#...#', '####.'],
+  'E': ['#####', '#....', '####.', '#....', '#####'],
+  'F': ['#####', '#....', '####.', '#....', '#....'],
+  'G': ['.####', '#....', '#.###', '#...#', '.####'],
+  'H': ['#...#', '#...#', '#####', '#...#', '#...#'],
+  'I': ['#####', '..#..', '..#..', '..#..', '#####'],
+  'J': ['..###', '...#.', '...#.', '#..#.', '.##..'],
+  'K': ['#...#', '#..#.', '###..', '#..#.', '#...#'],
+  'L': ['#....', '#....', '#....', '#....', '#####'],
+  'M': ['#...#', '##.##', '#.#.#', '#...#', '#...#'],
+  'N': ['#...#', '##..#', '#.#.#', '#..##', '#...#'],
+  'O': ['.###.', '#...#', '#...#', '#...#', '.###.'],
+  'P': ['####.', '#...#', '####.', '#....', '#....'],
+  'Q': ['.###.', '#...#', '#...#', '#..#.', '.##.#'],
+  'R': ['####.', '#...#', '####.', '#..#.', '#...#'],
+  'S': ['.####', '#....', '.###.', '....#', '####.'],
+  'T': ['#####', '..#..', '..#..', '..#..', '..#..'],
+  'U': ['#...#', '#...#', '#...#', '#...#', '.###.'],
+  'V': ['#...#', '#...#', '#...#', '.#.#.', '..#..'],
+  'W': ['#...#', '#...#', '#.#.#', '##.##', '#...#'],
+  'X': ['#...#', '.#.#.', '..#..', '.#.#.', '#...#'],
+  'Y': ['#...#', '.#.#.', '..#..', '..#..', '..#..'],
+  'Z': ['#####', '...#.', '..#..', '.#...', '#####'],
+  '0': ['.###.', '#...#', '#...#', '#...#', '.###.'],
+  '1': ['..#..', '.##..', '..#..', '..#..', '.###.'],
+  '2': ['.###.', '#...#', '..##.', '.#...', '#####'],
+  '3': ['.###.', '#...#', '..##.', '#...#', '.###.'],
+  '4': ['#..#.', '#..#.', '#####', '...#.', '...#.'],
+  '5': ['#####', '#....', '####.', '....#', '####.'],
+  '6': ['.###.', '#....', '####.', '#...#', '.###.'],
+  '7': ['#####', '....#', '...#.', '..#..', '..#..'],
+  '8': ['.###.', '#...#', '.###.', '#...#', '.###.'],
+  '9': ['.###.', '#...#', '.####', '....#', '.###.'],
+  ' ': ['...', '...', '...', '...', '...']
+};
+
+const input = document.getElementById('input');
+const fillChar = document.getElementById('fillChar');
+const output = document.getElementById('output');
+const errorEl = document.getElementById('error');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function textToAscii(text, fill) {
+  const chars = text.toUpperCase().split('');
+  const rows = ['', '', '', '', ''];
+  chars.forEach(ch => {
+    const glyph = FONT[ch] || FONT[' '];
+    for (let r = 0; r < 5; r++) {
+      rows[r] += glyph[r].replace(/#/g, fill).replace(/\./g, ' ') + '  ';
+    }
+  });
+  return rows.join('\n');
+}
+
+document.getElementById('generateBtn').addEventListener('click', () => {
+  showError('');
+  const text = input.value;
+  if (!text.trim()) { showError('Enter some text first.'); return; }
+  const fill = fillChar.value || '#';
+  output.textContent = textToAscii(text, fill);
+  output.classList.remove('empty');
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+
+document.getElementById('generateBtn').click();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
