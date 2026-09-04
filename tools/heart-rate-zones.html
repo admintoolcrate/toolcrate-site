@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heart Rate Zone Calculator | Toolcrate</title>
+<meta name="description" content="Calculate training heart rate zones from your max heart rate, with an optional Karvonen (heart rate reserve) method. Educational tool, not medical advice.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .zone-row { display: grid; grid-template-columns: 1fr auto auto; gap: 0.5rem; align-items: center; padding: 0.7rem 0; border-bottom: 1px solid var(--line); }
+  .zone-row:last-child { border-bottom: none; }
+  .zone-name { font-weight: 600; }
+  .zone-pct { font-size: 0.8rem; color: var(--muted); }
+  .zone-bpm { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Heart Rate Zone Calculator</h1>
+    <p>Training zones based on your estimated max heart rate.</p>
+  </div>
+
+  <div class="disclaimer-note"><strong>Educational tool, not medical advice.</strong> The age-based max heart rate formula is a rough population average with a wide individual margin of error. Consult a healthcare provider before starting an intense training program. See our <a href="/terms.html">terms</a> for details.</div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="age">Age</label>
+        <input type="number" id="age" value="30" min="1" max="120" step="1">
+      </div>
+      <div class="field">
+        <label for="method">Method</label>
+        <select id="method">
+          <option value="simple">% of max heart rate</option>
+          <option value="karvonen">Karvonen (heart rate reserve)</option>
+        </select>
+      </div>
+      <div class="field" id="restingField" style="display: none;">
+        <label for="resting">Resting heart rate</label>
+        <input type="number" id="resting" value="65" min="20" max="120" step="1">
+      </div>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="maxHrValue">—</span><span class="stat-label">Estimated max HR (220 − age)</span></div>
+  </div>
+
+  <div class="field">
+    <label>Training zones (beats per minute)</label>
+    <div id="zonesOutput" class="output-panel empty">Enter your age above.</div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About the two methods</h2>
+    <p>"% of max heart rate" is the simpler, more common approach: each zone is a straight percentage of your estimated max heart rate (<code>220 − age</code>, a widely used but rough population formula). The Karvonen method instead works from your <em>heart rate reserve</em> — the gap between resting and max heart rate — with <code>target = (max − resting) × percent + resting</code>. Karvonen tends to better reflect individual fitness since it accounts for your resting heart rate, but needs an accurate resting measurement (taken first thing in the morning, before getting up) to be useful.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const age = document.getElementById('age');
+const method = document.getElementById('method');
+const resting = document.getElementById('resting');
+const restingField = document.getElementById('restingField');
+const errorEl = document.getElementById('error');
+const maxHrValueEl = document.getElementById('maxHrValue');
+const zonesOutput = document.getElementById('zonesOutput');
+
+const ZONES = [
+  { name: 'Zone 1 — Warm up', lo: 0.50, hi: 0.60 },
+  { name: 'Zone 2 — Fat burn', lo: 0.60, hi: 0.70 },
+  { name: 'Zone 3 — Aerobic', lo: 0.70, hi: 0.80 },
+  { name: 'Zone 4 — Anaerobic', lo: 0.80, hi: 0.90 },
+  { name: 'Zone 5 — Max effort', lo: 0.90, hi: 1.00 }
+];
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function calc() {
+  showError('');
+  const a = parseInt(age.value, 10);
+  if (isNaN(a) || a <= 0) {
+    maxHrValueEl.textContent = '—';
+    zonesOutput.textContent = 'Enter your age above.';
+    zonesOutput.classList.add('empty');
+    return;
+  }
+
+  const maxHr = 220 - a;
+  maxHrValueEl.textContent = maxHr;
+
+  let restingHr = 0;
+  if (method.value === 'karvonen') {
+    restingHr = parseInt(resting.value, 10);
+    if (isNaN(restingHr) || restingHr <= 0) {
+      zonesOutput.textContent = 'Enter your age above.';
+      zonesOutput.classList.add('empty');
+      return;
+    }
+    if (restingHr >= maxHr) {
+      showError('Resting heart rate must be lower than max heart rate.');
+      zonesOutput.textContent = 'Enter your age above.';
+      zonesOutput.classList.add('empty');
+      return;
+    }
+  }
+
+  zonesOutput.classList.remove('empty');
+  const lines = ZONES.map(z => {
+    let lo, hi;
+    if (method.value === 'karvonen') {
+      lo = Math.round((maxHr - restingHr) * z.lo + restingHr);
+      hi = Math.round((maxHr - restingHr) * z.hi + restingHr);
+    } else {
+      lo = Math.round(maxHr * z.lo);
+      hi = Math.round(maxHr * z.hi);
+    }
+    return `${z.name} (${Math.round(z.lo * 100)}–${Math.round(z.hi * 100)}%): ${lo}–${hi} bpm`;
+  });
+  zonesOutput.style.whiteSpace = 'pre-line';
+  zonesOutput.textContent = lines.join('\n');
+}
+
+method.addEventListener('change', () => {
+  restingField.style.display = method.value === 'karvonen' ? '' : 'none';
+  calc();
+});
+[age, resting].forEach(el => el.addEventListener('input', calc));
+calc();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
