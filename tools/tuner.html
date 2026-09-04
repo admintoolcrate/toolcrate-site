@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guitar / Instrument Tuner | Toolcrate</title>
+<meta name="description" content="Mic-based instrument tuner using real-time autocorrelation pitch detection, right in your browser. No signup, nothing uploaded.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .tuner-status { text-align: center; color: var(--muted); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.02em; text-transform: uppercase; min-height: 1.2em; }
+  .note-display { text-align: center; margin: 0.6rem 0 0.9rem; }
+  .note-name { font-size: 4.5rem; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: var(--ink); }
+  .note-name.silent { color: var(--muted); }
+  .note-octave { font-size: 2.2rem; font-weight: 600; color: var(--muted); vertical-align: top; margin-left: 0.15rem; }
+  .freq-readout { text-align: center; color: var(--muted); font-size: 0.9rem; font-variant-numeric: tabular-nums; margin-bottom: 1.3rem; }
+
+  .cents-meter {
+    position: relative;
+    height: 54px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper);
+    overflow: hidden;
+    margin-bottom: 0.4rem;
+  }
+  .cents-meter-track {
+    position: absolute;
+    top: 0; bottom: 0; left: 50%;
+    width: 1px;
+    background: var(--line);
+  }
+  .cents-meter-zone {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: calc(50% - 5%);
+    width: 10%;
+    background: var(--line-soft);
+  }
+  .cents-meter-needle {
+    position: absolute;
+    top: 4px; bottom: 4px;
+    width: 5px;
+    margin-left: -2.5px;
+    left: 50%;
+    border-radius: 3px;
+    background: var(--muted);
+    transition: left 0.08s linear, background 0.08s linear;
+  }
+  .cents-meter-needle.in-tune { background: var(--ok); }
+  .cents-meter-needle.close { background: var(--accent); }
+  .cents-meter-needle.off { background: var(--danger); }
+  .cents-labels { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); margin-bottom: 1.4rem; }
+  .cents-labels span:nth-child(2) { color: var(--ink-soft); }
+
+  #startBtn { width: 100%; padding: 1.1rem; font-size: 1.1rem; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Guitar / Instrument Tuner</h1>
+    <p>Play a note near your microphone — pitch is detected live and shown as a note, in cents flat or sharp.</p>
+  </div>
+
+  <div class="panel">
+    <div class="tuner-status" id="statusText">Not listening</div>
+
+    <div class="note-display">
+      <span class="note-name silent" id="noteName">—</span><span class="note-octave" id="noteOctave"></span>
+    </div>
+    <div class="freq-readout" id="freqReadout">— Hz</div>
+
+    <div class="cents-meter">
+      <div class="cents-meter-zone"></div>
+      <div class="cents-meter-track"></div>
+      <div class="cents-meter-needle" id="centsNeedle" style="left: 50%;"></div>
+    </div>
+    <div class="cents-labels">
+      <span>−50¢ flat</span>
+      <span id="centsValue">0¢</span>
+      <span>+50¢ sharp</span>
+    </div>
+
+    <div class="field">
+      <label for="a4pitch">A4 reference pitch (Hz)</label>
+      <input type="number" id="a4pitch" value="440" min="400" max="480" step="any">
+    </div>
+
+    <div class="btn-row" style="justify-content: center;">
+      <button id="startBtn">Start listening</button>
+    </div>
+
+    <div class="error-text" id="errorText" style="display: none;"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="statFreq">—</span><span class="stat-label">Detected Hz</span></div>
+    <div class="stat"><span class="stat-value" id="statCents">—</span><span class="stat-label">Cents off</span></div>
+    <div class="stat"><span class="stat-value" id="statConfidence">—</span><span class="stat-label">Signal</span></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Pitch is found with autocorrelation: the tool records a short buffer of raw audio from your microphone, then compares that buffer against time-shifted copies of itself to find the shift ("lag") where the waveform lines up best with its own repetition — that lag corresponds to the period of the fundamental frequency. Because a repeating waveform also lines up (a little worse) at every multiple of that lag, the detector takes the first strong match rather than the single best one, which is what keeps it from occasionally locking onto an octave below the real note; that match is then refined with parabolic interpolation for sub-sample accuracy, converted to Hz, and mapped to the nearest note and a cents-off reading against the equal-tempered scale. This needs an actual microphone and permission to use it, which browsers only grant on secure (HTTPS) pages — it won't work if this file is opened locally from disk.</p>
+    <p>Audio never leaves your device — everything is captured and analyzed locally in JavaScript in your browser tab, with nothing recorded, saved, or uploaded to any server.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const startBtn = document.getElementById('startBtn');
+const statusText = document.getElementById('statusText');
+const noteNameEl = document.getElementById('noteName');
+const noteOctaveEl = document.getElementById('noteOctave');
+const freqReadoutEl = document.getElementById('freqReadout');
+const centsNeedle = document.getElementById('centsNeedle');
+const centsValueEl = document.getElementById('centsValue');
+const a4pitch = document.getElementById('a4pitch');
+const errorText = document.getElementById('errorText');
+const statFreq = document.getElementById('statFreq');
+const statCents = document.getElementById('statCents');
+const statConfidence = document.getElementById('statConfidence');
+
+const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+let audioCtx = null;
+let analyser = null;
+let mediaStream = null;
+let sourceNode = null;
+let rafId = null;
+let listening = false;
+
+const RMS_THRESHOLD = 0.01;       // below this, treat as silence
+const CORRELATION_THRESHOLD = 0.9; // normalized autocorrelation peak must clear this
+const MIN_FREQ = 60;   // Hz, below typical low guitar/bass open strings' fundamental range floor
+const MAX_FREQ = 1500; // Hz, above typical instrument range
+
+// Autocorrelation-based pitch detection.
+// Returns { freq, correlation } or null if no confident pitch found.
+function detectPitch(buffer, sampleRate) {
+  const n = buffer.length;
+
+  // RMS gate: skip near-silent buffers outright.
+  let sumSquares = 0;
+  for (let i = 0; i < n; i++) sumSquares += buffer[i] * buffer[i];
+  const rms = Math.sqrt(sumSquares / n);
+  if (rms < RMS_THRESHOLD) return null;
+
+  const maxLag = Math.min(n - 1, Math.floor(sampleRate / MIN_FREQ));
+  const minLag = Math.max(1, Math.floor(sampleRate / MAX_FREQ));
+
+  // Normalized (Pearson) autocorrelation per lag: c[lag] = sum(x[i]*x[i+lag])
+  // / sqrt(sum(x[i]^2) * sum(x[i+lag]^2)). Normalizing removes the length bias
+  // that raw/unnormalized autocorrelation has (its magnitude naturally shrinks
+  // as the overlap window shrinks with lag), which for low notes — whose
+  // correlation peak is broad relative to the buffer — would otherwise pull
+  // the apparent peak toward a shorter, wrong lag.
+  const c = new Float32Array(maxLag + 1);
+  for (let lag = minLag; lag <= maxLag; lag++) {
+    let sumXY = 0, sumX2 = 0, sumY2 = 0;
+    const limit = n - lag;
+    for (let i = 0; i < limit; i++) {
+      const x = buffer[i];
+      const y = buffer[i + lag];
+      sumXY += x * y;
+      sumX2 += x * x;
+      sumY2 += y * y;
+    }
+    const denom = Math.sqrt(sumX2 * sumY2);
+    c[lag] = denom > 0 ? sumXY / denom : 0;
+  }
+
+  // A periodic signal's normalized autocorrelation has a peak near every
+  // integer multiple of its true period (an octave-down "peak" at 2x the
+  // fundamental's lag, another at 3x, etc.) — all can end up similarly tall,
+  // so hunting for the single tallest one across the whole range risks
+  // locking onto a subharmonic. Instead walk forward from minLag, skip each
+  // descending run (a trough) then each ascending run (up to the next local
+  // peak), and take the FIRST such peak whose correlation clears the
+  // confidence threshold — that's always the true (shortest-lag) period.
+  let bestLag = -1;
+  let i = minLag;
+  while (i < maxLag) {
+    while (i < maxLag && c[i + 1] <= c[i]) i++;   // descend to a trough
+    while (i < maxLag && c[i + 1] > c[i]) i++;    // ascend to the next peak
+    if (c[i] >= CORRELATION_THRESHOLD) { bestLag = i; break; }
+    i++;
+  }
+
+  if (bestLag <= 0) return null;
+
+  // Parabolic interpolation around bestLag for sub-sample accuracy.
+  let refinedLag = bestLag;
+  if (bestLag > minLag && bestLag < maxLag) {
+    const y0 = c[bestLag - 1];
+    const y1 = c[bestLag];
+    const y2 = c[bestLag + 1];
+    const denom = (y0 - 2 * y1 + y2);
+    if (denom !== 0) {
+      const delta = 0.5 * (y0 - y2) / denom;
+      if (delta > -1 && delta < 1) refinedLag = bestLag + delta;
+    }
+  }
+
+  const freq = sampleRate / refinedLag;
+  if (freq < MIN_FREQ || freq > MAX_FREQ) return null;
+
+  return { freq, correlation: c[bestLag] };
+}
+
+function freqToNote(freq, a4) {
+  const midi = 69 + 12 * Math.log2(freq / a4);
+  const roundedMidi = Math.round(midi);
+  const cents = 100 * (midi - roundedMidi);
+  const noteName = NOTE_NAMES[((roundedMidi % 12) + 12) % 12];
+  const octave = Math.floor(roundedMidi / 12) - 1;
+  return { noteName, octave, cents };
+}
+
+function updateNeedle(cents) {
+  const clamped = Math.max(-50, Math.min(50, cents));
+  const pct = 50 + (clamped / 50) * 50;
+  centsNeedle.style.left = pct + '%';
+  centsNeedle.classList.remove('in-tune', 'close', 'off');
+  const abs = Math.abs(cents);
+  if (abs <= 5) centsNeedle.classList.add('in-tune');
+  else if (abs <= 20) centsNeedle.classList.add('close');
+  else centsNeedle.classList.add('off');
+}
+
+function showSilence() {
+  statusText.textContent = 'Listening… no signal';
+  noteNameEl.textContent = '—';
+  noteNameEl.classList.add('silent');
+  noteOctaveEl.textContent = '';
+  freqReadoutEl.textContent = '— Hz';
+  centsValueEl.textContent = '0¢';
+  updateNeedle(0);
+  centsNeedle.classList.remove('in-tune', 'close', 'off');
+  statFreq.textContent = '—';
+  statCents.textContent = '—';
+  statConfidence.textContent = 'No signal';
+}
+
+const timeDomainBuffer = new Float32Array(2048);
+
+function tick() {
+  if (!listening) return;
+  analyser.getFloatTimeDomainData(timeDomainBuffer);
+  const result = detectPitch(timeDomainBuffer, audioCtx.sampleRate);
+
+  if (!result) {
+    showSilence();
+  } else {
+    const a4 = parseFloat(a4pitch.value) || 440;
+    const { noteName, octave, cents } = freqToNote(result.freq, a4);
+    statusText.textContent = 'Listening…';
+    noteNameEl.textContent = noteName;
+    noteNameEl.classList.remove('silent');
+    noteOctaveEl.textContent = octave;
+    freqReadoutEl.textContent = result.freq.toFixed(1) + ' Hz';
+    centsValueEl.textContent = (cents > 0 ? '+' : '') + cents.toFixed(0) + '¢';
+    updateNeedle(cents);
+    statFreq.textContent = result.freq.toFixed(1);
+    statCents.textContent = (cents > 0 ? '+' : '') + cents.toFixed(1);
+    statConfidence.textContent = (result.correlation * 100).toFixed(0) + '%';
+  }
+
+  rafId = requestAnimationFrame(tick);
+}
+
+async function start() {
+  errorText.style.display = 'none';
+  errorText.textContent = '';
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    errorText.textContent = 'Microphone access is not available in this browser context. This tool needs to be served over HTTPS (or localhost) — it will not work when opened as a local file.';
+    errorText.style.display = 'block';
+    return;
+  }
+
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    });
+  } catch (err) {
+    let msg = 'Could not access the microphone: ' + (err && err.message ? err.message : err);
+    if (err && err.name === 'NotAllowedError') {
+      msg = 'Microphone permission was denied. Allow microphone access for this site and try again.';
+    } else if (err && err.name === 'NotFoundError') {
+      msg = 'No microphone was found on this device.';
+    }
+    errorText.textContent = msg;
+    errorText.style.display = 'block';
+    return;
+  }
+
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+  sourceNode = audioCtx.createMediaStreamSource(mediaStream);
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 2048;
+  sourceNode.connect(analyser);
+
+  listening = true;
+  startBtn.textContent = 'Stop listening';
+  statusText.textContent = 'Listening…';
+  tick();
+}
+
+function stop() {
+  listening = false;
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = null;
+
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(track => track.stop());
+    mediaStream = null;
+  }
+  if (sourceNode) { sourceNode.disconnect(); sourceNode = null; }
+  if (audioCtx) { audioCtx.close(); audioCtx = null; }
+  analyser = null;
+
+  startBtn.textContent = 'Start listening';
+  statusText.textContent = 'Not listening';
+  noteNameEl.textContent = '—';
+  noteNameEl.classList.add('silent');
+  noteOctaveEl.textContent = '';
+  freqReadoutEl.textContent = '— Hz';
+  centsValueEl.textContent = '0¢';
+  updateNeedle(0);
+  centsNeedle.classList.remove('in-tune', 'close', 'off');
+  statFreq.textContent = '—';
+  statCents.textContent = '—';
+  statConfidence.textContent = '—';
+}
+
+startBtn.addEventListener('click', () => {
+  if (listening) stop(); else start();
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

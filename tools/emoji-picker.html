@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emoji Picker / Search | Toolcrate</title>
+<meta name="description" content="Find and copy any emoji by name, browsable by category. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .category-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem; }
+  .category-tab { padding: 0.45rem 0.85rem; font-size: 0.82rem; }
+  .category-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .emoji-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap: 0.4rem; margin-top: 1rem; }
+  .emoji-btn {
+    font-size: 1.6rem; line-height: 1; padding: 0.6rem 0.3rem;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
+    cursor: pointer; text-align: center;
+  }
+  .emoji-btn:hover { border-color: var(--accent); background: var(--line-soft, rgba(34,85,221,0.08)); }
+  .emoji-empty { color: var(--muted); font-size: 0.9rem; padding: 1rem 0; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Emoji Picker / Search</h1>
+    <p>Find any emoji by name, and click to copy it.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="searchInput">Search</label>
+      <input type="text" id="searchInput" placeholder="e.g. heart, cat, pizza…" autocomplete="off">
+    </div>
+    <div class="category-tabs" id="categoryTabs"></div>
+    <div class="emoji-grid" id="emojiGrid"></div>
+    <div class="emoji-empty" id="emojiEmpty" style="display: none;">No emoji found for that search.</div>
+  </div>
+
+  <div class="btn-row">
+    <span id="copyFeedback" class="copy-feedback">Copied <span id="copiedChar"></span></span>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>This is a curated set of a few hundred commonly used emoji, searchable by name and keyword and browsable by category — not the full Unicode emoji set of well over a thousand, which would make search noisier for the vast majority of everyday use. Clicking any emoji copies the actual character to your clipboard, ready to paste anywhere that accepts Unicode text.</p>
+    <p>Nothing you search here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const EMOJIS = [
+  { c: '😀', n: 'grinning face', cat: 'Smileys' }, { c: '😃', n: 'grinning face big eyes', cat: 'Smileys' },
+  { c: '😄', n: 'grinning face smiling eyes', cat: 'Smileys' }, { c: '😁', n: 'beaming face', cat: 'Smileys' },
+  { c: '😆', n: 'grinning squinting face laughing', cat: 'Smileys' }, { c: '😅', n: 'grinning sweat relief', cat: 'Smileys' },
+  { c: '🤣', n: 'rolling on the floor laughing rofl', cat: 'Smileys' }, { c: '😂', n: 'face with tears of joy laughing crying', cat: 'Smileys' },
+  { c: '🙂', n: 'slightly smiling face', cat: 'Smileys' }, { c: '🙃', n: 'upside down face', cat: 'Smileys' },
+  { c: '😉', n: 'winking face wink', cat: 'Smileys' }, { c: '😊', n: 'smiling face blushing', cat: 'Smileys' },
+  { c: '😇', n: 'smiling face halo angel innocent', cat: 'Smileys' }, { c: '🥰', n: 'smiling face hearts love', cat: 'Smileys' },
+  { c: '😍', n: 'heart eyes love struck', cat: 'Smileys' }, { c: '🤩', n: 'star struck eyes', cat: 'Smileys' },
+  { c: '😘', n: 'face blowing a kiss', cat: 'Smileys' }, { c: '😗', n: 'kissing face', cat: 'Smileys' },
+  { c: '😋', n: 'face savoring food yum tongue', cat: 'Smileys' }, { c: '😛', n: 'face with tongue', cat: 'Smileys' },
+  { c: '😜', n: 'winking face with tongue', cat: 'Smileys' }, { c: '🤪', n: 'zany crazy face', cat: 'Smileys' },
+  { c: '😝', n: 'squinting face with tongue', cat: 'Smileys' }, { c: '🤑', n: 'money mouth face rich', cat: 'Smileys' },
+  { c: '🤗', n: 'hugging face hug', cat: 'Smileys' }, { c: '🤭', n: 'face with hand over mouth oops', cat: 'Smileys' },
+  { c: '🤫', n: 'shushing face quiet secret', cat: 'Smileys' }, { c: '🤔', n: 'thinking face hmm', cat: 'Smileys' },
+  { c: '🤐', n: 'zipper mouth face silent', cat: 'Smileys' }, { c: '🤨', n: 'face with raised eyebrow suspicious', cat: 'Smileys' },
+  { c: '😐', n: 'neutral face meh', cat: 'Smileys' }, { c: '😑', n: 'expressionless face', cat: 'Smileys' },
+  { c: '😶', n: 'face without mouth', cat: 'Smileys' }, { c: '😏', n: 'smirking face smirk', cat: 'Smileys' },
+  { c: '😒', n: 'unamused face annoyed', cat: 'Smileys' }, { c: '🙄', n: 'face with rolling eyes eyeroll', cat: 'Smileys' },
+  { c: '😬', n: 'grimacing face awkward', cat: 'Smileys' }, { c: '🤥', n: 'lying face pinocchio', cat: 'Smileys' },
+  { c: '😌', n: 'relieved face', cat: 'Smileys' }, { c: '😔', n: 'pensive face sad', cat: 'Smileys' },
+  { c: '😪', n: 'sleepy face tired', cat: 'Smileys' }, { c: '🤤', n: 'drooling face', cat: 'Smileys' },
+  { c: '😴', n: 'sleeping face zzz', cat: 'Smileys' }, { c: '😷', n: 'face with medical mask sick', cat: 'Smileys' },
+  { c: '🤒', n: 'face with thermometer sick fever', cat: 'Smileys' }, { c: '🤕', n: 'face with head bandage hurt injured', cat: 'Smileys' },
+  { c: '🤢', n: 'nauseated face sick', cat: 'Smileys' }, { c: '🤮', n: 'face vomiting sick', cat: 'Smileys' },
+  { c: '🤧', n: 'sneezing face sick', cat: 'Smileys' }, { c: '🥵', n: 'hot face overheated', cat: 'Smileys' },
+  { c: '🥶', n: 'cold face freezing', cat: 'Smileys' }, { c: '🥴', n: 'woozy face dizzy drunk', cat: 'Smileys' },
+  { c: '😵', n: 'dizzy face', cat: 'Smileys' }, { c: '🤯', n: 'exploding head mind blown', cat: 'Smileys' },
+  { c: '🤠', n: 'cowboy hat face', cat: 'Smileys' }, { c: '🥳', n: 'partying face celebrate birthday', cat: 'Smileys' },
+  { c: '😎', n: 'smiling face sunglasses cool', cat: 'Smileys' }, { c: '🤓', n: 'nerd face glasses', cat: 'Smileys' },
+  { c: '🧐', n: 'face with monocle', cat: 'Smileys' }, { c: '😕', n: 'confused face', cat: 'Smileys' },
+  { c: '😟', n: 'worried face', cat: 'Smileys' }, { c: '🙁', n: 'slightly frowning face', cat: 'Smileys' },
+  { c: '☹️', n: 'frowning face', cat: 'Smileys' }, { c: '😮', n: 'face with open mouth surprised wow', cat: 'Smileys' },
+  { c: '😯', n: 'hushed face', cat: 'Smileys' }, { c: '😲', n: 'astonished face shocked', cat: 'Smileys' },
+  { c: '😳', n: 'flushed face embarrassed', cat: 'Smileys' }, { c: '🥺', n: 'pleading face puppy eyes', cat: 'Smileys' },
+  { c: '😦', n: 'frowning face open mouth', cat: 'Smileys' }, { c: '😧', n: 'anguished face', cat: 'Smileys' },
+  { c: '😨', n: 'fearful face scared', cat: 'Smileys' }, { c: '😰', n: 'anxious face sweat', cat: 'Smileys' },
+  { c: '😥', n: 'sad but relieved face', cat: 'Smileys' }, { c: '😢', n: 'crying face sad tear', cat: 'Smileys' },
+  { c: '😭', n: 'loudly crying face sobbing', cat: 'Smileys' }, { c: '😱', n: 'face screaming in fear shocked', cat: 'Smileys' },
+  { c: '😖', n: 'confounded face', cat: 'Smileys' }, { c: '😣', n: 'persevering face', cat: 'Smileys' },
+  { c: '😞', n: 'disappointed face', cat: 'Smileys' }, { c: '😓', n: 'downcast face sweat', cat: 'Smileys' },
+  { c: '😩', n: 'weary face exhausted', cat: 'Smileys' }, { c: '😫', n: 'tired face', cat: 'Smileys' },
+  { c: '🥱', n: 'yawning face bored tired', cat: 'Smileys' }, { c: '😤', n: 'face with steam from nose triumph angry', cat: 'Smileys' },
+  { c: '😡', n: 'pouting face angry mad', cat: 'Smileys' }, { c: '😠', n: 'angry face', cat: 'Smileys' },
+  { c: '🤬', n: 'face with symbols on mouth swearing cursing', cat: 'Smileys' }, { c: '😈', n: 'smiling face with horns devil', cat: 'Smileys' },
+  { c: '👿', n: 'angry face with horns devil', cat: 'Smileys' }, { c: '💀', n: 'skull dead', cat: 'Smileys' },
+  { c: '💩', n: 'pile of poo', cat: 'Smileys' }, { c: '🤡', n: 'clown face', cat: 'Smileys' },
+  { c: '👻', n: 'ghost', cat: 'Smileys' }, { c: '👽', n: 'alien', cat: 'Smileys' },
+  { c: '🤖', n: 'robot', cat: 'Smileys' }, { c: '😺', n: 'grinning cat', cat: 'Smileys' },
+  { c: '❤️', n: 'red heart love', cat: 'Smileys' }, { c: '🧡', n: 'orange heart', cat: 'Smileys' },
+  { c: '💛', n: 'yellow heart', cat: 'Smileys' }, { c: '💚', n: 'green heart', cat: 'Smileys' },
+  { c: '💙', n: 'blue heart', cat: 'Smileys' }, { c: '💜', n: 'purple heart', cat: 'Smileys' },
+  { c: '🖤', n: 'black heart', cat: 'Smileys' }, { c: '🤍', n: 'white heart', cat: 'Smileys' },
+  { c: '💔', n: 'broken heart heartbreak', cat: 'Smileys' }, { c: '💕', n: 'two hearts love', cat: 'Smileys' },
+  { c: '💖', n: 'sparkling heart love', cat: 'Smileys' }, { c: '💗', n: 'growing heart', cat: 'Smileys' },
+  { c: '💓', n: 'beating heart', cat: 'Smileys' }, { c: '💞', n: 'revolving hearts', cat: 'Smileys' },
+  { c: '👍', n: 'thumbs up like good', cat: 'People' }, { c: '👎', n: 'thumbs down dislike bad', cat: 'People' },
+  { c: '👏', n: 'clapping hands applause', cat: 'People' }, { c: '🙌', n: 'raising hands celebration', cat: 'People' },
+  { c: '👋', n: 'waving hand hello bye', cat: 'People' }, { c: '🤝', n: 'handshake deal agreement', cat: 'People' },
+  { c: '🙏', n: 'folded hands pray thanks please', cat: 'People' }, { c: '💪', n: 'flexed biceps strong muscle', cat: 'People' },
+  { c: '✌️', n: 'victory hand peace sign', cat: 'People' }, { c: '🤞', n: 'crossed fingers luck', cat: 'People' },
+  { c: '👌', n: 'ok hand sign', cat: 'People' }, { c: '👊', n: 'oncoming fist bump punch', cat: 'People' },
+  { c: '✊', n: 'raised fist power', cat: 'People' }, { c: '☝️', n: 'index pointing up', cat: 'People' },
+  { c: '👆', n: 'backhand index pointing up', cat: 'People' }, { c: '👇', n: 'backhand index pointing down', cat: 'People' },
+  { c: '👈', n: 'backhand index pointing left', cat: 'People' }, { c: '👉', n: 'backhand index pointing right', cat: 'People' },
+  { c: '🖐️', n: 'hand fingers splayed', cat: 'People' }, { c: '✋', n: 'raised hand stop', cat: 'People' },
+  { c: '🤟', n: 'love you gesture', cat: 'People' }, { c: '🤙', n: 'call me hand shaka', cat: 'People' },
+  { c: '💅', n: 'nail polish manicure', cat: 'People' }, { c: '👀', n: 'eyes looking', cat: 'People' },
+  { c: '🧠', n: 'brain smart', cat: 'People' }, { c: '👶', n: 'baby', cat: 'People' },
+  { c: '🧒', n: 'child', cat: 'People' }, { c: '👦', n: 'boy', cat: 'People' }, { c: '👧', n: 'girl', cat: 'People' },
+  { c: '👨', n: 'man', cat: 'People' }, { c: '👩', n: 'woman', cat: 'People' }, { c: '🧓', n: 'older person', cat: 'People' },
+  { c: '👴', n: 'old man', cat: 'People' }, { c: '👵', n: 'old woman', cat: 'People' },
+  { c: '🐶', n: 'dog face puppy', cat: 'Animals' }, { c: '🐱', n: 'cat face kitten', cat: 'Animals' },
+  { c: '🐭', n: 'mouse face', cat: 'Animals' }, { c: '🐹', n: 'hamster face', cat: 'Animals' },
+  { c: '🐰', n: 'rabbit face bunny', cat: 'Animals' }, { c: '🦊', n: 'fox face', cat: 'Animals' },
+  { c: '🐻', n: 'bear face', cat: 'Animals' }, { c: '🐼', n: 'panda face', cat: 'Animals' },
+  { c: '🐨', n: 'koala', cat: 'Animals' }, { c: '🐯', n: 'tiger face', cat: 'Animals' },
+  { c: '🦁', n: 'lion face', cat: 'Animals' }, { c: '🐮', n: 'cow face', cat: 'Animals' },
+  { c: '🐷', n: 'pig face', cat: 'Animals' }, { c: '🐸', n: 'frog face', cat: 'Animals' },
+  { c: '🐵', n: 'monkey face', cat: 'Animals' }, { c: '🙈', n: 'see no evil monkey', cat: 'Animals' },
+  { c: '🙉', n: 'hear no evil monkey', cat: 'Animals' }, { c: '🙊', n: 'speak no evil monkey', cat: 'Animals' },
+  { c: '🐔', n: 'chicken', cat: 'Animals' }, { c: '🐧', n: 'penguin', cat: 'Animals' },
+  { c: '🐦', n: 'bird', cat: 'Animals' }, { c: '🦅', n: 'eagle', cat: 'Animals' },
+  { c: '🦉', n: 'owl', cat: 'Animals' }, { c: '🦇', n: 'bat', cat: 'Animals' },
+  { c: '🐺', n: 'wolf face', cat: 'Animals' }, { c: '🐗', n: 'boar', cat: 'Animals' },
+  { c: '🐴', n: 'horse face', cat: 'Animals' }, { c: '🦄', n: 'unicorn face', cat: 'Animals' },
+  { c: '🐝', n: 'honeybee bee', cat: 'Animals' }, { c: '🐛', n: 'bug caterpillar', cat: 'Animals' },
+  { c: '🦋', n: 'butterfly', cat: 'Animals' }, { c: '🐌', n: 'snail', cat: 'Animals' },
+  { c: '🐞', n: 'lady beetle ladybug', cat: 'Animals' }, { c: '🐜', n: 'ant', cat: 'Animals' },
+  { c: '🐢', n: 'turtle', cat: 'Animals' }, { c: '🐍', n: 'snake', cat: 'Animals' },
+  { c: '🦎', n: 'lizard', cat: 'Animals' }, { c: '🐙', n: 'octopus', cat: 'Animals' },
+  { c: '🦑', n: 'squid', cat: 'Animals' }, { c: '🦀', n: 'crab', cat: 'Animals' },
+  { c: '🐠', n: 'tropical fish', cat: 'Animals' }, { c: '🐟', n: 'fish', cat: 'Animals' },
+  { c: '🐳', n: 'spouting whale', cat: 'Animals' }, { c: '🐬', n: 'dolphin', cat: 'Animals' },
+  { c: '🦈', n: 'shark', cat: 'Animals' }, { c: '🐊', n: 'crocodile', cat: 'Animals' },
+  { c: '🐘', n: 'elephant', cat: 'Animals' }, { c: '🦒', n: 'giraffe', cat: 'Animals' },
+  { c: '🦓', n: 'zebra', cat: 'Animals' }, { c: '🦍', n: 'gorilla', cat: 'Animals' },
+  { c: '🐎', n: 'racehorse', cat: 'Animals' }, { c: '🐄', n: 'cow', cat: 'Animals' },
+  { c: '🐑', n: 'ewe sheep', cat: 'Animals' }, { c: '🐐', n: 'goat', cat: 'Animals' },
+  { c: '🌵', n: 'cactus', cat: 'Animals' }, { c: '🌲', n: 'evergreen tree', cat: 'Animals' },
+  { c: '🌳', n: 'deciduous tree', cat: 'Animals' }, { c: '🌴', n: 'palm tree', cat: 'Animals' },
+  { c: '🌸', n: 'cherry blossom flower', cat: 'Animals' }, { c: '🌹', n: 'rose flower', cat: 'Animals' },
+  { c: '🌻', n: 'sunflower', cat: 'Animals' }, { c: '🍄', n: 'mushroom', cat: 'Animals' },
+  { c: '🌍', n: 'globe earth', cat: 'Animals' }, { c: '🌙', n: 'crescent moon', cat: 'Animals' },
+  { c: '⭐', n: 'star', cat: 'Animals' }, { c: '☀️', n: 'sun sunny', cat: 'Animals' },
+  { c: '⛅', n: 'sun behind cloud partly cloudy', cat: 'Animals' }, { c: '🌧️', n: 'cloud with rain', cat: 'Animals' },
+  { c: '⛈️', n: 'thunderstorm', cat: 'Animals' }, { c: '❄️', n: 'snowflake snow', cat: 'Animals' },
+  { c: '🍎', n: 'red apple', cat: 'Food' }, { c: '🍏', n: 'green apple', cat: 'Food' },
+  { c: '🍊', n: 'tangerine orange', cat: 'Food' }, { c: '🍋', n: 'lemon', cat: 'Food' },
+  { c: '🍌', n: 'banana', cat: 'Food' }, { c: '🍉', n: 'watermelon', cat: 'Food' },
+  { c: '🍇', n: 'grapes', cat: 'Food' }, { c: '🍓', n: 'strawberry', cat: 'Food' },
+  { c: '🍈', n: 'melon', cat: 'Food' }, { c: '🍒', n: 'cherries', cat: 'Food' },
+  { c: '🍑', n: 'peach', cat: 'Food' }, { c: '🥭', n: 'mango', cat: 'Food' },
+  { c: '🍍', n: 'pineapple', cat: 'Food' }, { c: '🥥', n: 'coconut', cat: 'Food' },
+  { c: '🥝', n: 'kiwi fruit', cat: 'Food' }, { c: '🍅', n: 'tomato', cat: 'Food' },
+  { c: '🥑', n: 'avocado', cat: 'Food' }, { c: '🍆', n: 'eggplant', cat: 'Food' },
+  { c: '🥔', n: 'potato', cat: 'Food' }, { c: '🥕', n: 'carrot', cat: 'Food' },
+  { c: '🌽', n: 'corn ear', cat: 'Food' }, { c: '🌶️', n: 'hot pepper chili', cat: 'Food' },
+  { c: '🥦', n: 'broccoli', cat: 'Food' }, { c: '🍞', n: 'bread loaf', cat: 'Food' },
+  { c: '🥐', n: 'croissant', cat: 'Food' }, { c: '🥖', n: 'baguette bread', cat: 'Food' },
+  { c: '🧀', n: 'cheese wedge', cat: 'Food' }, { c: '🥚', n: 'egg', cat: 'Food' },
+  { c: '🍳', n: 'cooking fried egg', cat: 'Food' }, { c: '🥓', n: 'bacon', cat: 'Food' },
+  { c: '🥩', n: 'cut of meat steak', cat: 'Food' }, { c: '🍗', n: 'poultry leg chicken', cat: 'Food' },
+  { c: '🍔', n: 'hamburger burger', cat: 'Food' }, { c: '🍟', n: 'french fries', cat: 'Food' },
+  { c: '🍕', n: 'pizza slice', cat: 'Food' }, { c: '🌭', n: 'hot dog', cat: 'Food' },
+  { c: '🌮', n: 'taco', cat: 'Food' }, { c: '🌯', n: 'burrito', cat: 'Food' },
+  { c: '🥗', n: 'green salad', cat: 'Food' }, { c: '🍝', n: 'spaghetti pasta', cat: 'Food' },
+  { c: '🍜', n: 'steaming bowl ramen noodles', cat: 'Food' }, { c: '🍲', n: 'pot of food stew', cat: 'Food' },
+  { c: '🍣', n: 'sushi', cat: 'Food' }, { c: '🍱', n: 'bento box', cat: 'Food' },
+  { c: '🍦', n: 'soft ice cream', cat: 'Food' }, { c: '🍩', n: 'doughnut donut', cat: 'Food' },
+  { c: '🍪', n: 'cookie', cat: 'Food' }, { c: '🎂', n: 'birthday cake', cat: 'Food' },
+  { c: '🍰', n: 'shortcake slice of cake', cat: 'Food' }, { c: '🍫', n: 'chocolate bar', cat: 'Food' },
+  { c: '🍭', n: 'lollipop candy', cat: 'Food' }, { c: '☕', n: 'hot beverage coffee', cat: 'Food' },
+  { c: '🍵', n: 'teacup without handle tea', cat: 'Food' }, { c: '🍺', n: 'beer mug', cat: 'Food' },
+  { c: '🍷', n: 'wine glass', cat: 'Food' }, { c: '🥤', n: 'cup with straw soda', cat: 'Food' },
+  { c: '⚽', n: 'soccer ball football', cat: 'Activities' }, { c: '🏀', n: 'basketball', cat: 'Activities' },
+  { c: '🏈', n: 'american football', cat: 'Activities' }, { c: '⚾', n: 'baseball', cat: 'Activities' },
+  { c: '🎾', n: 'tennis', cat: 'Activities' }, { c: '🏐', n: 'volleyball', cat: 'Activities' },
+  { c: '🏓', n: 'ping pong table tennis', cat: 'Activities' }, { c: '🏸', n: 'badminton', cat: 'Activities' },
+  { c: '🥊', n: 'boxing glove', cat: 'Activities' }, { c: '🥋', n: 'martial arts uniform', cat: 'Activities' },
+  { c: '🎳', n: 'bowling', cat: 'Activities' }, { c: '⛳', n: 'golf flag', cat: 'Activities' },
+  { c: '🎣', n: 'fishing pole', cat: 'Activities' }, { c: '🎯', n: 'direct hit dart target', cat: 'Activities' },
+  { c: '🎮', n: 'video game controller gaming', cat: 'Activities' }, { c: '🎲', n: 'game die dice', cat: 'Activities' },
+  { c: '🎸', n: 'guitar music', cat: 'Activities' }, { c: '🎹', n: 'musical keyboard piano', cat: 'Activities' },
+  { c: '🎨', n: 'artist palette art paint', cat: 'Activities' }, { c: '🎤', n: 'microphone singing', cat: 'Activities' },
+  { c: '🎧', n: 'headphone music', cat: 'Activities' }, { c: '🎬', n: 'clapper board movie film', cat: 'Activities' },
+  { c: '🏆', n: 'trophy award win', cat: 'Activities' }, { c: '🥇', n: 'gold medal first place', cat: 'Activities' },
+  { c: '✈️', n: 'airplane flight travel', cat: 'Travel' }, { c: '🚗', n: 'car automobile', cat: 'Travel' },
+  { c: '🚕', n: 'taxi', cat: 'Travel' }, { c: '🚌', n: 'bus', cat: 'Travel' },
+  { c: '🚓', n: 'police car', cat: 'Travel' }, { c: '🚑', n: 'ambulance', cat: 'Travel' },
+  { c: '🚒', n: 'fire engine truck', cat: 'Travel' }, { c: '🚲', n: 'bicycle bike', cat: 'Travel' },
+  { c: '🏍️', n: 'motorcycle', cat: 'Travel' }, { c: '🚀', n: 'rocket spaceship', cat: 'Travel' },
+  { c: '🚁', n: 'helicopter', cat: 'Travel' }, { c: '⛵', n: 'sailboat', cat: 'Travel' },
+  { c: '🚢', n: 'ship', cat: 'Travel' }, { c: '🚂', n: 'locomotive train', cat: 'Travel' },
+  { c: '🚆', n: 'train', cat: 'Travel' }, { c: '🚇', n: 'metro subway', cat: 'Travel' },
+  { c: '🗽', n: 'statue of liberty', cat: 'Travel' }, { c: '🗼', n: 'tokyo tower', cat: 'Travel' },
+  { c: '🏰', n: 'castle', cat: 'Travel' }, { c: '🏔️', n: 'snow capped mountain', cat: 'Travel' },
+  { c: '🏖️', n: 'beach with umbrella', cat: 'Travel' }, { c: '🏝️', n: 'desert island', cat: 'Travel' },
+  { c: '🌋', n: 'volcano', cat: 'Travel' }, { c: '🗺️', n: 'world map', cat: 'Travel' },
+  { c: '🧳', n: 'luggage suitcase', cat: 'Travel' }, { c: '⛺', n: 'tent camping', cat: 'Travel' },
+  { c: '📱', n: 'mobile phone smartphone', cat: 'Objects' }, { c: '💻', n: 'laptop computer', cat: 'Objects' },
+  { c: '⌨️', n: 'keyboard', cat: 'Objects' }, { c: '🖥️', n: 'desktop computer', cat: 'Objects' },
+  { c: '🖨️', n: 'printer', cat: 'Objects' }, { c: '📷', n: 'camera photo', cat: 'Objects' },
+  { c: '📺', n: 'television tv', cat: 'Objects' }, { c: '⏰', n: 'alarm clock', cat: 'Objects' },
+  { c: '⌚', n: 'watch', cat: 'Objects' }, { c: '💡', n: 'light bulb idea', cat: 'Objects' },
+  { c: '🔦', n: 'flashlight torch', cat: 'Objects' }, { c: '🔋', n: 'battery', cat: 'Objects' },
+  { c: '💰', n: 'money bag', cat: 'Objects' }, { c: '💵', n: 'dollar banknote money', cat: 'Objects' },
+  { c: '💳', n: 'credit card', cat: 'Objects' }, { c: '📚', n: 'books', cat: 'Objects' },
+  { c: '📖', n: 'open book', cat: 'Objects' }, { c: '✏️', n: 'pencil write', cat: 'Objects' },
+  { c: '🖊️', n: 'pen', cat: 'Objects' }, { c: '📝', n: 'memo note writing', cat: 'Objects' },
+  { c: '📌', n: 'pushpin pin', cat: 'Objects' }, { c: '📎', n: 'paperclip', cat: 'Objects' },
+  { c: '✂️', n: 'scissors cut', cat: 'Objects' }, { c: '🔒', n: 'locked lock', cat: 'Objects' },
+  { c: '🔑', n: 'key', cat: 'Objects' }, { c: '🔨', n: 'hammer tool', cat: 'Objects' },
+  { c: '🔧', n: 'wrench tool', cat: 'Objects' }, { c: '💊', n: 'pill medicine', cat: 'Objects' },
+  { c: '🎁', n: 'wrapped gift present', cat: 'Objects' }, { c: '🎈', n: 'balloon', cat: 'Objects' },
+  { c: '🎉', n: 'party popper celebration confetti', cat: 'Objects' }, { c: '🎊', n: 'confetti ball party', cat: 'Objects' },
+  { c: '✅', n: 'check mark button done correct', cat: 'Symbols' }, { c: '❌', n: 'cross mark wrong', cat: 'Symbols' },
+  { c: '❗', n: 'exclamation mark warning', cat: 'Symbols' }, { c: '❓', n: 'question mark', cat: 'Symbols' },
+  { c: '⚠️', n: 'warning sign', cat: 'Symbols' }, { c: '🚫', n: 'prohibited no entry', cat: 'Symbols' },
+  { c: '♻️', n: 'recycling symbol', cat: 'Symbols' }, { c: '💯', n: 'hundred points perfect score', cat: 'Symbols' },
+  { c: '🔥', n: 'fire flame hot', cat: 'Symbols' }, { c: '✨', n: 'sparkles shiny', cat: 'Symbols' },
+  { c: '⚡', n: 'high voltage lightning bolt', cat: 'Symbols' }, { c: '💥', n: 'collision explosion boom', cat: 'Symbols' },
+  { c: '💫', n: 'dizzy stars', cat: 'Symbols' }, { c: '🔴', n: 'red circle', cat: 'Symbols' },
+  { c: '🟢', n: 'green circle', cat: 'Symbols' }, { c: '🔵', n: 'blue circle', cat: 'Symbols' },
+  { c: '⬆️', n: 'up arrow', cat: 'Symbols' }, { c: '⬇️', n: 'down arrow', cat: 'Symbols' },
+  { c: '➡️', n: 'right arrow', cat: 'Symbols' }, { c: '⬅️', n: 'left arrow', cat: 'Symbols' },
+  { c: '🔄', n: 'counterclockwise arrows refresh reload', cat: 'Symbols' }, { c: '♥️', n: 'heart suit card', cat: 'Symbols' },
+  { c: '🇺🇸', n: 'united states flag usa america', cat: 'Flags' }, { c: '🇬🇧', n: 'united kingdom flag britain uk', cat: 'Flags' },
+  { c: '🇨🇦', n: 'canada flag', cat: 'Flags' }, { c: '🇦🇺', n: 'australia flag', cat: 'Flags' },
+  { c: '🇩🇪', n: 'germany flag', cat: 'Flags' }, { c: '🇫🇷', n: 'france flag', cat: 'Flags' },
+  { c: '🇮🇹', n: 'italy flag', cat: 'Flags' }, { c: '🇪🇸', n: 'spain flag', cat: 'Flags' },
+  { c: '🇯🇵', n: 'japan flag', cat: 'Flags' }, { c: '🇰🇷', n: 'south korea flag', cat: 'Flags' },
+  { c: '🇨🇳', n: 'china flag', cat: 'Flags' }, { c: '🇮🇳', n: 'india flag', cat: 'Flags' },
+  { c: '🇧🇷', n: 'brazil flag', cat: 'Flags' }, { c: '🇲🇽', n: 'mexico flag', cat: 'Flags' }
+];
+
+const CATEGORIES = ['All', ...Array.from(new Set(EMOJIS.map(e => e.cat)))];
+
+const searchInput = document.getElementById('searchInput');
+const categoryTabs = document.getElementById('categoryTabs');
+const emojiGrid = document.getElementById('emojiGrid');
+const emojiEmpty = document.getElementById('emojiEmpty');
+const copyFeedback = document.getElementById('copyFeedback');
+const copiedChar = document.getElementById('copiedChar');
+
+let activeCategory = 'All';
+
+CATEGORIES.forEach(cat => {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'secondary category-tab' + (cat === 'All' ? ' active' : '');
+  btn.textContent = cat;
+  btn.dataset.cat = cat;
+  btn.addEventListener('click', () => {
+    activeCategory = cat;
+    [...categoryTabs.children].forEach(b => b.classList.toggle('active', b === btn));
+    render();
+  });
+  categoryTabs.appendChild(btn);
+});
+
+async function copyEmoji(char) {
+  try {
+    await navigator.clipboard.writeText(char);
+    copiedChar.textContent = char;
+    copyFeedback.classList.add('show');
+    setTimeout(() => copyFeedback.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+}
+
+function render() {
+  const query = searchInput.value.trim().toLowerCase();
+  const filtered = EMOJIS.filter(e => {
+    const matchesCategory = activeCategory === 'All' || e.cat === activeCategory;
+    const matchesQuery = query === '' || e.n.includes(query);
+    return matchesCategory && matchesQuery;
+  });
+
+  emojiGrid.innerHTML = '';
+  emojiEmpty.style.display = filtered.length === 0 ? '' : 'none';
+
+  filtered.forEach(e => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'emoji-btn';
+    btn.textContent = e.c;
+    btn.title = e.n;
+    btn.setAttribute('aria-label', e.n);
+    btn.addEventListener('click', () => copyEmoji(e.c));
+    emojiGrid.appendChild(btn);
+  });
+}
+
+searchInput.addEventListener('input', render);
+render();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
