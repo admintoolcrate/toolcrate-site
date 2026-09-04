@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cron Expression Explainer — Free, No Signup | Toolcrate</title>
+<meta name="description" content="Explain a cron expression in plain English and see its next run times. No signup, nothing uploaded to a server — everything runs in your browser.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Cron Expression Explainer</h1>
+    <p>Paste a 5-field cron expression to see what it means in plain English and when it will next run.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="input">Cron expression</label>
+        <input type="text" id="input" value="*/15 9-17 * * 1-5" spellcheck="false" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="presets">Examples</label>
+        <select id="presets">
+          <option value="">Choose an example…</option>
+          <option value="* * * * *">Every minute</option>
+          <option value="*/15 * * * *">Every 15 minutes</option>
+          <option value="0 * * * *">Every hour</option>
+          <option value="0 0 * * *">Every day at midnight</option>
+          <option value="0 9 * * 1-5">Weekdays at 9:00 AM</option>
+          <option value="*/15 9-17 * * 1-5">Every 15 min, 9am-5pm, weekdays</option>
+          <option value="0 0 1 * *">First day of every month</option>
+          <option value="0 0 * * 0">Every Sunday at midnight</option>
+          <option value="0 0 1 1 *">Once a year, Jan 1st</option>
+          <option value="@daily">@daily</option>
+          <option value="@hourly">@hourly</option>
+          <option value="@reboot">@reboot</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button id="explainBtn">Explain</button>
+      <button id="clearBtn" class="secondary">Clear</button>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label for="descOutput">Schedule</label>
+    <div id="descOutput" class="output-panel empty">A plain-English description will appear here.</div>
+  </div>
+
+  <div class="field">
+    <label for="nextOutput">Next 5 run times (your local time zone)</label>
+    <div id="nextOutput" class="output-panel empty">Upcoming run times will appear here.</div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>This tool reads the standard 5-field cron format — <code>minute hour day-of-month month day-of-week</code> — supporting <code>*</code>, single values, ranges (<code>1-5</code>), steps (<code>*/15</code>, <code>1-31/2</code>), comma-separated lists, and month/weekday names (<code>JAN</code>, <code>MON</code>). It also recognizes the common nonstandard shortcuts <code>@yearly</code>, <code>@monthly</code>, <code>@weekly</code>, <code>@daily</code>, <code>@hourly</code>, and <code>@reboot</code>. The 6-field format with a leading seconds column (used by some non-standard schedulers, like Quartz) is not supported.</p>
+    <p>When both day-of-month and day-of-week are restricted (neither is <code>*</code>), standard cron treats them as an <strong>OR</strong>, not an AND — a run happens when either condition matches. The "next 5 run times" list is computed by walking forward minute-by-minute in your browser's own local time zone, so it's the authoritative answer if the plain-English description ever seems ambiguous. Nothing you enter is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const input = document.getElementById('input');
+const presets = document.getElementById('presets');
+const errorEl = document.getElementById('error');
+const descOutput = document.getElementById('descOutput');
+const nextOutput = document.getElementById('nextOutput');
+
+function showError(msg) { errorEl.textContent = msg; }
+function clearError() { errorEl.textContent = ''; }
+
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_ABBR = {JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12};
+const DOW_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DOW_ABBR = {SUN:0,MON:1,TUE:2,WED:3,THU:4,FRI:5,SAT:6};
+
+const NAMED_SHORTCUTS = {
+  '@yearly': '0 0 1 1 *',
+  '@annually': '0 0 1 1 *',
+  '@monthly': '0 0 1 * *',
+  '@weekly': '0 0 * * 0',
+  '@daily': '0 0 * * *',
+  '@midnight': '0 0 * * *',
+  '@hourly': '0 * * * *'
+};
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+function substituteNames(field, nameMap) {
+  let f = field.toUpperCase();
+  Object.keys(nameMap).forEach(name => {
+    f = f.split(name).join(String(nameMap[name]));
+  });
+  return f;
+}
+
+// Expands one cron field into a Set of matching integer values.
+function expandField(rawField, min, max, fieldLabel, nameMap) {
+  const field = nameMap ? substituteNames(rawField, nameMap) : rawField;
+  const values = new Set();
+  field.split(',').forEach(part => {
+    if (part === '') throw new Error(`Empty item in ${fieldLabel} field.`);
+    let step = 1;
+    let rangePart = part;
+    const stepMatch = part.match(/^(.+)\/(\d+)$/);
+    if (stepMatch) {
+      rangePart = stepMatch[1];
+      step = parseInt(stepMatch[2], 10);
+      if (step <= 0) throw new Error(`Step must be a positive integer in ${fieldLabel} field: "${part}".`);
+    }
+    let start, end;
+    if (rangePart === '*') {
+      start = min; end = max;
+    } else {
+      const rangeMatch = rangePart.match(/^(\d+)-(\d+)$/);
+      if (rangeMatch) {
+        start = parseInt(rangeMatch[1], 10);
+        end = parseInt(rangeMatch[2], 10);
+      } else if (/^\d+$/.test(rangePart)) {
+        start = end = parseInt(rangePart, 10);
+      } else {
+        throw new Error(`Cannot parse "${part}" in ${fieldLabel} field.`);
+      }
+    }
+    if (start > end) throw new Error(`Range start is after range end in ${fieldLabel} field: "${part}".`);
+    if (start < min || end > max) throw new Error(`Value out of range (${min}-${max}) in ${fieldLabel} field: "${part}".`);
+    for (let v = start; v <= end; v += step) values.add(v);
+  });
+  return values;
+}
+
+function fieldPhrase(field, min, max, singular, plural, toName) {
+  if (field === '*') return `every ${singular}`;
+  let m = field.match(/^\*\/(\d+)$/);
+  if (m) return `every ${m[1]} ${plural}`;
+  m = field.match(/^(\d+)-(\d+)\/(\d+)$/);
+  if (m) return `every ${m[3]} ${plural} from ${toName(+m[1])} to ${toName(+m[2])}`;
+  const describeItem = p => {
+    const mm = p.match(/^(\d+)-(\d+)$/);
+    return mm ? `${toName(+mm[1])}–${toName(+mm[2])}` : toName(+p);
+  };
+  if (field.includes(',')) {
+    return `${singular}s ${field.split(',').map(describeItem).join(', ')}`;
+  }
+  const mr = field.match(/^(\d+)-(\d+)$/);
+  if (mr) return `${singular}s ${toName(+mr[1])}–${toName(+mr[2])}`;
+  if (/^\d+$/.test(field)) return `${singular} ${toName(+field)}`;
+  return field;
+}
+
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function describeCron(min, hour, dom, mon, dow) {
+  const isExact = f => /^\d+$/.test(f);
+  let timeClause;
+  if (isExact(min) && isExact(hour)) {
+    timeClause = `At ${pad2(+hour)}:${pad2(+min)}`;
+  } else {
+    const minutePhrase = fieldPhrase(min, 0, 59, 'minute', 'minutes', String);
+    const mClauseBase = minutePhrase.startsWith('every') ? capitalize(minutePhrase) : `At ${minutePhrase}`;
+    if (hour === '*') {
+      timeClause = isExact(min) ? `${mClauseBase} past every hour` : mClauseBase;
+    } else {
+      const hourPhrase = fieldPhrase(hour, 0, 23, 'hour', 'hours', String);
+      let hClause;
+      if (hourPhrase.startsWith('every')) hClause = hourPhrase;
+      else if (/^hour \d+$/.test(hourPhrase)) hClause = `past ${hourPhrase}`;
+      else hClause = `during ${hourPhrase}`;
+      timeClause = `${mClauseBase}, ${hClause}`;
+    }
+  }
+
+  const domPhrase = dom === '*' ? null : fieldPhrase(dom, 1, 31, 'day', 'days', String);
+  const monPhrase = mon === '*' ? null : fieldPhrase(mon, 1, 12, 'month', 'months', n => MONTH_NAMES[n - 1]);
+  const dowPhrase = dow === '*' ? null : fieldPhrase(dow, 0, 7, 'weekday', 'weekdays', n => DOW_NAMES[n % 7]);
+
+  const clauses = [timeClause];
+  if (domPhrase) clauses.push(`on ${domPhrase}`);
+  if (monPhrase) clauses.push(`in ${monPhrase}`);
+  if (dowPhrase) clauses.push(`on ${dowPhrase}`);
+  let sentence = clauses.join(', ') + '.';
+  if (dom !== '*' && dow !== '*') {
+    sentence += ' (Day-of-month or day-of-week — runs when either condition matches.)';
+  }
+  return sentence;
+}
+
+function parseCronExpression(raw) {
+  const trimmed = raw.trim();
+  if (!trimmed) throw new Error('Enter a cron expression.');
+
+  if (trimmed.toLowerCase() === '@reboot') {
+    return { reboot: true, description: 'Runs once at system startup — this is not a time-based schedule, so no upcoming run times can be listed.' };
+  }
+
+  const expanded = NAMED_SHORTCUTS[trimmed.toLowerCase()] || trimmed;
+  const parts = expanded.split(/\s+/);
+  if (parts.length !== 5) {
+    throw new Error(`Expected 5 space-separated fields (minute hour day-of-month month day-of-week), got ${parts.length}.`);
+  }
+  const [minField, hourField, domField, monField, dowField] = parts;
+
+  const minuteSet = expandField(minField, 0, 59, 'minute');
+  const hourSet = expandField(hourField, 0, 23, 'hour');
+  const domSet = expandField(domField, 1, 31, 'day-of-month');
+  const monthSet = expandField(monField, 1, 12, 'month', MONTH_ABBR);
+  let dowSet = expandField(dowField, 0, 7, 'day-of-week', DOW_ABBR);
+  if (dowSet.has(7)) { dowSet.delete(7); dowSet.add(0); }
+
+  const monFieldNumeric = substituteNames(monField, MONTH_ABBR);
+  const dowFieldNumeric = substituteNames(dowField, DOW_ABBR);
+  const description = describeCron(minField, hourField, domField, monFieldNumeric, dowFieldNumeric);
+
+  return { reboot: false, minuteSet, hourSet, domSet, monthSet, dowSet, domField, dowField, description };
+}
+
+function nextRunTimes(parsed, count) {
+  const { minuteSet, hourSet, domSet, monthSet, dowSet, domField, dowField } = parsed;
+  const results = [];
+  const cursor = new Date();
+  cursor.setSeconds(0, 0);
+  cursor.setMinutes(cursor.getMinutes() + 1);
+
+  const maxIterations = 4 * 366 * 24 * 60; // ~4 years of minutes
+  for (let i = 0; i < maxIterations && results.length < count; i++) {
+    const minute = cursor.getMinutes();
+    const hour = cursor.getHours();
+    const dom = cursor.getDate();
+    const month = cursor.getMonth() + 1;
+    const dow = cursor.getDay();
+
+    let dayMatches;
+    if (domField === '*' && dowField === '*') dayMatches = true;
+    else if (domField === '*') dayMatches = dowSet.has(dow);
+    else if (dowField === '*') dayMatches = domSet.has(dom);
+    else dayMatches = domSet.has(dom) || dowSet.has(dow);
+
+    if (minuteSet.has(minute) && hourSet.has(hour) && monthSet.has(month) && dayMatches) {
+      results.push(new Date(cursor));
+    }
+    cursor.setMinutes(cursor.getMinutes() + 1);
+  }
+  return results;
+}
+
+function formatRunTime(date) {
+  const weekday = DOW_NAMES[date.getDay()].slice(0, 3);
+  const month = MONTH_NAMES[date.getMonth()].slice(0, 3);
+  return `${weekday}, ${month} ${date.getDate()}, ${date.getFullYear()} at ${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+}
+
+function showDesc(text) {
+  descOutput.textContent = text;
+  descOutput.classList.remove('empty');
+}
+function showNext(text) {
+  nextOutput.textContent = text;
+  nextOutput.classList.remove('empty');
+}
+
+document.getElementById('explainBtn').addEventListener('click', () => {
+  clearError();
+  try {
+    const parsed = parseCronExpression(input.value);
+    if (parsed.reboot) {
+      showDesc(parsed.description);
+      showNext('Not applicable — @reboot has no scheduled run times.');
+      return;
+    }
+    showDesc(parsed.description);
+    const runs = nextRunTimes(parsed, 5);
+    if (runs.length === 0) {
+      showNext('No matching run time found in the next 4 years. Check for an impossible combination (for example, day-of-month 31 restricted to a month that never has 31 days).');
+    } else {
+      showNext(runs.map(formatRunTime).join('\n'));
+    }
+  } catch (e) {
+    showError(e.message);
+  }
+});
+
+presets.addEventListener('change', () => {
+  if (presets.value) {
+    input.value = presets.value;
+    presets.value = '';
+    input.focus();
+  }
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  input.value = '';
+  descOutput.textContent = 'A plain-English description will appear here.';
+  descOutput.classList.add('empty');
+  nextOutput.textContent = 'Upcoming run times will appear here.';
+  nextOutput.classList.add('empty');
+  clearError();
+  input.focus();
+});
+
+document.getElementById('explainBtn').click();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
