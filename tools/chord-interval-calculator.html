@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chord &amp; Interval Calculator | Toolcrate</title>
+<meta name="description" content="Build any chord from a root note, and see every interval and its resulting note. Free, instant, browser-only.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .interval-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .interval-table th, .interval-table td { padding: 0.4rem 0.6rem; text-align: left; border-bottom: 1px solid var(--line); }
+  .interval-table th { color: var(--muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .interval-table tr.in-chord { background: var(--line-soft, rgba(34,85,221,0.08)); font-weight: 600; }
+  .table-scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Chord &amp; Interval Calculator</h1>
+    <p>Build a chord from any root note, and see the full interval breakdown.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="rootSelect">Root note</label>
+        <select id="rootSelect">
+          <option value="0">C</option>
+          <option value="1">C# / Db</option>
+          <option value="2">D</option>
+          <option value="3">D# / Eb</option>
+          <option value="4">E</option>
+          <option value="5">F</option>
+          <option value="6">F# / Gb</option>
+          <option value="7">G</option>
+          <option value="8">G# / Ab</option>
+          <option value="9" selected>A</option>
+          <option value="10">A# / Bb</option>
+          <option value="11">B</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="chordSelect">Chord type</label>
+        <select id="chordSelect">
+          <option value="major">Major</option>
+          <option value="minor">Minor</option>
+          <option value="diminished">Diminished</option>
+          <option value="augmented">Augmented</option>
+          <option value="major7">Major 7th</option>
+          <option value="minor7">Minor 7th</option>
+          <option value="dominant7">Dominant 7th</option>
+          <option value="sus2">Sus2</option>
+          <option value="sus4">Sus4</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Chord notes</label>
+    <div id="chordOutput" class="output-panel">—</div>
+  </div>
+
+  <div class="panel">
+    <div class="table-scroll">
+      <table class="interval-table" id="intervalTable">
+        <thead><tr><th>Semitones</th><th>Interval name</th><th>Note</th></tr></thead>
+        <tbody id="intervalTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Every chord here is built by stacking a fixed set of semitone offsets on top of the root — a major chord is root, +4 semitones, +7 semitones, for example — using standard 12-tone equal temperament, so the same shape works starting from any root. The interval table below shows all twelve semitone steps from the root and highlights the ones your selected chord actually uses, which is a quick way to see how a chord relates to the full scale around it.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const rootSelect = document.getElementById('rootSelect');
+const chordSelect = document.getElementById('chordSelect');
+const chordOutput = document.getElementById('chordOutput');
+const intervalTableBody = document.getElementById('intervalTableBody');
+
+const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+const CHORDS = {
+  major: { name: 'Major', offsets: [0, 4, 7] },
+  minor: { name: 'Minor', offsets: [0, 3, 7] },
+  diminished: { name: 'Diminished', offsets: [0, 3, 6] },
+  augmented: { name: 'Augmented', offsets: [0, 4, 8] },
+  major7: { name: 'Major 7th', offsets: [0, 4, 7, 11] },
+  minor7: { name: 'Minor 7th', offsets: [0, 3, 7, 10] },
+  dominant7: { name: 'Dominant 7th', offsets: [0, 4, 7, 10] },
+  sus2: { name: 'Sus2', offsets: [0, 2, 7] },
+  sus4: { name: 'Sus4', offsets: [0, 5, 7] }
+};
+
+const INTERVAL_NAMES = [
+  'Unison', 'Minor 2nd', 'Major 2nd', 'Minor 3rd', 'Major 3rd', 'Perfect 4th',
+  'Tritone', 'Perfect 5th', 'Minor 6th', 'Major 6th', 'Minor 7th', 'Major 7th'
+];
+
+function render() {
+  const root = parseInt(rootSelect.value, 10);
+  const chord = CHORDS[chordSelect.value];
+  const chordOffsets = new Set(chord.offsets);
+
+  const chordNotes = chord.offsets.map(o => NOTE_NAMES[(root + o) % 12]);
+  chordOutput.textContent = `${NOTE_NAMES[root]} ${chord.name}: ${chordNotes.join(' – ')}`;
+
+  intervalTableBody.innerHTML = '';
+  for (let i = 0; i < 12; i++) {
+    const tr = document.createElement('tr');
+    if (chordOffsets.has(i)) tr.className = 'in-chord';
+
+    const tdSemi = document.createElement('td');
+    tdSemi.textContent = i;
+    const tdName = document.createElement('td');
+    tdName.textContent = INTERVAL_NAMES[i];
+    const tdNote = document.createElement('td');
+    tdNote.textContent = NOTE_NAMES[(root + i) % 12];
+
+    tr.appendChild(tdSemi);
+    tr.appendChild(tdName);
+    tr.appendChild(tdNote);
+    intervalTableBody.appendChild(tr);
+  }
+}
+
+rootSelect.addEventListener('change', render);
+chordSelect.addEventListener('change', render);
+render();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
