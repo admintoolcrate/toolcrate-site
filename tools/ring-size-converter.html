@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ring Size Converter — US, UK, EU, Diameter | Toolcrate</title>
+<meta name="description" content="Convert ring sizes between US, UK, EU, and diameter in millimeters. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Ring Size Converter</h1>
+    <p>Convert between US, UK, EU ring sizes, and inner diameter.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="systemSelect">I know my size in</label>
+        <select id="systemSelect">
+          <option value="us">US</option>
+          <option value="uk">UK</option>
+          <option value="mm">Diameter (mm)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="sizeSelect">Size</label>
+        <select id="sizeSelect"></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-grid" id="statGrid">
+    <div class="stat"><span class="stat-value" id="statUS">—</span><span class="stat-label">US</span></div>
+    <div class="stat"><span class="stat-value" id="statUK">—</span><span class="stat-label">UK</span></div>
+    <div class="stat"><span class="stat-value" id="statEU">—</span><span class="stat-label">EU (circumference, mm)</span></div>
+    <div class="stat"><span class="stat-value" id="statMM">—</span><span class="stat-label">Inner diameter (mm)</span></div>
+    <div class="stat"><span class="stat-value" id="statCirc">—</span><span class="stat-label">Circumference (mm)</span></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Diameter is the real underlying measurement — circumference is always exactly diameter × π, computed here rather than looked up, so those two numbers are always mathematically exact relative to each other. US and UK size labels come from a standard published reference chart mapping diameter to a size label; the "EU" figure shown here is the ring's circumference in millimeters, which is how the French/Swiss sizing convention actually defines a ring size (other regional systems exist and can differ by a few points, so confirm against the specific system your ring's origin uses if it matters).</p>
+    <p>Nothing you select here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+// Diameter (mm) and UK letter are the reference data; circumference and the
+// EU (circumference-based) figure are always computed, never hand-typed.
+const RING_SIZES = [
+  { us: 3, mm: 14.1, uk: 'F' },
+  { us: 4, mm: 14.9, uk: 'H' },
+  { us: 5, mm: 15.7, uk: 'J' },
+  { us: 6, mm: 16.5, uk: 'L' },
+  { us: 7, mm: 17.3, uk: 'N' },
+  { us: 8, mm: 18.1, uk: 'P' },
+  { us: 9, mm: 18.9, uk: 'R' },
+  { us: 10, mm: 19.7, uk: 'T' },
+  { us: 11, mm: 20.5, uk: 'V' },
+  { us: 12, mm: 21.3, uk: 'X' },
+  { us: 13, mm: 22.2, uk: 'Z' }
+];
+
+function circumference(mm) { return mm * Math.PI; }
+
+const systemSelect = document.getElementById('systemSelect');
+const sizeSelect = document.getElementById('sizeSelect');
+
+function populateSizeSelect() {
+  const system = systemSelect.value;
+  sizeSelect.innerHTML = '';
+  RING_SIZES.forEach((row, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = system === 'us' ? row.us : system === 'uk' ? row.uk : row.mm.toFixed(1);
+    sizeSelect.appendChild(opt);
+  });
+}
+
+function render() {
+  const row = RING_SIZES[sizeSelect.value] || RING_SIZES[0];
+  const circ = circumference(row.mm);
+  document.getElementById('statUS').textContent = row.us;
+  document.getElementById('statUK').textContent = row.uk;
+  document.getElementById('statEU').textContent = Math.round(circ);
+  document.getElementById('statMM').textContent = row.mm.toFixed(1);
+  document.getElementById('statCirc').textContent = circ.toFixed(1);
+}
+
+systemSelect.addEventListener('change', () => { populateSizeSelect(); render(); });
+sizeSelect.addEventListener('change', render);
+
+populateSizeSelect();
+render();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
