@@ -85,3 +85,56 @@ Some **bold** and *italic* text, plus `inline code`.
 > A blockquote for emphasis.
 
 [A link](https://example.com)
+
+          </textarea>
+      </div>
+      <div class="field">
+        <label for="preview">Preview</label>
+        <div id="preview" class="preview-panel"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>What's supported</h2>
+    <p>This covers the common Markdown syntax: headings (<code>#</code> through <code>######</code>), bold and italic, inline code and fenced code blocks, blockquotes, ordered and unordered lists (with any depth of nesting), links, images, horizontal rules, and basic pipe tables. It's a lightweight parser built for quick previews, not a full CommonMark implementation — footnotes, definition lists, and some edge cases in nested formatting aren't covered.</p>
+    <p>Everything renders locally in your browser as you type; nothing is uploaded.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const input = document.getElementById('input');
+const preview = document.getElementById('preview');
+
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+
+// Inline-level formatting: code spans first (so their contents are protected from
+// further escaping/formatting), then images, links, bold, italic.
+function renderInline(text) {
+  const codeSpans = [];
+  text = text.replace(/`([^`]+)`/g, (m, code) => {
+    codeSpans.push(escapeHtml(code));
+    return '\u0000' + (codeSpans.length - 1) + '\u0000';
+  });
+
+  text = escapeHtml(text);
+
+  text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+  text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  text = text.replace(/__([^_]+)__/g, '<strong>$1</strong>');
+  text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  text = text.replace(/(?<![a-zA-Z0-9_])_([^_]+)_(?![a-zA-Z0-9_])/g,
