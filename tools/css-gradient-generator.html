@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Gradient Generator — Linear &amp; Radial | Toolcrate</title>
+<meta name="description" content="Build linear or radial CSS gradients with a live preview and any number of color stops. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .gradient-preview {
+    width: 100%;
+    height: 200px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    margin-bottom: 1.05rem;
+  }
+  .stop-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+  .stop-row input[type="color"] {
+    width: 40px; height: 36px; padding: 2px;
+    border: 1px solid var(--line); border-radius: 6px;
+    background: var(--panel); cursor: pointer; flex-shrink: 0;
+  }
+  .stop-row input[type="number"] { width: 80px; flex-shrink: 0; }
+  .stop-row .stop-remove { flex-shrink: 0; }
+  .presets { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+  .preset-swatch { width: 44px; height: 32px; border-radius: 6px; border: 1px solid var(--line); cursor: pointer; padding: 0; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>CSS Gradient Generator</h1>
+    <p>Build a linear or radial gradient with any number of color stops, and copy the CSS.</p>
+  </div>
+
+  <div class="panel">
+    <div class="gradient-preview" id="preview"></div>
+
+    <div class="row">
+      <div class="field">
+        <label for="typeSelect">Type</label>
+        <select id="typeSelect">
+          <option value="linear">Linear</option>
+          <option value="radial">Radial</option>
+        </select>
+      </div>
+      <div class="field" id="angleField">
+        <label for="angleInput">Angle: <span id="angleValue">135</span>°</label>
+        <input type="range" id="angleInput" min="0" max="360" value="135">
+      </div>
+      <div class="field" id="shapeField" style="display:none;">
+        <label for="shapeSelect">Shape</label>
+        <select id="shapeSelect">
+          <option value="circle">Circle</option>
+          <option value="ellipse">Ellipse</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Color stops</label>
+      <div id="stopsList"></div>
+      <div class="btn-row">
+        <button id="addStopBtn" class="secondary">Add stop</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Presets</label>
+      <div class="presets" id="presets"></div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="output">CSS</label>
+    <div id="output" class="output-panel">—</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy CSS</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Linear gradients transition along a straight line at the angle you set (0° points up, and it increases clockwise, matching the CSS spec); radial gradients spread outward from the center. Add as many color stops as you like — each one's position (0–100%) is where that color is fully reached, and the browser blends smoothly between neighboring stops in the order you list them.</p>
+    <p>The generated CSS works as a <code>background</code> value on any element. Nothing you build here is sent to a server; the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const typeSelect = document.getElementById('typeSelect');
+const angleField = document.getElementById('angleField');
+const angleInput = document.getElementById('angleInput');
+const angleValue = document.getElementById('angleValue');
+const shapeField = document.getElementById('shapeField');
+const shapeSelect = document.getElementById('shapeSelect');
+const stopsList = document.getElementById('stopsList');
+const preview = document.getElementById('preview');
+const output = document.getElementById('output');
+
+let stops = [
+  { color: '#2255DD', pos: 0 },
+  { color: '#EC4899', pos: 100 }
+];
+
+function buildGradientCss() {
+  const stopStr = stops.map(s => `${s.color} ${s.pos}%`).join(', ');
+  if (typeSelect.value === 'linear') {
+    return `linear-gradient(${angleInput.value}deg, ${stopStr})`;
+  }
+  return `radial-gradient(${shapeSelect.value} at center, ${stopStr})`;
+}
+
+function renderStopsList() {
+  stopsList.innerHTML = '';
+  stops.forEach((stop, i) => {
+    const row = document.createElement('div');
+    row.className = 'stop-row';
+
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.value = stop.color;
+    colorInput.addEventListener('input', () => { stops[i].color = colorInput.value; render(); });
+
+    const posInput = document.createElement('input');
+    posInput.type = 'number';
+    posInput.min = '0';
+    posInput.max = '100';
+    posInput.value = stop.pos;
+    posInput.addEventListener('input', () => {
+      const v = Math.min(100, Math.max(0, parseInt(posInput.value, 10) || 0));
+      stops[i].pos = v;
+      render();
+    });
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'secondary stop-remove';
+    removeBtn.textContent = 'Remove';
+    removeBtn.type = 'button';
+    removeBtn.disabled = stops.length <= 2;
+    removeBtn.addEventListener('click', () => {
+      if (stops.length <= 2) return;
+      stops.splice(i, 1);
+      render();
+    });
+
+    row.appendChild(colorInput);
+    row.appendChild(posInput);
+    const pct = document.createElement('span');
+    pct.textContent = '%';
+    pct.style.color = 'var(--muted)';
+    row.appendChild(pct);
+    row.appendChild(removeBtn);
+    stopsList.appendChild(row);
+  });
+}
+
+function render() {
+  angleField.style.display = typeSelect.value === 'linear' ? '' : 'none';
+  shapeField.style.display = typeSelect.value === 'radial' ? '' : 'none';
+  angleValue.textContent = angleInput.value;
+
+  renderStopsList();
+  const css = buildGradientCss();
+  preview.style.background = css;
+  output.textContent = `background: ${css};`;
+  output.classList.remove('empty');
+}
+
+typeSelect.addEventListener('change', render);
+angleInput.addEventListener('input', render);
+shapeSelect.addEventListener('change', render);
+
+document.getElementById('addStopBtn').addEventListener('click', () => {
+  const lastPos = stops[stops.length - 1].pos;
+  stops.push({ color: '#FFFFFF', pos: Math.min(100, lastPos) });
+  render();
+});
+
+const PRESETS = [
+  { type: 'linear', angle: 135, stops: [{ color: '#2255DD', pos: 0 }, { color: '#EC4899', pos: 100 }] },
+  { type: 'linear', angle: 90, stops: [{ color: '#F59E0B', pos: 0 }, { color: '#EF4444', pos: 100 }] },
+  { type: 'linear', angle: 180, stops: [{ color: '#10B981', pos: 0 }, { color: '#2255DD', pos: 100 }] },
+  { type: 'linear', angle: 45, stops: [{ color: '#8B5CF6', pos: 0 }, { color: '#EC4899', pos: 50 }, { color: '#F59E0B', pos: 100 }] },
+  { type: 'radial', shape: 'circle', stops: [{ color: '#FFFFFF', pos: 0 }, { color: '#2255DD', pos: 100 }] },
+  { type: 'linear', angle: 0, stops: [{ color: '#000000', pos: 0 }, { color: '#374151', pos: 100 }] }
+];
+
+const presetsEl = document.getElementById('presets');
+PRESETS.forEach(preset => {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'preset-swatch';
+  const stopStr = preset.stops.map(s => `${s.color} ${s.pos}%`).join(', ');
+  btn.style.background = preset.type === 'linear'
+    ? `linear-gradient(${preset.angle}deg, ${stopStr})`
+    : `radial-gradient(${preset.shape} at center, ${stopStr})`;
+  btn.addEventListener('click', () => {
+    typeSelect.value = preset.type;
+    if (preset.type === 'linear') angleInput.value = preset.angle;
+    if (preset.type === 'radial') shapeSelect.value = preset.shape;
+    stops = preset.stops.map(s => ({ ...s }));
+    render();
+  });
+  presetsEl.appendChild(btn);
+});
+
+render();
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

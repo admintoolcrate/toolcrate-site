@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Box Shadow Generator — Layered Shadows | Toolcrate</title>
+<meta name="description" content="Build layered CSS box-shadows with a live preview. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .shadow-preview-wrap {
+    background: #e5e7eb;
+    border-radius: 8px;
+    padding: 3rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.05rem;
+  }
+  .shadow-preview-box {
+    width: 140px;
+    height: 140px;
+    background: #ffffff;
+    border-radius: 12px;
+  }
+  .layer-card {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.85rem;
+    margin-bottom: 0.75rem;
+  }
+  .layer-card .row { margin-bottom: 0.5rem; }
+  .layer-card .row:last-child { margin-bottom: 0; }
+  .layer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
+  .layer-header strong { font-size: 0.85rem; }
+  .inline-field { display: flex; align-items: center; gap: 0.4rem; }
+  .inline-field label { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+  .inline-field input[type="number"] { width: 100%; }
+  .inline-field input[type="color"] {
+    width: 40px; height: 34px; padding: 2px;
+    border: 1px solid var(--line); border-radius: 6px;
+    background: var(--panel); cursor: pointer; flex-shrink: 0;
+  }
+  .inline-field input[type="range"] { width: 90px; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Box Shadow Generator</h1>
+    <p>Stack one or more shadow layers and copy the resulting CSS.</p>
+  </div>
+
+  <div class="panel">
+    <div class="shadow-preview-wrap">
+      <div class="shadow-preview-box" id="previewBox"></div>
+    </div>
+
+    <div id="layersList"></div>
+    <div class="btn-row">
+      <button id="addLayerBtn" class="secondary">Add layer</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="output">CSS</label>
+    <div id="output" class="output-panel">—</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy CSS</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Each layer maps directly to one comma-separated entry in a CSS <code>box-shadow</code> value: horizontal and vertical offset, blur radius, spread radius, a color with its own opacity, and whether it's an inset (inner) shadow. Stack multiple layers — a soft, spread-out shadow underneath a tighter, darker one is a common way to fake more realistic depth than a single shadow can produce.</p>
+    <p>Nothing you build here is sent to a server; the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const layersList = document.getElementById('layersList');
+const previewBox = document.getElementById('previewBox');
+const output = document.getElementById('output');
+
+let layers = [
+  { x: 0, y: 4, blur: 12, spread: 0, color: '#000000', alpha: 25, inset: false }
+];
+
+function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+
+function hexToRgba(hex, alphaPct) {
+  const s = hex.replace('#', '');
+  const r = parseInt(s.slice(0, 2), 16);
+  const g = parseInt(s.slice(2, 4), 16);
+  const b = parseInt(s.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${Math.round((alphaPct / 100) * 100) / 100})`;
+}
+
+function buildShadowCss() {
+  return layers.map(l => {
+    const inset = l.inset ? 'inset ' : '';
+    return `${inset}${l.x}px ${l.y}px ${l.blur}px ${l.spread}px ${hexToRgba(l.color, l.alpha)}`;
+  }).join(',\n  ');
+}
+
+function numberField(labelText, value, min, max, onChange) {
+  const wrap = document.createElement('div');
+  wrap.className = 'inline-field';
+  const label = document.createElement('label');
+  label.textContent = labelText;
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.value = value;
+  if (min !== undefined) input.min = min;
+  if (max !== undefined) input.max = max;
+  input.addEventListener('input', () => onChange(parseInt(input.value, 10) || 0));
+  wrap.appendChild(label);
+  wrap.appendChild(input);
+  return wrap;
+}
+
+function renderLayers() {
+  layersList.innerHTML = '';
+  layers.forEach((layer, i) => {
+    const card = document.createElement('div');
+    card.className = 'layer-card';
+
+    const header = document.createElement('div');
+    header.className = 'layer-header';
+    const title = document.createElement('strong');
+    title.textContent = `Layer ${i + 1}`;
+    header.appendChild(title);
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'secondary';
+    removeBtn.textContent = 'Remove';
+    removeBtn.type = 'button';
+    removeBtn.disabled = layers.length <= 1;
+    removeBtn.addEventListener('click', () => {
+      if (layers.length <= 1) return;
+      layers.splice(i, 1);
+      render();
+    });
+    header.appendChild(removeBtn);
+    card.appendChild(header);
+
+    const row1 = document.createElement('div');
+    row1.className = 'row';
+    row1.appendChild(numberField('X', layer.x, -200, 200, v => { layer.x = v; render(); }));
+    row1.appendChild(numberField('Y', layer.y, -200, 200, v => { layer.y = v; render(); }));
+    row1.appendChild(numberField('Blur', layer.blur, 0, 200, v => { layer.blur = clamp(v, 0, 200); render(); }));
+    row1.appendChild(numberField('Spread', layer.spread, -200, 200, v => { layer.spread = v; render(); }));
+    card.appendChild(row1);
+
+    const row2 = document.createElement('div');
+    row2.className = 'row';
+
+    const colorWrap = document.createElement('div');
+    colorWrap.className = 'inline-field';
+    const colorLabel = document.createElement('label');
+    colorLabel.textContent = 'Color';
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.value = layer.color;
+    colorInput.addEventListener('input', () => { layer.color = colorInput.value; render(); });
+    colorWrap.appendChild(colorLabel);
+    colorWrap.appendChild(colorInput);
+    row2.appendChild(colorWrap);
+
+    const alphaWrap = document.createElement('div');
+    alphaWrap.className = 'inline-field';
+    const alphaLabel = document.createElement('label');
+    alphaLabel.textContent = `Opacity ${layer.alpha}%`;
+    const alphaInput = document.createElement('input');
+    alphaInput.type = 'range';
+    alphaInput.min = '0';
+    alphaInput.max = '100';
+    alphaInput.value = layer.alpha;
+    alphaInput.addEventListener('input', () => {
+      layer.alpha = parseInt(alphaInput.value, 10);
+      alphaLabel.textContent = `Opacity ${layer.alpha}%`;
+      updateOutputOnly();
+    });
+    alphaInput.addEventListener('change', render);
+    alphaWrap.appendChild(alphaLabel);
+    alphaWrap.appendChild(alphaInput);
+    row2.appendChild(alphaWrap);
+
+    const insetWrap = document.createElement('div');
+    insetWrap.className = 'inline-field';
+    const insetLabel = document.createElement('label');
+    insetLabel.textContent = 'Inset';
+    const insetInput = document.createElement('input');
+    insetInput.type = 'checkbox';
+    insetInput.style.width = 'auto';
+    insetInput.checked = layer.inset;
+    insetInput.addEventListener('change', () => { layer.inset = insetInput.checked; render(); });
+    insetWrap.appendChild(insetInput);
+    insetWrap.appendChild(insetLabel);
+    row2.appendChild(insetWrap);
+
+    card.appendChild(row2);
+    layersList.appendChild(card);
+  });
+}
+
+function updateOutputOnly() {
+  const css = buildShadowCss();
+  previewBox.style.boxShadow = css;
+  output.textContent = `box-shadow:\n  ${css};`;
+  output.classList.remove('empty');
+}
+
+function render() {
+  renderLayers();
+  updateOutputOnly();
+}
+
+document.getElementById('addLayerBtn').addEventListener('click', () => {
+  layers.push({ x: 0, y: 0, blur: 10, spread: 0, color: '#000000', alpha: 20, inset: false });
+  render();
+});
+
+render();
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
