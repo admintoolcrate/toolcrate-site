@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palindrome Checker | Toolcrate</title>
+<meta name="description" content="Check whether a word or phrase is a palindrome, live as you type. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .result-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .result-badge.yes { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+  .result-badge.no { background: color-mix(in srgb, var(--danger) 18%, transparent); color: var(--danger); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Palindrome Checker</h1>
+    <p>Type any word or phrase to check whether it reads the same backwards.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Text</label>
+      <textarea id="input" rows="3" placeholder="A man, a plan, a canal: Panama" spellcheck="false"></textarea>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="caseSensitive" style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Case-sensitive</span>
+        </label>
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="ignorePunct" checked style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Ignore spaces and punctuation</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Result</label>
+    <div id="output" class="output-panel empty">Type something above.</div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>With "ignore spaces and punctuation" on (the usual way palindromes like "A man, a plan, a canal: Panama" are judged), only letters and digits are compared — spacing and punctuation are stripped first. Turn it off to check literally character-for-character, including every space and symbol. Comparison uses Unicode-aware character splitting, so accented letters and other multi-byte characters are handled correctly.</p>
+    <p>Nothing you type here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const input = document.getElementById('input');
+const caseSensitive = document.getElementById('caseSensitive');
+const ignorePunct = document.getElementById('ignorePunct');
+const output = document.getElementById('output');
+
+function normalize(text) {
+  let s = text;
+  if (ignorePunct.checked) s = s.replace(/[^\p{L}\p{N}]/gu, '');
+  if (!caseSensitive.checked) s = s.toLowerCase();
+  return s;
+}
+
+function render() {
+  const raw = input.value;
+  if (!raw.trim()) {
+    output.innerHTML = '';
+    output.textContent = 'Type something above.';
+    output.classList.add('empty');
+    return;
+  }
+  const cleaned = normalize(raw);
+  const chars = Array.from(cleaned);
+  const reversed = chars.slice().reverse();
+  const isPalindrome = chars.length > 0 && chars.join('') === reversed.join('');
+
+  output.classList.remove('empty');
+  output.innerHTML = '';
+
+  const badge = document.createElement('span');
+  badge.className = 'result-badge ' + (isPalindrome ? 'yes' : 'no');
+  badge.textContent = isPalindrome ? 'Palindrome' : 'Not a palindrome';
+  output.appendChild(badge);
+
+  const detail = document.createElement('div');
+  detail.style.marginTop = '0.6rem';
+  detail.style.fontSize = '0.85rem';
+  detail.style.color = 'var(--ink-soft)';
+  detail.textContent = `Compared as: "${cleaned}"`;
+  output.appendChild(detail);
+}
+
+[input, caseSensitive, ignorePunct].forEach(el => el.addEventListener('input', render));
+render();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

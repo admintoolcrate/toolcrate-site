@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anagram Solver / Finder | Toolcrate</title>
+<meta name="description" content="Find valid English anagrams of a word, or check whether two phrases are anagrams of each other. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Anagram Solver / Finder</h1>
+    <p>Find real English words that use exactly the same letters as a word you enter.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="lettersInput">Letters or word (up to 8 letters)</label>
+      <input type="text" id="lettersInput" value="listen" maxlength="20" autocomplete="off">
+    </div>
+    <div class="btn-row">
+      <button id="findBtn">Find anagrams</button>
+    </div>
+    <div id="findError" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label for="findOutput">Matches</label>
+    <div id="findOutput" class="output-panel empty">Matching words will appear here.</div>
+  </div>
+
+  <div class="panel" style="margin-top: 1.5rem;">
+    <div class="field">
+      <label for="phraseA">Phrase A</label>
+      <input type="text" id="phraseA" placeholder="Dormitory" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="phraseB">Phrase B</label>
+      <input type="text" id="phraseB" placeholder="Dirty room" autocomplete="off">
+    </div>
+    <div class="btn-row">
+      <button id="checkBtn">Check if these are anagrams</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Result</label>
+    <div id="checkOutput" class="output-panel empty">Enter two phrases above.</div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>"Find anagrams" generates every letter arrangement of your input and keeps only the ones that are real English words, checked against a curated list of roughly 1,300 common words up to 6 letters long — it's <strong>not</strong> an exhaustive dictionary, so a valid but less common word may not appear. Input is capped at 8 letters, since the number of arrangements grows factorially (8 letters is already 40,320 possibilities) and longer inputs would make the browser tab unresponsive.</p>
+    <p>The phrase checker below is a true anagram test in the traditional sense — it compares two phrases letter-for-letter (ignoring case, spaces, and punctuation) to see if one is a rearrangement of the other, the same way "Dormitory" and "Dirty room" are classic anagrams of each other. Nothing you enter here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const WORD_LIST = (
+  "am an as at be by do go he if in is it me my no of on or so to up us we " +
+  "act add age ago aid aim air all and ant any ape apt arc are arm art ash ask ate awe axe " +
+  "bad bag ban bar bat bay bed bee beg bet bid big bin bit boa bob box boy bud bug bun bus but buy " +
+  "cab can cap car cat cop cot cow cry cub cue cup cut " +
+  "dam day den dew did die dig dim dip dog dot dry due dug " +
+  "ear eat ebb egg ego elf elk end era eve ewe eye " +
+  "fan far fat fed fee few fig fin fit fix fly foe fog for fox fry fun fur " +
+  "gap gas gel gem get gnu got gum gun gut guy gym " +
+  "had ham has hat hay hem hen her hey hid him hip his hit hog hop hot how hub hue hug hum hut " +
+  "ice icy ill ink inn ion its ivy " +
+  "jam jar jaw jay jet job jog joy " +
+  "key kid kin kit " +
+  "lab lad lag lap law lay led leg let lid lie lip lit log lot low " +
+  "mad map mat maw may mob mod mom mop mud mug " +
+  "nap net new nod nor not now nun nut " +
+  "oak oar odd off oil old one opt orb ore our out owe owl own " +
+  "pad pan pat paw pay pea peg pen pet pie pig pin pit ply pop pot pro pub pug pun pup put " +
+  "ram ran rap rat raw ray rib rid rim rip rot row rub rug run rye " +
+  "sad sap sat saw say sea set sew she shy sin sip sir sit six ski sky sly sob sod son sow soy spa spy sty sub sue sum sun " +
+  "tab tag tan tap tar tax tea ten the tie tin tip toe ton too top tow toy try tub tug two " +
+  "use van vat vet via vow " +
+  "wag war was wax way web wed wet who why win wit woe wok won wow wry " +
+  "yes yet yew you " +
+  "zip zoo " +
+  "able ache acid acre aged ages ally also amid arch area army atom aunt away axis " +
+  "babe back bake ball band bank bare bark barn base bath bead beam bean bear beat been beer bell belt bend bent best bike bill bind bird bite blue boat body boil bold bolt bond bone book boom boot bore born boss both bowl brag bran bred brew brim buck bulk bull bump burn bury bush busy " +
+  "cage cake call calm came camp cane card care cart case cash cast cave cell chat chip city clay claw clip club coal coat code coil coin cold come cook cool cope copy cord core corn cost cove cozy crab crew crop cure curl cute " +
+  "dare dark darn dart dash data date dawn days deal dean dear debt deck deed deep deer defy dent desk dial dice diet dime dine dirt dish disk dive dock does doll dome done doom door dose dove down drag draw drew drip drop drug drum duck dull duly dumb dump dune dust duty " +
+  "each earl earn ease east easy edge edit else emit envy even ever evil exam exit " +
+  "face fact fade fail fair fall fame fang farm fast fate fear feat feed feel feet fell felt fern file fill film find fine fire firm fish fist five flag flap flat flaw flea fled flee flew flex flip flow foam fold folk fond font food fool foot ford fore fork form fort foul four free fret frog from fuel full fund fury " +
+  "gain gala gale gang gate gave gaze gear gene gift girl give glad glow glue goal goat goes gold golf gone good gown grab gram gray grew grey grid grin grip grow gulf gulp guru gush " +
+  "hail hair half hall halt hand hang hard harm hate have hawk haze head heal heap hear heat heel heir held hell helm help herb herd here hero hide high hike hill hint hire hold hole holy home hood hook hope horn hose host hour huge hull hunt hurl hurt hush hymn hype " +
+  "icon idea idle inch info into iris iron item " +
+  "jazz join joke jolt joys judo july jump june junk jury just " +
+  "keen keep kept kick kill kind king kiss kite knee knew knit knot know " +
+  "lace lack lady laid lake lamb lamp land lane last late lawn lazy lead leaf lean leap left lend lens less lest level liar lick life lift like limb lime limp line link lion list live load loan lobe lock loft logo lone long look loop lord lose loss lost loud love luck lump lung lure lurk lush lust " +
+  "made mail main make male mall many map maps mare mark mask mass mast mate math maze meal mean meat meet melt memo mend menu mere mesh mess mice mild mile milk mind mine mint miss mist mock mode mold mole monk mood moon more moss most moth move much mule must myth " +
+  "nail name navy near neat neck need news next nice nine node none nook noon norm nose note noun nuke " +
+  "oath obey odor okay omen once ones only onto open oral over " +
+  "pace pack page paid pain pair pale palm pane pang pant park part pass past path pave peak pear peel peer pest pick pier pile pill pine pink pint pipe plan play plea plot plow plug plum plus poem pole poll pond pony pool poor pope pork port pose post pour pray prep prey prim prop pull pulp pump pure push " +
+  "quit quiz " +
+  "race rack rage raid rail rain rank rare rate rats read real reef rely rent rest rice rich ride riot ripe rise risk road roam roar robe rock rode roll roof room root rope rose rosy ruby ruin rule rung runs rush rust ruth " +
+  "safe said sail sake sale salt same sand save saws scan scar seal seat seed seek seem seen self sell send sent shed shot shut sick side sigh sign silk sing sink site size skew skin skip slab slap sled slid slim slip slit slow slug smog snap snip snow soak soap sock soda sofa soft soil sold sole solo song sons soon sore sort soul soup sour spam span spar spat spin spit spot spur star stay stem step stew stir stop stow stud stun such suit sung sunk sure surf swam swap swim " +
+  "tail take tale talk tall tame tank tape task team tear teen tell tend tent term test text than that them then they thin this thus tide tidy tied tile till tilt time tiny tire toad toes told toll tomb tone tons took tool torn tour town toys trap tray tree trek trim trip true tube tuna tune turf turn twig twin type " +
+  "ugly undo unit upon urge used user " +
+  "vain vary vast veal veil vein verb very vest veto vice view vine visa void volt vote " +
+  "wade wage wait wake walk wall want ward warm warn wary wash wave weak wear weed week weep well went were west what when whim whip whom wide wife wild will wind wine wing wink wipe wire wise wish with wolf womb wood wool word wore work worn wove wrap " +
+  "yard yarn yawn year yell yoga yolk " +
+  "zeal zero zone zoom " +
+  "about above adapt admit adobe adult after again agent agree ahead alarm album alert alike alive allow alone along aloud alpha amber amend among angel anger angle angry apple apply arena argue arise armor aside asset audio audit avoid awake award aware awful " +
+  "bacon badge badly baker banjo barge basic basin batch beach beard beast begin being belly below bench berry birth black blade blame blank blast blaze bleed blend bless blind blink block blood bloom blown blue blues blunt blush board boast boost booth booze bored boring bound brain brake brand brave bread break breed brick bride brief bring broad broke brown brush build built bunch burst " +
+  "cabin cable candy canoe carry catch cause chain chair chalk chaos charm chart chase cheap check cheek cheer chess chest chief child chill china chore chose civil claim clash class clean clear clerk click cliff climb cling clock close cloth cloud clown clues coach coast could count court cover crack craft crash crazy cream crime cross crowd crown crude cruel crush curve cycle " +
+  "daily dairy dance dealt death delay depth diary digit dirty ditch dizzy doubt dozen draft drain drama drank dream dress drift drink drive drove drown drunk dwell " +
+  "eager early earth eight elder elect email empty enact ended enemy enjoy enter entry equal error essay evade event every exact exist extra " +
+  "faith false fancy fatal fault favor feast fence fever fiber field fifth fifty fight final first fixed flame flash fleet flesh float flock flood floor flour flown fluid flush focus force forge forth forty forum found frame frank fraud fresh front frost frown fruit fully funny " +
+  "gains gamma glass globe glory glove going grace grade grain grand grant grape graph grass grave great greed green greet grief grind gross group grove guard guess guest guide " +
+  "habit happy harsh haste heart heavy hedge hello hence hobby honey honor horse hotel house human humor hurry " +
+  "ideal image imply inbox index inner input issue ivory " +
+  "jelly joint joker jolly judge juice jumbo jumpy " +
+  "known " +
+  "label labor laden large laser laugh layer learn least leave legal lemon level light limit liver lobby local lodge logic loose lorry loser loyal lucky lunar lunch lying " +
+  "magic major maker march marsh match maybe mayor medal media mercy merit merry metal meter might miner minor minus mixed model modem month moral motor mount mouse mouth mover movie music " +
+  "naked nasty naval nerve never newly night noble noise north notch novel nurse " +
+  "ocean offer often olive onion opera orbit order organ other ought outer owner oxide " +
+  "paint panel panic paper party patch pause peace pearl phase phone photo piano piece pilot pitch pixel place plain plane plant plate plaza plead please pluck point poker polar porch pound power press price pride prime print prior prize probe proof proud prove pulse punch pupil purse " +
+  "queen query quest queue quick quiet quilt quote " +
+  "radar radio raise rally range rapid ratio reach react ready realm rebel refer reign relax reply reset ridge rifle right rigid risky rival river roast robin robot rocky rough round route royal rugby ruler rural " +
+  "sadly safer saint salad salsa salty sauce scale scarf scary scene scent scoop score scout scrap screw sense serve seven shade shady shake shall shape share shark sharp shave sheep sheet shelf shell shift shine shiny shirt shock shoot shore short shout shown shrug shuts siege sight silky since sixth sixty skill skirt skull slave sleep slice slide slope small smart smell smile smoke snack snake sneak solar solid solve sonic sorry sound south space spare spark speak speed spell spend spent spice spike spine split spoke sport spray squad staff stage stain stake stall stamp stand stare stark start state steak steal steam steel steep stern stick stiff still sting stock stone stood store storm story stove strap straw strip stuck study stuff stump style sugar suite sunny super surge swear sweat sweep sweet swift swing swirl sword " +
+  "table taken taste taxes teach thank theft theme there these thick thief thing think third those three threw throw thumb tiger tight timer tired title toast today token tooth topic torch touch tough tower toxic trace track trade trail train trait treat trend trial tribe trick tried tries trout truck truly trust truth twice twist " +
+  "ultra uncle under undue union unite unity until upper upset urban usage usual " +
+  "valid value vault venue verse video virus visit vital vivid vocal voice voter " +
+  "waste watch water weary weigh weird wheat wheel where which while white whole whose widen widow width witch woman world worry worse worst worth would wound woven wrist write wrong " +
+  "yield young youth " +
+  "zebra " +
+  "listen silent enlist tinsel inlets " +
+  "earth heart hater rathe " +
+  "stressed desserts " +
+  "elbow below bowel " +
+  "angel angle glean " +
+  "heart earth " +
+  "stone notes onset tones "
+).split(/\s+/).filter(Boolean);
+
+const WORD_SET = new Set(WORD_LIST);
+
+function normalizeLetters(str) {
+  return Array.from(str.toLowerCase().replace(/[^a-z]/g, ''));
+}
+
+function permutations(arr) {
+  if (arr.length <= 1) return [arr];
+  const result = [];
+  for (let i = 0; i < arr.length; i++) {
+    const rest = arr.slice(0, i).concat(arr.slice(i + 1));
+    for (const perm of permutations(rest)) {
+      result.push([arr[i]].concat(perm));
+    }
+  }
+  return result;
+}
+
+const lettersInput = document.getElementById('lettersInput');
+const findBtn = document.getElementById('findBtn');
+const findError = document.getElementById('findError');
+const findOutput = document.getElementById('findOutput');
+
+findBtn.addEventListener('click', () => {
+  findError.textContent = '';
+  const letters = normalizeLetters(lettersInput.value);
+  if (letters.length === 0) { findError.textContent = 'Enter a word or letters (A-Z only).'; return; }
+  if (letters.length > 8) { findError.textContent = 'Please use 8 letters or fewer.'; return; }
+
+  const original = letters.join('');
+  const perms = permutations(letters);
+  const matches = new Set();
+  perms.forEach(p => {
+    const word = p.join('');
+    if (word !== original && WORD_SET.has(word)) matches.add(word);
+  });
+  if (WORD_SET.has(original)) matches.add(original + ' (your original word)');
+
+  if (matches.size === 0) {
+    findOutput.textContent = 'No matches found in the word list for those letters.';
+    findOutput.classList.add('empty');
+  } else {
+    findOutput.textContent = Array.from(matches).sort().join(', ');
+    findOutput.classList.remove('empty');
+  }
+});
+
+const phraseA = document.getElementById('phraseA');
+const phraseB = document.getElementById('phraseB');
+const checkOutput = document.getElementById('checkOutput');
+
+function letterSignature(str) {
+  return normalizeLetters(str).sort().join('');
+}
+
+function renderCheck() {
+  const a = phraseA.value;
+  const b = phraseB.value;
+  if (!a.trim() || !b.trim()) {
+    checkOutput.textContent = 'Enter two phrases above.';
+    checkOutput.classList.add('empty');
+    return;
+  }
+  const sigA = letterSignature(a);
+  const sigB = letterSignature(b);
+  const isAnagram = sigA.length > 0 && sigA === sigB;
+  checkOutput.textContent = isAnagram
+    ? `Yes — "${a}" and "${b}" are anagrams of each other.`
+    : `No — "${a}" and "${b}" are not anagrams of each other.`;
+  checkOutput.classList.remove('empty');
+}
+
+[phraseA, phraseB].forEach(el => el.addEventListener('input', renderCheck));
+document.getElementById('checkBtn').addEventListener('click', renderCheck);
+
+findBtn.click();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
