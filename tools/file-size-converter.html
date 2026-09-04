@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File Size Converter — Bytes to GB, Binary vs. Decimal | Toolcrate</title>
+<meta name="description" content="Convert file sizes between bytes, KB/MB/GB/TB (decimal) and KiB/MiB/GiB/TiB (binary). No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>File Size Converter</h1>
+    <p>Convert a file size to every unit at once — decimal (KB, MB, GB) and binary (KiB, MiB, GiB).</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="valueInput">Value</label>
+        <input type="number" id="valueInput" value="1" min="0" step="any">
+      </div>
+      <div class="field">
+        <label for="unitSelect">Unit</label>
+        <select id="unitSelect"></select>
+      </div>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label>Decimal (SI) — powers of 1,000</label>
+    <div id="decimalOutput" class="output-panel">—</div>
+  </div>
+
+  <div class="field">
+    <label>Binary (IEC) — powers of 1,024</label>
+    <div id="binaryOutput" class="output-panel">—</div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>"Decimal" units (KB, MB, GB, TB) step by 1,000 and are what storage manufacturers advertise and what the SI system defines — a 1 TB drive is 1,000,000,000,000 bytes. "Binary" units (KiB, MiB, GiB, TiB) step by 1,024 and are what operating systems typically show you (macOS switched to decimal reporting some years back; Windows still generally uses binary math but labels it with decimal unit names, which is the single biggest source of "my drive shows less space than advertised" confusion). This tool keeps the two systems clearly separate so you can see both at once.</p>
+    <p>Nothing you enter here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const DECIMAL_UNITS = [
+  { key: 'B', label: 'Bytes (B)', factor: 1 },
+  { key: 'KB', label: 'Kilobytes (KB)', factor: 1e3 },
+  { key: 'MB', label: 'Megabytes (MB)', factor: 1e6 },
+  { key: 'GB', label: 'Gigabytes (GB)', factor: 1e9 },
+  { key: 'TB', label: 'Terabytes (TB)', factor: 1e12 },
+  { key: 'PB', label: 'Petabytes (PB)', factor: 1e15 }
+];
+const BINARY_UNITS = [
+  { key: 'B2', label: 'Bytes (B)', factor: 1 },
+  { key: 'KiB', label: 'Kibibytes (KiB)', factor: 1024 },
+  { key: 'MiB', label: 'Mebibytes (MiB)', factor: 1024 ** 2 },
+  { key: 'GiB', label: 'Gibibytes (GiB)', factor: 1024 ** 3 },
+  { key: 'TiB', label: 'Tebibytes (TiB)', factor: 1024 ** 4 },
+  { key: 'PiB', label: 'Pebibytes (PiB)', factor: 1024 ** 5 }
+];
+const ALL_UNITS = DECIMAL_UNITS.concat(BINARY_UNITS.slice(1));
+
+const valueInput = document.getElementById('valueInput');
+const unitSelect = document.getElementById('unitSelect');
+const errorEl = document.getElementById('error');
+const decimalOutput = document.getElementById('decimalOutput');
+const binaryOutput = document.getElementById('binaryOutput');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+ALL_UNITS.forEach(u => {
+  const opt = document.createElement('option');
+  opt.value = u.key;
+  opt.textContent = u.label;
+  unitSelect.appendChild(opt);
+});
+unitSelect.value = 'MB';
+
+function formatNumber(n) {
+  if (!isFinite(n)) return '';
+  if (n === 0) return '0';
+  const abs = Math.abs(n);
+  const decimals = abs >= 1 ? 4 : 8;
+  const rounded = Math.round((n + Number.EPSILON) * 10 ** decimals) / 10 ** decimals;
+  return rounded.toLocaleString('en-US', { maximumFractionDigits: decimals });
+}
+
+function convert() {
+  showError('');
+  const raw = valueInput.value;
+  const val = parseFloat(raw);
+  if (raw.trim() === '' || isNaN(val) || val < 0) {
+    showError('Enter a value of zero or more.');
+    decimalOutput.textContent = '—';
+    binaryOutput.textContent = '—';
+    return;
+  }
+
+  const fromUnit = ALL_UNITS.find(u => u.key === unitSelect.value);
+  const bytes = val * fromUnit.factor;
+
+  decimalOutput.textContent = DECIMAL_UNITS.map(u => `${u.label}: ${formatNumber(bytes / u.factor)}`).join('\n');
+  binaryOutput.textContent = BINARY_UNITS.map(u => `${u.label}: ${formatNumber(bytes / u.factor)}`).join('\n');
+}
+
+valueInput.addEventListener('input', convert);
+unitSelect.addEventListener('change', convert);
+convert();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

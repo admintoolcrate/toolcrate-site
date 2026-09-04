@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paper Size Reference — A-Series, Letter, Legal | Toolcrate</title>
+<meta name="description" content="Reference chart of ISO A-series paper sizes and US Letter/Legal/Tabloid, in millimeters and inches. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .size-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+  .size-table th, .size-table td { text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
+  .size-table th { color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .table-wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Paper Size Reference</h1>
+    <p>ISO A-series and common US paper sizes, in millimeters and inches.</p>
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top: 0; font-size: 1rem;">ISO A-series</h2>
+    <div class="table-wrap">
+      <table class="size-table">
+        <thead><tr><th>Size</th><th>Millimeters</th><th>Inches</th></tr></thead>
+        <tbody id="aSeriesBody"></tbody>
+      </table>
+    </div>
+
+    <h2 style="font-size: 1rem;">US sizes</h2>
+    <div class="table-wrap">
+      <table class="size-table">
+        <thead><tr><th>Size</th><th>Millimeters</th><th>Inches</th></tr></thead>
+        <tbody id="usSizesBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>The ISO 216 A-series is built on one rule: each size is exactly half of the one before it, cut along the long edge, and every size shares the same aspect ratio (1:√2 ≈ 1:1.414) — which is why an A4 sheet folded in half becomes an A5 sheet with identical proportions. US paper sizes (Letter, Legal, Tabloid) don't follow this rule and use a different, non-constant aspect ratio, which is why scaling a US Letter document to A4 (or vice versa) always crops or adds a small margin rather than matching exactly.</p>
+    <p>This is a static reference — nothing here involves a server, and it runs entirely in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const A_SERIES = [
+  { size: 'A0', mm: [841, 1189] },
+  { size: 'A1', mm: [594, 841] },
+  { size: 'A2', mm: [420, 594] },
+  { size: 'A3', mm: [297, 420] },
+  { size: 'A4', mm: [210, 297] },
+  { size: 'A5', mm: [148, 210] },
+  { size: 'A6', mm: [105, 148] },
+  { size: 'A7', mm: [74, 105] },
+  { size: 'A8', mm: [52, 74] },
+  { size: 'A9', mm: [37, 52] },
+  { size: 'A10', mm: [26, 37] }
+];
+
+// US sizes are officially defined in inches, not mm — inches is the
+// authoritative value here, with mm derived from it (rounded to 1 decimal),
+// the reverse of the A-series below where mm is authoritative.
+const US_SIZES = [
+  { size: 'Letter', inches: [8.5, 11] },
+  { size: 'Legal', inches: [8.5, 14] },
+  { size: 'Tabloid / Ledger', inches: [11, 17] }
+];
+
+function mmToInches(mm) {
+  return (mm / 25.4).toFixed(2);
+}
+function inchesToMm(inches) {
+  return (inches * 25.4).toFixed(1);
+}
+
+function renderTable(bodyId, data) {
+  const tbody = document.getElementById(bodyId);
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    let mmText, inText;
+    if (row.mm) {
+      const [w, h] = row.mm;
+      mmText = `${w} × ${h} mm`;
+      inText = `${mmToInches(w)} × ${mmToInches(h)} in`;
+    } else {
+      const [w, h] = row.inches;
+      mmText = `${inchesToMm(w)} × ${inchesToMm(h)} mm`;
+      inText = `${w} × ${h} in`;
+    }
+    tr.innerHTML = `<td>${row.size}</td><td>${mmText}</td><td>${inText}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+renderTable('aSeriesBody', A_SERIES);
+renderTable('usSizesBody', US_SIZES);
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
