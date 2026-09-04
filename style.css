@@ -336,6 +336,8 @@ button.secondary:hover { border-color: var(--ink); opacity: 1; background: var(-
   display: block;
   line-height: 1.1;
   letter-spacing: -0.01em;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .stat-label { font-size: 0.7rem; color: var(--muted); }
 

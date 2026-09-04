@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Age in Days, Hours &amp; Minutes | Toolcrate</title>
+<meta name="description" content="See your exact age broken into total days, hours, minutes, and seconds, updating live. Free, instant, browser-only.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Age in Days, Hours &amp; Minutes</h1>
+    <p>Your exact age in total units, ticking live. If you don't know your birth time, it defaults to midnight.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="birthDate">Date of birth</label>
+        <input type="date" id="birthDate">
+      </div>
+      <div class="field">
+        <label for="birthTime">Time of birth (optional)</label>
+        <input type="time" id="birthTime">
+      </div>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="statDays">—</span><span class="stat-label">Total days</span></div>
+    <div class="stat"><span class="stat-value" id="statHours">—</span><span class="stat-label">Total hours</span></div>
+    <div class="stat"><span class="stat-value" id="statMinutes">—</span><span class="stat-label">Total minutes</span></div>
+    <div class="stat"><span class="stat-value" id="statSeconds">—</span><span class="stat-label">Total seconds</span></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Each figure is the same span of time expressed in a different unit — total hours is just total days × 24, and so on — measured against your device's clock and updated every second. Without a birth time, the count starts from midnight on your birth date, so the totals will be off by up to 24 hours from your literal birth moment.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab, and stops updating if you close or leave the page.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const birthDate = document.getElementById('birthDate');
+const birthTime = document.getElementById('birthTime');
+const errorEl = document.getElementById('error');
+const statDays = document.getElementById('statDays');
+const statHours = document.getElementById('statHours');
+const statMinutes = document.getElementById('statMinutes');
+const statSeconds = document.getElementById('statSeconds');
+
+let timer = null;
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function getBirthDate() {
+  if (!birthDate.value) return null;
+  const time = birthTime.value || '00:00';
+  return new Date(`${birthDate.value}T${time}:00`);
+}
+
+function tick() {
+  const birth = getBirthDate();
+  if (!birth) {
+    [statDays, statHours, statMinutes, statSeconds].forEach(el => el.textContent = '—');
+    return;
+  }
+
+  const now = new Date();
+  const diffMs = now.getTime() - birth.getTime();
+
+  if (diffMs < 0) {
+    showError('Date of birth is in the future.');
+    [statDays, statHours, statMinutes, statSeconds].forEach(el => el.textContent = '—');
+    return;
+  }
+  showError('');
+
+  const totalSeconds = Math.floor(diffMs / 1000);
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  const totalHours = Math.floor(totalMinutes / 60);
+  const totalDays = Math.floor(totalHours / 24);
+
+  statDays.textContent = totalDays.toLocaleString();
+  statHours.textContent = totalHours.toLocaleString();
+  statMinutes.textContent = totalMinutes.toLocaleString();
+  statSeconds.textContent = totalSeconds.toLocaleString();
+}
+
+function restart() {
+  if (timer) clearInterval(timer);
+  tick();
+  timer = setInterval(tick, 1000);
+}
+
+[birthDate, birthTime].forEach(el => el.addEventListener('input', restart));
+restart();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
