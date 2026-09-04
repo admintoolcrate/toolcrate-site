@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple &amp; Compound Interest Calculator | Toolcrate</title>
+<meta name="description" content="Calculate simple or compound interest on a principal amount over time. Educational tool, not financial advice. Free, instant, browser-only.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Simple &amp; Compound Interest</h1>
+    <p>An educational calculation, not financial advice — real accounts vary by fees, compounding schedule, and rate changes.</p>
+  </div>
+
+  <div class="disclaimer-note"><strong>Educational tool, not financial advice.</strong> This is a simplified model for learning purposes — real accounts involve fees, taxes, and rate changes this calculator doesn't account for. See our <a href="/terms.html">terms</a> for details.</div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="type">Interest type</label>
+      <select id="type">
+        <option value="compound">Compound interest</option>
+        <option value="simple">Simple interest</option>
+      </select>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="principal">Principal</label>
+        <input type="number" id="principal" value="1000" step="any">
+      </div>
+      <div class="field">
+        <label for="rate">Annual rate (%)</label>
+        <input type="number" id="rate" value="5" step="any">
+      </div>
+      <div class="field">
+        <label for="years">Years</label>
+        <input type="number" id="years" value="10" step="any">
+      </div>
+    </div>
+    <div class="row" id="compoundFreqRow">
+      <div class="field">
+        <label for="freq">Compounds per year</label>
+        <select id="freq">
+          <option value="1">Annually</option>
+          <option value="2">Semi-annually</option>
+          <option value="4">Quarterly</option>
+          <option value="12" selected>Monthly</option>
+          <option value="365">Daily</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="finalAmount">—</span><span class="stat-label">Final amount</span></div>
+    <div class="stat"><span class="stat-value" id="interestEarned">—</span><span class="stat-label">Interest earned</span></div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>The formulas</h2>
+    <p>Simple interest: <code>A = P × (1 + r × t)</code></p>
+    <p>Compound interest: <code>A = P × (1 + r/n)^(n×t)</code>, where n is the number of times interest compounds per year.</p>
+    <p>This is a simplified educational model — it doesn't account for taxes, fees, variable rates, or additional contributions over time.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const type = document.getElementById('type');
+const principal = document.getElementById('principal');
+const rate = document.getElementById('rate');
+const years = document.getElementById('years');
+const freq = document.getElementById('freq');
+const compoundFreqRow = document.getElementById('compoundFreqRow');
+const finalAmountEl = document.getElementById('finalAmount');
+const interestEarnedEl = document.getElementById('interestEarned');
+
+function fmt(n) {
+  if (!isFinite(n)) return '—';
+  return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function calc() {
+  const p = parseFloat(principal.value);
+  const r = parseFloat(rate.value) / 100;
+  const t = parseFloat(years.value);
+  const n = parseFloat(freq.value);
+
+  if (isNaN(p) || isNaN(r) || isNaN(t)) {
+    finalAmountEl.textContent = '—';
+    interestEarnedEl.textContent = '—';
+    return;
+  }
+
+  let finalAmount;
+  if (type.value === 'simple') {
+    finalAmount = p * (1 + r * t);
+  } else {
+    finalAmount = p * Math.pow(1 + r / n, n * t);
+  }
+
+  finalAmountEl.textContent = fmt(finalAmount);
+  interestEarnedEl.textContent = fmt(finalAmount - p);
+}
+
+type.addEventListener('change', () => {
+  compoundFreqRow.style.display = type.value === 'compound' ? 'flex' : 'none';
+  calc();
+});
+[principal, rate, years, freq].forEach(el => el.addEventListener('input', calc));
+calc();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

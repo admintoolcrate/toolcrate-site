@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GCD &amp; LCM Calculator | Toolcrate</title>
+<meta name="description" content="Calculate the greatest common divisor and least common multiple of two or more numbers. Free, instant, browser-only.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>GCD &amp; LCM Calculator</h1>
+    <p>Enter two or more numbers separated by commas to find their greatest common divisor and least common multiple.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Numbers</label>
+      <input type="text" id="input" value="12, 18, 24">
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="gcd">—</span><span class="stat-label">GCD</span></div>
+    <div class="stat"><span class="stat-value" id="lcm">—</span><span class="stat-label">LCM</span></div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>What these mean</h2>
+    <p><strong>GCD</strong> (greatest common divisor) is the largest number that divides evenly into all the given numbers — useful for simplifying fractions. <strong>LCM</strong> (least common multiple) is the smallest number that all the given numbers divide into evenly — useful for finding common denominators or syncing repeating cycles.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const input = document.getElementById('input');
+const gcdEl = document.getElementById('gcd');
+const lcmEl = document.getElementById('lcm');
+
+function gcd2(a, b) {
+  a = Math.abs(a); b = Math.abs(b);
+  while (b) { [a, b] = [b, a % b]; }
+  return a;
+}
+function lcm2(a, b) {
+  if (a === 0 || b === 0) return 0;
+  return Math.abs(a * b) / gcd2(a, b);
+}
+
+function calc() {
+  const nums = input.value
+    .split(',')
+    .map(s => parseInt(s.trim(), 10))
+    .filter(n => !isNaN(n) && n !== 0);
+
+  if (nums.length < 2) {
+    gcdEl.textContent = '—';
+    lcmEl.textContent = '—';
+    return;
+  }
+
+  const gcdResult = nums.reduce((a, b) => gcd2(a, b));
+  const lcmResult = nums.reduce((a, b) => lcm2(a, b));
+
+  gcdEl.textContent = gcdResult;
+  lcmEl.textContent = lcmResult.toLocaleString();
+}
+
+input.addEventListener('input', calc);
+calc();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
