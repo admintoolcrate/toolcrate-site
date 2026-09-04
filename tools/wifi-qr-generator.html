@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wi-Fi QR Code Generator | Toolcrate</title>
+<meta name="description" content="Generate a scan-to-connect QR code for any Wi-Fi network. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .qr-preview-panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+  }
+  .qr-preview-panel.empty { color: var(--muted); font-size: 0.9rem; }
+  #qrCanvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    border-radius: 4px;
+  }
+  .qr-canvas-wrap { display: none; }
+  .qr-canvas-wrap.show { display: block; }
+  .password-field { display: flex; gap: 0.5rem; }
+  .password-field input { flex: 1; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Wi-Fi QR Code Generator</h1>
+    <p>Create a QR code that connects a phone to your Wi-Fi network on scan — no typing the password.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="ssidInput">Network name (SSID)</label>
+        <input type="text" id="ssidInput" placeholder="MyHomeWiFi" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="securitySelect">Security</label>
+        <select id="securitySelect">
+          <option value="WPA" selected>WPA/WPA2/WPA3</option>
+          <option value="WEP">WEP</option>
+          <option value="nopass">None (open network)</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field" id="passwordField">
+        <label for="passwordInput">Password</label>
+        <div class="password-field">
+          <input type="password" id="passwordInput" autocomplete="off">
+          <button type="button" id="togglePasswordBtn" class="secondary">Show</button>
+        </div>
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-top: 1.6rem;">
+          <input type="checkbox" id="hiddenCheckbox" style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Hidden network</span>
+        </label>
+      </div>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label>QR code</label>
+    <div id="previewPanel" class="qr-preview-panel empty">
+      <span id="emptyLabel">Enter a network name above.</span>
+      <div class="qr-canvas-wrap" id="canvasWrap"><canvas id="qrCanvas"></canvas></div>
+    </div>
+    <div class="btn-row">
+      <button id="downloadBtn" class="secondary" disabled>Download PNG</button>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>The QR code encodes a standard <code>WIFI:T:...;S:...;P:...;;</code> payload that every major phone's camera app recognizes, with special characters in the network name and password (backslashes, semicolons, commas, colons) automatically escaped per the spec so networks with punctuation in their names still scan correctly. It's generated with the same from-scratch ISO/IEC 18004 QR encoder as our <a href="/tools/qr-code-generator.html">QR Code Generator</a> — real Reed-Solomon error correction, not a hosted image API.</p>
+    <p>Your network name and password are only used locally to build the QR code — nothing is sent to a server, and the password never leaves your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   Minimal, from-scratch ISO/IEC 18004 QR Code encoder.
+   Identical to the one in qr-code-generator.html (round-trip
+   decode verified there against jsQR across versions 1-40, all
+   4 EC levels, and multi-block Reed-Solomon interleaving).
+   ============================================================ */
+
+const GF_EXP = new Array(256);
+const GF_LOG = new Array(256);
+(function initGF() {
+  let x = 1;
+  for (let i = 0; i < 255; i++) {
+    GF_EXP[i] = x;
+    GF_LOG[x] = i;
+    x <<= 1;
+    if (x & 0x100) x ^= 0x11D;
+  }
+  GF_EXP[255] = GF_EXP[0];
+})();
+
+function gfMul(a, b) {
+  if (a === 0 || b === 0) return 0;
+  return GF_EXP[(GF_LOG[a] + GF_LOG[b]) % 255];
+}
+
+function rsGeneratorPoly(degree) {
+  const coefs = new Array(degree).fill(0);
+  coefs[degree - 1] = 1;
+  let root = 1;
+  for (let i = 0; i < degree; i++) {
+    for (let j = 0; j < coefs.length; j++) {
+      coefs[j] = gfMul(coefs[j], root);
+      if (j + 1 < coefs.length) coefs[j] ^= coefs[j + 1];
+    }
+    root = gfMul(root, 2);
+  }
+  return coefs;
+}
+
+function rsComputeRemainder(dataBytes, generator) {
+  const result = new Array(generator.length).fill(0);
+  for (const b of dataBytes) {
+    const factor = b ^ result.shift();
+    result.push(0);
+    for (let i = 0; i < result.length; i++) {
+      result[i] ^= gfMul(generator[i], factor);
+    }
+  }
+  return result;
+}
+
+const ECC_CODEWORDS_PER_BLOCK = [
+  [-1, 7,10,15,20,26,18,20,24,30,18,20,24,26,30,22,24,28,30,28,28,28,28,30,30,26,28,30,30,30,30,30,30,30,30,30,30,30,30,30,30],
+  [-1,10,16,26,18,24,16,18,22,22,26,30,22,22,24,24,28,28,26,26,26,26,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28],
+  [-1,13,22,18,26,18,24,18,22,20,24,28,26,24,20,30,24,28,28,26,30,28,30,30,30,30,28,30,30,30,30,30,30,30,30,30,30,30,30,30,30],
+  [-1,17,28,22,16,22,28,26,26,24,28,24,28,22,24,24,30,28,28,26,28,30,24,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30]
+];
+const NUM_EC_BLOCKS = [
+  [-1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9,10,12,12,12,13,14,15,16,17,18,19,19,20,21,22,24,25],
+  [-1, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9,10,10,11,13,14,16,17,17,18,20,21,23,25,26,28,29,31,33,35,37,38,40,43,45,47,49],
+  [-1, 1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8,10,12,16,12,17,16,18,21,20,23,23,25,27,29,34,34,35,38,40,43,45,48,51,53,56,59,62,65,68],
+  [-1, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8,11,11,16,16,18,16,19,21,25,25,25,34,30,32,35,37,40,42,45,48,51,54,57,60,63,66,70,74,77,81]
+];
+const ECL_FORMAT_BITS = [1, 0, 3, 2];
+
+function numRawDataModules(ver) {
+  let result = (16 * ver + 128) * ver + 64;
+  if (ver >= 2) {
+    const numAlign = Math.floor(ver / 7) + 2;
+    result -= (25 * numAlign - 10) * numAlign - 55;
+    if (ver >= 7) result -= 36;
+  }
+  return result;
+}
+
+function totalCodewords(ver) {
+  return Math.floor(numRawDataModules(ver) / 8);
+}
+
+function numDataCodewords(ver, eclIndex) {
+  const ecc = ECC_CODEWORDS_PER_BLOCK[eclIndex][ver];
+  const blocks = NUM_EC_BLOCKS[eclIndex][ver];
+  return totalCodewords(ver) - ecc * blocks;
+}
+
+function charCountBits(ver) {
+  return ver <= 9 ? 8 : 16;
+}
+
+class BitBuffer {
+  constructor() { this.bits = []; }
+  appendBits(val, len) {
+    for (let i = len - 1; i >= 0; i--) this.bits.push((val >>> i) & 1);
+  }
+  get length() { return this.bits.length; }
+  toBytes() {
+    const bytes = [];
+    for (let i = 0; i < this.bits.length; i += 8) {
+      let b = 0;
+      for (let j = 0; j < 8; j++) b = (b << 1) | (this.bits[i + j] || 0);
+      bytes.push(b);
+    }
+    return bytes;
+  }
+}
+
+function chooseVersion(byteLen, eclIndex) {
+  for (let ver = 1; ver <= 40; ver++) {
+    const capacityBits = numDataCodewords(ver, eclIndex) * 8;
+    const neededBits = 4 + charCountBits(ver) + 8 * byteLen;
+    if (neededBits <= capacityBits) return ver;
+  }
+  return -1;
+}
+
+function buildCodewords(bytes, ver, eclIndex) {
+  const dataLen = numDataCodewords(ver, eclIndex);
+  const bb = new BitBuffer();
+  bb.appendBits(0b0100, 4);
+  bb.appendBits(bytes.length, charCountBits(ver));
+  for (const byte of bytes) bb.appendBits(byte, 8);
+
+  const capacityBits = dataLen * 8;
+  const termLen = Math.min(4, capacityBits - bb.length);
+  if (termLen > 0) bb.appendBits(0, termLen);
+
+  while (bb.length % 8 !== 0) bb.bits.push(0);
+
+  let dataBytes = bb.toBytes();
+  const padBytes = [0xEC, 0x11];
+  let p = 0;
+  while (dataBytes.length < dataLen) {
+    dataBytes.push(padBytes[p % 2]);
+    p++;
+  }
+
+  const eccLen = ECC_CODEWORDS_PER_BLOCK[eclIndex][ver];
+  const numBlocks = NUM_EC_BLOCKS[eclIndex][ver];
+  const tc = totalCodewords(ver);
+  const shortBlockTotalLen = Math.floor(tc / numBlocks);
+  const numLongBlocks = tc % numBlocks;
+  const shortDataLen = shortBlockTotalLen - eccLen;
+
+  const blocks = [];
+  let offset = 0;
+  for (let i = 0; i < numBlocks; i++) {
+    const dLen = shortDataLen + (i >= numBlocks - numLongBlocks ? 1 : 0);
+    const blockData = dataBytes.slice(offset, offset + dLen);
+    offset += dLen;
+    const generator = rsGeneratorPoly(eccLen);
+    const ecc = rsComputeRemainder(blockData, generator);
+    blocks.push({ data: blockData, ecc });
+  }
+
+  const result = [];
+  const maxDataLen = shortDataLen + 1;
+  for (let i = 0; i < maxDataLen; i++) {
+    for (const block of blocks) {
+      if (i < block.data.length) result.push(block.data[i]);
+    }
+  }
+  for (let i = 0; i < eccLen; i++) {
+    for (const block of blocks) {
+      result.push(block.ecc[i]);
+    }
+  }
+  return result;
+}
+
+function alignmentPatternPositions(ver) {
+  if (ver === 1) return [];
+  const numAlign = Math.floor(ver / 7) + 2;
+  const step = (ver === 32) ? 26 : Math.ceil((ver * 4 + 4) / (numAlign * 2 - 2)) * 2;
+  const result = [6];
+  for (let pos = ver * 4 + 10; result.length < numAlign; pos -= step) {
+    result.splice(1, 0, pos);
+  }
+  return result;
+}
+
+function getBit(val, i) { return ((val >>> i) & 1) !== 0; }
+
+class QrMatrix {
+  constructor(ver) {
+    this.ver = ver;
+    this.size = ver * 4 + 17;
+    this.modules = Array.from({ length: this.size }, () => new Array(this.size).fill(false));
+    this.isFunction = Array.from({ length: this.size }, () => new Array(this.size).fill(false));
+  }
+  set(x, y, dark) {
+    if (x < 0 || x >= this.size || y < 0 || y >= this.size) return;
+    this.modules[y][x] = dark;
+    this.isFunction[y][x] = true;
+  }
+  drawFinder(cx, cy) {
+    for (let dy = -4; dy <= 4; dy++) {
+      for (let dx = -4; dx <= 4; dx++) {
+        const dist = Math.max(Math.abs(dx), Math.abs(dy));
+        this.set(cx + dx, cy + dy, dist !== 2 && dist !== 4);
+      }
+    }
+  }
+  drawAlignment(cx, cy) {
+    for (let dy = -2; dy <= 2; dy++) {
+      for (let dx = -2; dx <= 2; dx++) {
+        const dist = Math.max(Math.abs(dx), Math.abs(dy));
+        this.set(cx + dx, cy + dy, dist !== 1);
+      }
+    }
+  }
+  drawTiming() {
+    const size = this.size;
+    for (let i = 8; i <= size - 9; i++) {
+      const dark = i % 2 === 0;
+      if (!this.isFunction[6][i]) this.set(i, 6, dark);
+      if (!this.isFunction[i][6]) this.set(6, i, dark);
+    }
+  }
+  drawFunctionPatterns() {
+    this.drawFinder(3, 3);
+    this.drawFinder(this.size - 4, 3);
+    this.drawFinder(3, this.size - 4);
+    const positions = alignmentPatternPositions(this.ver);
+    const last = positions[positions.length - 1];
+    for (const i of positions) {
+      for (const j of positions) {
+        if ((i === 6 && j === 6) || (i === 6 && j === last) || (i === last && j === 6)) continue;
+        this.drawAlignment(j, i);
+      }
+    }
+    this.drawTiming();
+    this.set(8, this.size - 8, true);
+    for (let i = 0; i <= 5; i++) this.set(8, i, false);
+    this.set(8, 7, false);
+    this.set(8, 8, false);
+    this.set(7, 8, false);
+    for (let i = 9; i < 15; i++) this.set(14 - i, 8, false);
+    for (let i = 0; i <= 7; i++) this.set(this.size - 1 - i, 8, false);
+    for (let i = 8; i < 15; i++) this.set(8, this.size - 15 + i, false);
+    if (this.ver >= 7) {
+      let rem = this.ver;
+      for (let i = 0; i < 12; i++) rem = (rem << 1) ^ ((rem >>> 11) * 0x1F25);
+      const bits = (this.ver << 12) | rem;
+      for (let i = 0; i < 18; i++) {
+        const bit = getBit(bits, i);
+        const a = this.size - 11 + (i % 3);
+        const b = Math.floor(i / 3);
+        this.set(a, b, bit);
+        this.set(b, a, bit);
+      }
+    }
+  }
+  drawFormatBits(eclIndex, mask) {
+    const data = (ECL_FORMAT_BITS[eclIndex] << 3) | mask;
+    let rem = data;
+    for (let i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
+    const bits = ((data << 10) | rem) ^ 0x5412;
+    for (let i = 0; i <= 5; i++) this.setValue(8, i, getBit(bits, i));
+    this.setValue(8, 7, getBit(bits, 6));
+    this.setValue(8, 8, getBit(bits, 7));
+    this.setValue(7, 8, getBit(bits, 8));
+    for (let i = 9; i < 15; i++) this.setValue(14 - i, 8, getBit(bits, i));
+    for (let i = 0; i <= 7; i++) this.setValue(this.size - 1 - i, 8, getBit(bits, i));
+    for (let i = 8; i < 15; i++) this.setValue(8, this.size - 15 + i, getBit(bits, i));
+    this.setValue(8, this.size - 8, true);
+  }
+  setValue(x, y, dark) { this.modules[y][x] = dark; }
+  drawCodewords(codewords) {
+    let bitIndex = 0;
+    const totalBits = codewords.length * 8;
+    const size = this.size;
+    for (let right = size - 1; right >= 1; right -= 2) {
+      if (right === 6) right = 5;
+      for (let vert = 0; vert < size; vert++) {
+        for (let j = 0; j < 2; j++) {
+          const x = right - j;
+          const upward = ((right + 1) & 2) === 0;
+          const y = upward ? size - 1 - vert : vert;
+          if (!this.isFunction[y][x] && bitIndex < totalBits) {
+            const byte = codewords[bitIndex >>> 3];
+            const bit = ((byte >>> (7 - (bitIndex & 7))) & 1) !== 0;
+            this.modules[y][x] = bit;
+            bitIndex++;
+          }
+        }
+      }
+    }
+  }
+  maskFn(mask, r, c) {
+    switch (mask) {
+      case 0: return (r + c) % 2 === 0;
+      case 1: return r % 2 === 0;
+      case 2: return c % 3 === 0;
+      case 3: return (r + c) % 3 === 0;
+      case 4: return (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0;
+      case 5: return (r * c) % 2 + (r * c) % 3 === 0;
+      case 6: return ((r * c) % 2 + (r * c) % 3) % 2 === 0;
+      case 7: return ((r + c) % 2 + (r * c) % 3) % 2 === 0;
+    }
+    return false;
+  }
+  applyMask(mask) {
+    for (let y = 0; y < this.size; y++) {
+      for (let x = 0; x < this.size; x++) {
+        if (!this.isFunction[y][x] && this.maskFn(mask, y, x)) {
+          this.modules[y][x] = !this.modules[y][x];
+        }
+      }
+    }
+  }
+  penalty() {
+    const size = this.size;
+    const m = this.modules;
+    let total = 0;
+    const patA = [true, false, true, true, true, false, true, false, false, false, false];
+    const patB = [false, false, false, false, true, false, true, true, true, false, true];
+    const matchesAt = (getCell, len) => {
+      let count = 0;
+      for (let start = 0; start + 11 <= len; start++) {
+        let a = true, b = true;
+        for (let k = 0; k < 11; k++) {
+          const v = getCell(start + k);
+          if (v !== patA[k]) a = false;
+          if (v !== patB[k]) b = false;
+        }
+        if (a) count++;
+        if (b) count++;
+      }
+      return count;
+    };
+    for (let y = 0; y < size; y++) {
+      let runLen = 1;
+      for (let x = 1; x < size; x++) {
+        if (m[y][x] === m[y][x - 1]) {
+          runLen++;
+        } else {
+          if (runLen >= 5) total += 3 + (runLen - 5);
+          runLen = 1;
+        }
+      }
+      if (runLen >= 5) total += 3 + (runLen - 5);
+    }
+    for (let x = 0; x < size; x++) {
+      let runLen = 1;
+      for (let y = 1; y < size; y++) {
+        if (m[y][x] === m[y - 1][x]) {
+          runLen++;
+        } else {
+          if (runLen >= 5) total += 3 + (runLen - 5);
+          runLen = 1;
+        }
+      }
+      if (runLen >= 5) total += 3 + (runLen - 5);
+    }
+    for (let y = 0; y < size - 1; y++) {
+      for (let x = 0; x < size - 1; x++) {
+        const c = m[y][x];
+        if (m[y][x + 1] === c && m[y + 1][x] === c && m[y + 1][x + 1] === c) total += 3;
+      }
+    }
+    for (let y = 0; y < size; y++) {
+      total += 40 * matchesAt((x) => m[y][x], size);
+    }
+    for (let x = 0; x < size; x++) {
+      total += 40 * matchesAt((y) => m[y][x], size);
+    }
+    let dark = 0;
+    for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) if (m[y][x]) dark++;
+    const percent = (dark * 100) / (size * size);
+    total += Math.floor(Math.abs(percent - 50) / 5) * 10;
+    return total;
+  }
+}
+
+function encodeQR(text, eclIndex) {
+  const bytes = Array.from(new TextEncoder().encode(text));
+  const ver = chooseVersion(bytes.length, eclIndex);
+  if (ver === -1) {
+    throw new Error(`Too much data for a QR code (${bytes.length} bytes). Try a shorter network name or password.`);
+  }
+  const codewords = buildCodewords(bytes, ver, eclIndex);
+  const qr = new QrMatrix(ver);
+  qr.drawFunctionPatterns();
+  qr.drawCodewords(codewords);
+
+  let bestMask = 0, bestPenalty = Infinity;
+  for (let mask = 0; mask < 8; mask++) {
+    qr.applyMask(mask);
+    qr.drawFormatBits(eclIndex, mask);
+    const p = qr.penalty();
+    qr.applyMask(mask);
+    if (p < bestPenalty) { bestPenalty = p; bestMask = mask; }
+  }
+  qr.applyMask(bestMask);
+  qr.drawFormatBits(eclIndex, bestMask);
+
+  return { matrix: qr.modules, size: qr.size, version: ver, dataBytes: bytes.length };
+}
+
+/* ============================================================
+   Wi-Fi payload construction
+   ============================================================ */
+
+function escapeWifiField(value) {
+  return value.replace(/([\\;,:"])/g, '\\$1');
+}
+
+function buildWifiPayload(ssid, password, security, hidden) {
+  const parts = [`T:${security}`, `S:${escapeWifiField(ssid)}`];
+  if (security !== 'nopass') parts.push(`P:${escapeWifiField(password)}`);
+  if (hidden) parts.push('H:true');
+  return `WIFI:${parts.join(';')};;`;
+}
+
+/* ============================================================
+   UI wiring
+   ============================================================ */
+const ssidInput = document.getElementById('ssidInput');
+const securitySelect = document.getElementById('securitySelect');
+const passwordField = document.getElementById('passwordField');
+const passwordInput = document.getElementById('passwordInput');
+const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+const hiddenCheckbox = document.getElementById('hiddenCheckbox');
+const errorEl = document.getElementById('error');
+const previewPanel = document.getElementById('previewPanel');
+const emptyLabel = document.getElementById('emptyLabel');
+const canvasWrap = document.getElementById('canvasWrap');
+const canvas = document.getElementById('qrCanvas');
+const downloadBtn = document.getElementById('downloadBtn');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function renderMatrix(matrix, size) {
+  const quiet = 4;
+  const cell = 8;
+  const total = (size + quiet * 2) * cell;
+  canvas.width = total;
+  canvas.height = total;
+  canvas.style.width = Math.min(total, 320) + 'px';
+  canvas.style.height = Math.min(total, 320) + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, total, total);
+  ctx.fillStyle = '#000000';
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      if (matrix[y][x]) {
+        ctx.fillRect((x + quiet) * cell, (y + quiet) * cell, cell, cell);
+      }
+    }
+  }
+}
+
+function update() {
+  showError('');
+  const ssid = ssidInput.value;
+  const security = securitySelect.value;
+  const password = passwordInput.value;
+  const hidden = hiddenCheckbox.checked;
+
+  passwordField.style.display = security === 'nopass' ? 'none' : '';
+
+  if (ssid.length === 0) {
+    previewPanel.classList.add('empty');
+    emptyLabel.style.display = '';
+    canvasWrap.classList.remove('show');
+    downloadBtn.disabled = true;
+    return;
+  }
+
+  if (security !== 'nopass' && password.length === 0) {
+    showError('Enter a password, or choose "None" for an open network.');
+    previewPanel.classList.add('empty');
+    emptyLabel.style.display = '';
+    canvasWrap.classList.remove('show');
+    downloadBtn.disabled = true;
+    return;
+  }
+
+  const payload = buildWifiPayload(ssid, password, security, hidden);
+
+  let result;
+  try {
+    result = encodeQR(payload, 1);
+  } catch (e) {
+    showError(e.message);
+    previewPanel.classList.add('empty');
+    emptyLabel.style.display = '';
+    canvasWrap.classList.remove('show');
+    downloadBtn.disabled = true;
+    return;
+  }
+
+  previewPanel.classList.remove('empty');
+  emptyLabel.style.display = 'none';
+  canvasWrap.classList.add('show');
+  downloadBtn.disabled = false;
+  renderMatrix(result.matrix, result.size);
+}
+
+togglePasswordBtn.addEventListener('click', () => {
+  const isPassword = passwordInput.type === 'password';
+  passwordInput.type = isPassword ? 'text' : 'password';
+  togglePasswordBtn.textContent = isPassword ? 'Hide' : 'Show';
+});
+
+[ssidInput, passwordInput, hiddenCheckbox].forEach(el => el.addEventListener('input', update));
+securitySelect.addEventListener('change', update);
+
+downloadBtn.addEventListener('click', () => {
+  if (downloadBtn.disabled) return;
+  canvas.toBlob((blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'wifi-qrcode.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }, 'image/png');
+});
+
+update();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
