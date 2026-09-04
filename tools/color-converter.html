@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Picker &amp; Converter — HEX, RGB, HSL | Toolcrate</title>
+<meta name="description" content="Pick a color or convert between HEX, RGB, and HSL instantly in your browser. Supports alpha transparency. Nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<style>
+  .color-preview-wrap {
+    width: 100%;
+    height: 110px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    position: relative;
+    overflow: hidden;
+    background-image:
+      linear-gradient(45deg, #ccc 25%, transparent 25%),
+      linear-gradient(-45deg, #ccc 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #ccc 75%),
+      linear-gradient(-45deg, transparent 75%, #ccc 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  }
+  #swatch { position: absolute; inset: 0; }
+  .picker-row { display: flex; align-items: center; gap: 0.75rem; }
+  input[type="color"] {
+    width: 48px;
+    height: 40px;
+    padding: 2px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  input[type="range"] { flex: 1; accent-color: var(--accent); }
+  .alpha-value { font-size: 0.85rem; color: var(--ink-soft); min-width: 3.2em; text-align: right; }
+  .field-with-copy { display: flex; gap: 0.5rem; align-items: center; }
+  .field-with-copy input { flex: 1; }
+  .presets { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .preset-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    cursor: pointer;
+    padding: 0;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Color Picker &amp; Converter</h1>
+    <p>Pick a color or type a HEX, RGB, or HSL value — every field updates live, including alpha transparency.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="colorPicker">Pick a color</label>
+      <div class="picker-row">
+        <input type="color" id="colorPicker" value="#2255dd">
+        <div class="color-preview-wrap" style="flex:1"><div id="swatch"></div></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="alphaSlider">Opacity</label>
+      <div class="picker-row">
+        <input type="range" id="alphaSlider" min="0" max="100" value="100">
+        <span class="alpha-value" id="alphaValue">100%</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="hexInput">HEX</label>
+      <div class="field-with-copy">
+        <input type="text" id="hexInput" spellcheck="false" autocomplete="off">
+        <button class="secondary copy-field-btn" data-target="hexInput">Copy</button>
+      </div>
+      <span class="copy-feedback">Copied</span>
+    </div>
+
+    <div class="field">
+      <label for="rgbInput">RGB</label>
+      <div class="field-with-copy">
+        <input type="text" id="rgbInput" spellcheck="false" autocomplete="off">
+        <button class="secondary copy-field-btn" data-target="rgbInput">Copy</button>
+      </div>
+      <span class="copy-feedback">Copied</span>
+    </div>
+
+    <div class="field">
+      <label for="hslInput">HSL</label>
+      <div class="field-with-copy">
+        <input type="text" id="hslInput" spellcheck="false" autocomplete="off">
+        <button class="secondary copy-field-btn" data-target="hslInput">Copy</button>
+      </div>
+      <span class="copy-feedback">Copied</span>
+    </div>
+
+    <div id="error" class="error-text"></div>
+
+    <div class="field">
+      <label>Presets</label>
+      <div class="presets" id="presets"></div>
+    </div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Every field represents the same color and stays in sync: drag the picker or the opacity slider, or type directly into the HEX, RGB, or HSL field and press Enter or click away to apply it. HEX accepts 3, 4, 6, or 8 digit forms (with or without a leading <code>#</code>) — 4 and 8 digit forms include an alpha channel. RGB and HSL accept both the full CSS function syntax (<code>rgba(34, 85, 221, 0.5)</code>, <code>hsla(224, 78%, 50%, 0.5)</code>) and bare comma-separated values.</p>
+    <p>HSL conversion uses the standard sRGB formulas, rounding to whole degrees and percentages — converting back and forth repeatedly can shift a value by a point or two due to that rounding, which is normal and not a bug. Nothing you enter here is sent to a server; the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const colorPicker = document.getElementById('colorPicker');
+const alphaSlider = document.getElementById('alphaSlider');
+const alphaValue = document.getElementById('alphaValue');
+const hexInput = document.getElementById('hexInput');
+const rgbInput = document.getElementById('rgbInput');
+const hslInput = document.getElementById('hslInput');
+const swatch = document.getElementById('swatch');
+const errorEl = document.getElementById('error');
+const presetsEl = document.getElementById('presets');
+
+function showError(msg) { errorEl.textContent = msg; }
+function clearError() { errorEl.textContent = ''; }
+function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+function round2(n) { return Math.round(n * 100) / 100; }
+function toHex2(n) { return clamp(Math.round(n), 0, 255).toString(16).padStart(2, '0'); }
+
+function parseHex(str) {
+  let s = str.trim().replace(/^#/, '');
+  if (!/^[0-9a-fA-F]+$/.test(s)) throw new Error('must contain only hex digits 0-9 and A-F.');
+  if (s.length === 3 || s.length === 4) s = s.split('').map(c => c + c).join('');
+  if (s.length !== 6 && s.length !== 8) throw new Error('must be 3, 4, 6, or 8 digits.');
+  const r = parseInt(s.slice(0, 2), 16), g = parseInt(s.slice(2, 4), 16), b = parseInt(s.slice(4, 6), 16);
+  const a = s.length === 8 ? parseInt(s.slice(6, 8), 16) / 255 : 1;
+  return { r, g, b, a };
+}
+
+function parseChannel(p) {
+  if (p.endsWith('%')) return clamp(Math.round(parseFloat(p) * 2.55), 0, 255);
+  const n = parseFloat(p);
+  if (isNaN(n)) throw new Error(`cannot parse "${p}" as a color channel.`);
+  return clamp(Math.round(n), 0, 255);
+}
+
+function parseAlphaPart(p) {
+  const a = p.endsWith('%') ? parseFloat(p) / 100 : parseFloat(p);
+  if (isNaN(a)) throw new Error('cannot parse alpha value.');
+  return clamp(a, 0, 1);
+}
+
+function parseRgbString(str) {
+  const m = str.match(/\(([^)]+)\)/);
+  const body = m ? m[1] : str;
+  const parts = body.split(',').map(p => p.trim()).filter(p => p !== '');
+  if (parts.length < 3) throw new Error('needs at least red, green, and blue values.');
+  const r = parseChannel(parts[0]), g = parseChannel(parts[1]), b = parseChannel(parts[2]);
+  const a = parts[3] !== undefined ? parseAlphaPart(parts[3]) : 1;
+  return { r, g, b, a };
+}
+
+function hslToRgb(h, s, l) {
+  h = ((h % 360) + 360) % 360 / 360;
+  s /= 100; l /= 100;
+  let r, g, b;
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
+  }
+  return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
+}
+
+function parseHslString(str) {
+  const m = str.match(/\(([^)]+)\)/);
+  const body = m ? m[1] : str;
+  const parts = body.split(',').map(p => p.trim()).filter(p => p !== '');
+  if (parts.length < 3) throw new Error('needs hue, saturation, and lightness.');
+  const h = parseFloat(parts[0]);
+  const s = parseFloat(parts[1]);
+  const l = parseFloat(parts[2]);
+  if ([h, s, l].some(isNaN)) throw new Error('cannot parse hue, saturation, or lightness.');
+  const a = parts[3] !== undefined ? parseAlphaPart(parts[3]) : 1;
+  const rgb = hslToRgb(h, clamp(s, 0, 100), clamp(l, 0, 100));
+  return { ...rgb, a };
+}
+
+function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+  const d = max - min;
+  if (d !== 0) {
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+  return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+}
+
+function formatHex(c) {
+  let s = '#' + toHex2(c.r) + toHex2(c.g) + toHex2(c.b);
+  if (c.a < 1) s += toHex2(c.a * 255);
+  return s.toUpperCase();
+}
+function formatRgb(c) {
+  return c.a < 1 ? `rgba(${c.r}, ${c.g}, ${c.b}, ${round2(c.a)})` : `rgb(${c.r}, ${c.g}, ${c.b})`;
+}
+function formatHsl(c) {
+  const { h, s, l } = rgbToHsl(c.r, c.g, c.b);
+  return c.a < 1 ? `hsla(${h}, ${s}%, ${l}%, ${round2(c.a)})` : `hsl(${h}, ${s}%, ${l}%)`;
+}
+
+let current = { r: 34, g: 85, b: 221, a: 1 };
+
+function refreshUI() {
+  colorPicker.value = '#' + toHex2(current.r) + toHex2(current.g) + toHex2(current.b);
+  hexInput.value = formatHex(current);
+  rgbInput.value = formatRgb(current);
+  hslInput.value = formatHsl(current);
+  alphaSlider.value = Math.round(current.a * 100);
+  alphaValue.textContent = Math.round(current.a * 100) + '%';
+  swatch.style.background = `rgba(${current.r}, ${current.g}, ${current.b}, ${current.a})`;
+}
+
+colorPicker.addEventListener('input', () => {
+  clearError();
+  const { r, g, b } = parseHex(colorPicker.value);
+  current = { r, g, b, a: current.a };
+  refreshUI();
+});
+
+alphaSlider.addEventListener('input', () => {
+  current = { ...current, a: alphaSlider.value / 100 };
+  refreshUI();
+});
+
+hexInput.addEventListener('change', () => {
+  clearError();
+  try { current = parseHex(hexInput.value); refreshUI(); }
+  catch (e) { showError('Invalid HEX value: ' + e.message); }
+});
+rgbInput.addEventListener('change', () => {
+  clearError();
+  try { current = parseRgbString(rgbInput.value); refreshUI(); }
+  catch (e) { showError('Invalid RGB value: ' + e.message); }
+});
+hslInput.addEventListener('change', () => {
+  clearError();
+  try { current = parseHslString(hslInput.value); refreshUI(); }
+  catch (e) { showError('Invalid HSL value: ' + e.message); }
+});
+
+document.querySelectorAll('.copy-field-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const val = document.getElementById(btn.dataset.target).value;
+    try {
+      await navigator.clipboard.writeText(val);
+      const feedback = btn.parentElement.nextElementSibling;
+      feedback.classList.add('show');
+      setTimeout(() => feedback.classList.remove('show'), 1500);
+    } catch (e) {
+      showError('Could not copy — select and copy manually.');
+    }
+  });
+});
+
+const PRESETS = ['#2255DD', '#000000', '#FFFFFF', '#EF4444', '#F59E0B', '#10B981', '#8B5CF6', '#EC4899', '#6B7280'];
+PRESETS.forEach(hex => {
+  const btn = document.createElement('button');
+  btn.className = 'preset-swatch';
+  btn.style.background = hex;
+  btn.title = hex;
+  btn.type = 'button';
+  btn.addEventListener('click', () => {
+    clearError();
+    const { r, g, b } = parseHex(hex);
+    current = { r, g, b, a: current.a };
+    refreshUI();
+  });
+  presetsEl.appendChild(btn);
+});
+
+refreshUI();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
