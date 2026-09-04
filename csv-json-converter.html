@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSV ↔ JSON Converter | Toolcrate</title>
+<meta name="description" content="Convert CSV to JSON or JSON to CSV instantly in your browser. Handles quoted fields, commas, and escaped quotes correctly.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>CSV ↔ JSON Converter</h1>
+    <p>Convert CSV to a JSON array of objects, or JSON back to CSV, entirely in your browser.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Input</label>
+      <textarea id="input" rows="10" spellcheck="false">name,role,years
+Ada Lovelace,Mathematician,3
+"Grace Hopper","Computer Scientist, Navy",4
+</textarea>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="delimiter">CSV delimiter</label>
+        <select id="delimiter">
+          <option value=",">Comma (,)</option>
+          <option value=";">Semicolon (;)</option>
+          <option value="\t">Tab</option>
+        </select>
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1.6rem; cursor: pointer;">
+          <input type="checkbox" id="hasHeader" checked style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">First row is a header</span>
+        </label>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button id="toJsonBtn">CSV → JSON</button>
+      <button id="toCsvBtn" class="secondary">JSON → CSV</button>
+      <button id="swapBtn" class="secondary">Swap</button>
+      <button id="clearBtn" class="secondary">Clear</button>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label for="output">Result</label>
+    <div id="output" class="output-panel empty">Converted output will appear here.</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy result</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>CSV parsing follows the common convention: fields containing the delimiter, quotes, or line breaks are wrapped in double quotes, and a doubled quote (<code>""</code>) inside a quoted field represents a literal quote character. With "first row is a header" checked, each row becomes a JSON object keyed by the header names; unchecked, rows become plain arrays.</p>
+    <p>JSON → CSV expects an array of flat objects (or arrays) — nested objects and arrays inside a field are converted to their JSON string form rather than flattened, since there's no single standard way to represent nested data in CSV. Everything runs locally in your browser; nothing is uploaded.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const input = document.getElementById('input');
+const output = document.getElementById('output');
+const delimiterEl = document.getElementById('delimiter');
+const hasHeaderEl = document.getElementById('hasHeader');
+const errorEl = document.getElementById('error');
+const copyBtn = document.getElementById('copyBtn');
+const copyFeedback = document.getElementById('copyFeedback');
+
+function showOutput(text) {
+  output.textContent = text;
+  output.classList.remove('empty');
+}
+function showError(msg) { errorEl.textContent = msg; }
+function clearError() { errorEl.textContent = ''; }
+
+function getDelimiter() {
+  const v = delimiterEl.value;
+  return v === '\\t' ? '\t' : v;
+}
+
+// RFC4180-ish CSV parser: handles quoted fields, embedded delimiters/newlines, and "" escapes.
+function parseCsv(text, delimiter) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+  const normalized = text.replace(/\r\n/g, '\n');
+  let i = 0;
+
+  while (i < normalized.length) {
+    const c = normalized[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (normalized[i + 1] === '"') { field += '"'; i += 2; continue; }
+        inQuotes = false; i++; continue;
+      }
+      field += c; i++; continue;
+    } else {
+      if (c === '"') { inQuotes = true; i++; continue; }
+      if (c === delimiter) { row.push(field); field = ''; i++; continue; }
+      if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+      field += c; i++; continue;
+    }
+  }
+  row.push(field);
+  rows.push(row);
+
+  // Drop a single trailing empty row caused by a trailing newline.
+  if (rows.length > 1 && rows[rows.length - 1].length === 1 && rows[rows.length - 1][0] === '') {
+    rows.pop();
+  }
+  return rows;
+}
+
+function csvToJson(text, delimiter, hasHeader) {
+  const rows = parseCsv(text, delimiter);
+  if (rows.length === 0) return [];
+  if (hasHeader) {
+    const headers = rows[0];
+    return rows.slice(1).map(r => {
+      const obj = {};
+      headers.forEach((h, i) => { obj[h] = r[i] !== undefined ? r[i] : ''; });
+      return obj;
+    });
+  }
+  return rows;
+}
+
+function csvField(value, delimiter) {
+  const str = value === null || value === undefined ? '' : (typeof value === 'object' ? JSON.stringify(value) : String(value));
+  if (str.includes(delimiter) || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
+
+function jsonToCsv(data, delimiter) {
+  if (!Array.isArray(data)) throw new Error('JSON input must be an array of objects or arrays.');
+  if (data.length === 0) return '';
+
+  if (Array.isArray(data[0])) {
+    return data.map(row => row.map(v => csvField(v, delimiter)).join(delimiter)).join('\n');
+  }
+
+  // Collect the union of all keys across all rows, preserving first-seen order.
+  const keys = [];
+  data.forEach(obj => {
+    Object.keys(obj).forEach(k => { if (!keys.includes(k)) keys.push(k); });
+  });
+
+  const lines = [keys.map(k => csvField(k, delimiter)).join(delimiter)];
+  data.forEach(obj => {
+    lines.push(keys.map(k => csvField(obj[k], delimiter)).join(delimiter));
+  });
+  return lines.join('\n');
+}
+
+document.getElementById('toJsonBtn').addEventListener('click', () => {
+  clearError();
+  try {
+    const result = csvToJson(input.value, getDelimiter(), hasHeaderEl.checked);
+    showOutput(JSON.stringify(result, null, 2));
+  } catch (e) {
+    showError('Could not parse CSV: ' + e.message);
+  }
+});
+
+document.getElementById('toCsvBtn').addEventListener('click', () => {
+  clearError();
+  try {
+    const parsed = JSON.parse(input.value);
+    showOutput(jsonToCsv(parsed, getDelimiter()));
+  } catch (e) {
+    showError('Invalid JSON: ' + e.message);
+  }
+});
+
+document.getElementById('swapBtn').addEventListener('click', () => {
+  if (output.classList.contains('empty')) return;
+  input.value = output.textContent;
+  output.textContent = 'Converted output will appear here.';
+  output.classList.add('empty');
+  clearError();
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  input.value = '';
+  output.textContent = 'Converted output will appear here.';
+  output.classList.add('empty');
+  clearError();
+  input.focus();
+});
+
+copyBtn.addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    copyFeedback.classList.add('show');
+    setTimeout(() => copyFeedback.classList.remove('show'), 1500);
+  } catch (e) {
+    showError('Could not copy — select and copy manually.');
+  }
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
