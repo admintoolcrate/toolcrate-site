@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Days Between Two Dates | Toolcrate</title>
+<meta name="description" content="Calculate the exact number of days, weeks, and business days between two dates. Free, instant, browser-only.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Days Between Two Dates</h1>
+    <p>Find the exact number of days, weeks, and business days between any two dates.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="startDate">Start date</label>
+        <input type="date" id="startDate">
+      </div>
+      <div class="field">
+        <label for="endDate">End date</label>
+        <input type="date" id="endDate">
+      </div>
+    </div>
+    <div class="field">
+      <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" id="includeEnd" style="width: auto;">
+        <span style="font-size: 0.85rem; color: var(--ink-soft);">Include the end date in the count</span>
+      </label>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="totalDays">—</span><span class="stat-label">Total days</span></div>
+    <div class="stat"><span class="stat-value" id="totalWeeks">—</span><span class="stat-label">Weeks + days</span></div>
+    <div class="stat"><span class="stat-value" id="weekdays">—</span><span class="stat-label">Weekdays</span></div>
+    <div class="stat"><span class="stat-value" id="weekendDays">—</span><span class="stat-label">Weekend days</span></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Dates are compared as whole calendar days with no time-of-day or time zone involved, so the count is the same regardless of where you or the dates are. By default the span is exclusive of the end date (the way you'd count nights between a check-in and check-out); check the box to count the end date too, the way you'd count total calendar days including both endpoints.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const startDate = document.getElementById('startDate');
+const endDate = document.getElementById('endDate');
+const includeEnd = document.getElementById('includeEnd');
+const errorEl = document.getElementById('error');
+
+const totalDaysEl = document.getElementById('totalDays');
+const totalWeeksEl = document.getElementById('totalWeeks');
+const weekdaysEl = document.getElementById('weekdays');
+const weekendDaysEl = document.getElementById('weekendDays');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function parseIsoToUTCDate(value) {
+  const [y, m, d] = value.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d));
+}
+
+function calc() {
+  showError('');
+  if (!startDate.value || !endDate.value) {
+    [totalDaysEl, totalWeeksEl, weekdaysEl, weekendDaysEl].forEach(el => el.textContent = '—');
+    return;
+  }
+
+  let start = parseIsoToUTCDate(startDate.value);
+  let end = parseIsoToUTCDate(endDate.value);
+  if (start.getTime() > end.getTime()) [start, end] = [end, start];
+
+  let totalDays = Math.round((end.getTime() - start.getTime()) / 86400000);
+  if (includeEnd.checked) totalDays += 1;
+
+  totalDaysEl.textContent = totalDays.toLocaleString();
+  const weeks = Math.floor(totalDays / 7);
+  const rem = totalDays % 7;
+  totalWeeksEl.textContent = `${weeks}w ${rem}d`;
+
+  let weekdayCount = 0, weekendCount = 0;
+  const spanDays = includeEnd.checked ? totalDays : totalDays;
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(start.getTime() + i * 86400000);
+    const dow = d.getUTCDay();
+    if (dow === 0 || dow === 6) weekendCount++; else weekdayCount++;
+  }
+  weekdaysEl.textContent = weekdayCount.toLocaleString();
+  weekendDaysEl.textContent = weekendCount.toLocaleString();
+}
+
+[startDate, endDate, includeEnd].forEach(el => el.addEventListener('input', calc));
+
+const today = new Date();
+startDate.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+const inThirty = new Date(today.getTime() + 30 * 86400000);
+endDate.value = `${inThirty.getFullYear()}-${String(inThirty.getMonth() + 1).padStart(2, '0')}-${String(inThirty.getDate()).padStart(2, '0')}`;
+calc();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
