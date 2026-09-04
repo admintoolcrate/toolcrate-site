@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number to Words Converter | Toolcrate</title>
+<meta name="description" content="Spell out any number in English words, live as you type. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Number to Words Converter</h1>
+    <p>Type any number and see it spelled out in English words.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Number</label>
+      <input type="text" id="input" value="1994" inputmode="decimal" autocomplete="off">
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label for="output">In words</label>
+    <div id="output" class="output-panel empty">Result will appear here.</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy result</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Numbers are spelled out using the short scale (thousand, million, billion, trillion — each 1,000× the one before), the convention used in US and modern British English. A decimal point is read digit by digit after "point" (so 3.14 becomes "three point one four"), which is the standard, unambiguous way to read a decimal aloud — as opposed to currency-style "and cents" phrasing, which this tool doesn't attempt since it would require knowing the currency.</p>
+    <p>Nothing you type here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const ONES = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+  'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+const SCALES = ['', 'thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion'];
+
+function threeDigitsToWords(n) {
+  const parts = [];
+  const hundreds = Math.floor(n / 100);
+  const remainder = n % 100;
+  if (hundreds > 0) parts.push(ONES[hundreds] + ' hundred');
+  if (remainder > 0) {
+    if (remainder < 20) {
+      parts.push(ONES[remainder]);
+    } else {
+      const tens = Math.floor(remainder / 10);
+      const ones = remainder % 10;
+      parts.push(TENS[tens] + (ones > 0 ? '-' + ONES[ones] : ''));
+    }
+  }
+  return parts.join(' ');
+}
+
+function integerToWords(numStr) {
+  if (numStr === '0') return 'zero';
+  const groups = [];
+  let s = numStr;
+  while (s.length > 0) {
+    groups.unshift(s.slice(-3));
+    s = s.slice(0, -3);
+  }
+  if (groups.length > SCALES.length) {
+    throw new Error('That number is too large to spell out.');
+  }
+  const parts = [];
+  const scaleOffset = groups.length - 1;
+  groups.forEach((group, i) => {
+    const n = parseInt(group, 10);
+    if (n === 0) return;
+    const scaleIndex = scaleOffset - i;
+    const words = threeDigitsToWords(n);
+    parts.push(scaleIndex > 0 ? `${words} ${SCALES[scaleIndex]}` : words);
+  });
+  return parts.join(', ');
+}
+
+function numberToWords(raw) {
+  const trimmed = raw.trim();
+  if (!/^-?\d+(\.\d+)?$/.test(trimmed)) {
+    throw new Error('Enter a valid number (digits only, optional leading minus and one decimal point).');
+  }
+  const negative = trimmed.startsWith('-');
+  const unsigned = negative ? trimmed.slice(1) : trimmed;
+  const [intPart, decPart] = unsigned.split('.');
+  const cleanInt = intPart.replace(/^0+(?=\d)/, '');
+
+  let words = integerToWords(cleanInt);
+  if (decPart) {
+    const decWords = decPart.split('').map(d => ONES[parseInt(d, 10)]).join(' ');
+    words += ' point ' + decWords;
+  }
+  return (negative ? 'negative ' : '') + words;
+}
+
+const input = document.getElementById('input');
+const output = document.getElementById('output');
+const errorEl = document.getElementById('error');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function render() {
+  showError('');
+  const raw = input.value;
+  if (!raw.trim()) {
+    output.textContent = 'Result will appear here.';
+    output.classList.add('empty');
+    return;
+  }
+  try {
+    const words = numberToWords(raw);
+    output.textContent = words.charAt(0).toUpperCase() + words.slice(1);
+    output.classList.remove('empty');
+  } catch (e) {
+    showError(e.message);
+    output.textContent = 'Result will appear here.';
+    output.classList.add('empty');
+  }
+}
+
+input.addEventListener('input', render);
+render();
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

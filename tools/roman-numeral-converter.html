@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roman Numeral Converter | Toolcrate</title>
+<meta name="description" content="Convert numbers to Roman numerals or Roman numerals back to numbers. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Roman Numeral Converter</h1>
+    <p>Convert a number to Roman numerals, or Roman numerals back to a number.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Number or Roman numeral</label>
+      <input type="text" id="input" placeholder="e.g. 1994 or MCMXCIV" autocomplete="off">
+    </div>
+    <div class="btn-row">
+      <button id="toRomanBtn">Number → Roman</button>
+      <button id="toNumberBtn" class="secondary">Roman → Number</button>
+      <button id="clearBtn" class="secondary">Clear</button>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label for="output">Result</label>
+    <div id="output" class="output-panel empty">Result will appear here.</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy result</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Standard Roman numerals use seven symbols (I, V, X, L, C, D, M) combined additively, with a subtractive shorthand for four cases in each order of magnitude (IV instead of IIII, IX instead of VIIII, and so on for X/C and C/M). This tool supports the standard range of 1–3999 — beyond that, Roman numerals traditionally need a special overline notation (multiplying a symbol by 1,000) that has no reliable plain-text representation.</p>
+    <p>"Roman → Number" validates that the input is well-formed standard notation, not just any combination of the seven letters — <code>IIII</code> or <code>VX</code>, for example, are rejected as invalid rather than silently guessed at. Nothing you enter here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const VALUES = [
+  [1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'],
+  [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'],
+  [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']
+];
+
+const ROMAN_VALID_RE = /^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/;
+
+function numberToRoman(num) {
+  let result = '';
+  let n = num;
+  for (const [value, symbol] of VALUES) {
+    while (n >= value) {
+      result += symbol;
+      n -= value;
+    }
+  }
+  return result;
+}
+
+function romanToNumber(roman) {
+  const upper = roman.toUpperCase();
+  if (!ROMAN_VALID_RE.test(upper) || upper === '') {
+    throw new Error(`"${roman}" is not a valid standard Roman numeral.`);
+  }
+  let total = 0;
+  let i = 0;
+  while (i < upper.length) {
+    const twoChar = upper.slice(i, i + 2);
+    const match = VALUES.find(([, sym]) => sym === twoChar);
+    if (match) {
+      total += match[0];
+      i += 2;
+      continue;
+    }
+    const oneChar = upper[i];
+    const singleMatch = VALUES.find(([, sym]) => sym === oneChar);
+    total += singleMatch[0];
+    i += 1;
+  }
+  return total;
+}
+
+const input = document.getElementById('input');
+const output = document.getElementById('output');
+const errorEl = document.getElementById('error');
+
+function showError(msg) { errorEl.textContent = msg; }
+function showOutput(text) { output.textContent = text; output.classList.remove('empty'); }
+
+document.getElementById('toRomanBtn').addEventListener('click', () => {
+  showError('');
+  const raw = input.value.trim();
+  if (!raw) { showError('Enter a number first.'); return; }
+  const num = parseInt(raw, 10);
+  if (!/^\d+$/.test(raw) || isNaN(num)) { showError('Enter a whole number.'); return; }
+  if (num < 1 || num > 3999) { showError('Number must be between 1 and 3999 for standard Roman numerals.'); return; }
+  showOutput(numberToRoman(num));
+});
+
+document.getElementById('toNumberBtn').addEventListener('click', () => {
+  showError('');
+  const raw = input.value.trim();
+  if (!raw) { showError('Enter a Roman numeral first.'); return; }
+  try {
+    showOutput(String(romanToNumber(raw)));
+  } catch (e) {
+    showError(e.message);
+  }
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  input.value = '';
+  output.textContent = 'Result will appear here.';
+  output.classList.add('empty');
+  showError('');
+  input.focus();
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
