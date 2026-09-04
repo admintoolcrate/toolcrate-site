@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JWT Decoder — Header &amp; Payload | Toolcrate</title>
+<meta name="description" content="Decode a JSON Web Token's header and payload instantly in your browser. No signup, nothing uploaded to a server. This tool does not verify the signature.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>JWT Decoder</h1>
+    <p>Paste a JSON Web Token to decode its header and payload. This does not verify the signature.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Paste your JWT</label>
+      <textarea id="input" rows="6" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" spellcheck="false"></textarea>
+    </div>
+    <div class="btn-row">
+      <button id="decodeBtn">Decode</button>
+      <button id="clearBtn" class="secondary">Clear</button>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label for="headerOutput">Header</label>
+    <div id="headerOutput" class="output-panel empty">The decoded header will appear here.</div>
+  </div>
+
+  <div class="field">
+    <label for="payloadOutput">Payload</label>
+    <div id="payloadOutput" class="output-panel empty">The decoded payload will appear here.</div>
+  </div>
+
+  <div class="field">
+    <label>Signature</label>
+    <div id="signatureOutput" class="output-panel empty">—</div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>A JWT is three Base64URL-encoded segments — header, payload, and signature — separated by dots. This tool splits the token, decodes the header and payload as JSON, and formats them for reading; the signature segment is shown as-is, in raw Base64URL. Standard timestamp claims (<code>iat</code>, <code>exp</code>, <code>nbf</code>) are annotated with their human-readable date so you don't have to convert them by hand.</p>
+    <p><strong>This tool does not verify the signature</strong> — decoding a JWT tells you what it claims, not whether it's authentic. Anyone can construct a token with an arbitrary header and payload; only checking the signature against the issuer's real secret or public key (something this browser-only tool has no way to know) proves a token hasn't been tampered with. Never trust a decoded JWT's contents for anything security-sensitive without verifying it server-side first. Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const input = document.getElementById('input');
+const errorEl = document.getElementById('error');
+const headerOutput = document.getElementById('headerOutput');
+const payloadOutput = document.getElementById('payloadOutput');
+const signatureOutput = document.getElementById('signatureOutput');
+
+function showError(msg) { errorEl.textContent = msg; }
+function clearError() { errorEl.textContent = ''; }
+
+function base64UrlDecode(str) {
+  let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (b64.length % 4 !== 0) b64 += '=';
+  let binary;
+  try {
+    binary = atob(b64);
+  } catch (e) {
+    throw new Error('not valid Base64URL.');
+  }
+  const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+  return new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+}
+
+const TIMESTAMP_CLAIMS = { iat: 'Issued at', exp: 'Expires', nbf: 'Not valid before' };
+
+function annotateTimestamps(obj) {
+  const notes = [];
+  Object.keys(TIMESTAMP_CLAIMS).forEach(key => {
+    if (typeof obj[key] === 'number') {
+      const date = new Date(obj[key] * 1000);
+      if (!isNaN(date.getTime())) {
+        notes.push(`${TIMESTAMP_CLAIMS[key]} (${key}): ${date.toISOString()}`);
+      }
+    }
+  });
+  return notes;
+}
+
+function decodeSegment(segment, label) {
+  const json = base64UrlDecode(segment);
+  let parsed;
+  try {
+    parsed = JSON.parse(json);
+  } catch (e) {
+    throw new Error(`${label} is not valid JSON once decoded: ${e.message}`);
+  }
+  return parsed;
+}
+
+document.getElementById('decodeBtn').addEventListener('click', () => {
+  clearError();
+  headerOutput.classList.add('empty');
+  payloadOutput.classList.add('empty');
+  signatureOutput.classList.add('empty');
+
+  const token = input.value.trim();
+  if (!token) { showError('Paste a JWT to decode.'); return; }
+
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    showError(`A JWT must have exactly 3 dot-separated segments (header.payload.signature) — found ${parts.length}.`);
+    return;
+  }
+  const [headerPart, payloadPart, signaturePart] = parts;
+
+  try {
+    const header = decodeSegment(headerPart, 'Header');
+    headerOutput.textContent = JSON.stringify(header, null, 2);
+    headerOutput.classList.remove('empty');
+  } catch (e) {
+    showError('Header error: ' + e.message);
+    return;
+  }
+
+  try {
+    const payload = decodeSegment(payloadPart, 'Payload');
+    let text = JSON.stringify(payload, null, 2);
+    const notes = annotateTimestamps(payload);
+    if (notes.length > 0) text += '\n\n' + notes.join('\n');
+    payloadOutput.textContent = text;
+    payloadOutput.classList.remove('empty');
+  } catch (e) {
+    showError('Payload error: ' + e.message);
+    return;
+  }
+
+  if (!signaturePart) {
+    signatureOutput.textContent = '(empty — this token is unsigned)';
+  } else {
+    signatureOutput.textContent = signaturePart;
+  }
+  signatureOutput.classList.remove('empty');
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  input.value = '';
+  headerOutput.textContent = 'The decoded header will appear here.';
+  headerOutput.classList.add('empty');
+  payloadOutput.textContent = 'The decoded payload will appear here.';
+  payloadOutput.classList.add('empty');
+  signatureOutput.textContent = '—';
+  signatureOutput.classList.add('empty');
+  clearError();
+  input.focus();
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

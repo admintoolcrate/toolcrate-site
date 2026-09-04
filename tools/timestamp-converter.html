@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timestamp / Unix Converter — Timezone Aware | Toolcrate</title>
+<meta name="description" content="Convert Unix timestamps to human-readable dates and back, in any IANA timezone. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Timestamp / Unix Converter</h1>
+    <p>Convert a Unix timestamp to a date, or a date to a Unix timestamp, in any timezone.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="tsInput">Unix timestamp → Date</label>
+      <div class="row">
+        <input type="text" id="tsInput" placeholder="1735689600" spellcheck="false" autocomplete="off">
+        <select id="tsUnit" style="max-width: 160px;">
+          <option value="seconds">Seconds</option>
+          <option value="milliseconds">Milliseconds</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="tsZone">Show in timezone</label>
+      <select id="tsZone"></select>
+    </div>
+    <div class="btn-row">
+      <button id="tsNowBtn" class="secondary">Now</button>
+      <button id="tsConvertBtn">Convert</button>
+      <button id="tsClearBtn" class="secondary">Clear</button>
+    </div>
+    <div id="tsError" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label for="tsOutput">Result</label>
+    <div id="tsOutput" class="output-panel empty">The date will appear here.</div>
+    <div class="btn-row">
+      <button id="tsCopyBtn" class="secondary">Copy result</button>
+      <span id="tsCopyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top: 1.5rem;">
+    <div class="field">
+      <label for="dateInput">Date → Unix timestamp</label>
+      <input type="datetime-local" id="dateInput" step="1">
+    </div>
+    <div class="field">
+      <label for="dateZone">Interpret entered date/time in timezone</label>
+      <select id="dateZone"></select>
+    </div>
+    <div class="btn-row">
+      <button id="dateNowBtn" class="secondary">Now</button>
+      <button id="dateConvertBtn">Convert</button>
+      <button id="dateClearBtn" class="secondary">Clear</button>
+    </div>
+    <div id="dateError" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label for="dateOutput">Result</label>
+    <div id="dateOutput" class="output-panel empty">The timestamp will appear here.</div>
+    <div class="btn-row">
+      <button id="dateCopyBtn" class="secondary">Copy result</button>
+      <span id="dateCopyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Timezone conversion uses the browser's built-in <code>Intl</code> API against the IANA timezone database, so results account for real historical and future daylight-saving rules rather than a fixed offset. The "Date → Unix timestamp" direction resolves the wall-clock time you enter as if it were local to the selected timezone; right at the instant of a daylight-saving transition, a wall-clock time can be genuinely ambiguous or nonexistent, and this tool resolves that case using the standard-time side of the transition, matching how most conversion tools handle it.</p>
+    <p>Nothing you enter is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const FALLBACK_ZONES = ['UTC','America/New_York','America/Chicago','America/Denver','America/Los_Angeles','America/Anchorage','America/Sao_Paulo','America/Mexico_City','Europe/London','Europe/Paris','Europe/Berlin','Europe/Madrid','Europe/Moscow','Africa/Cairo','Africa/Johannesburg','Africa/Lagos','Asia/Dubai','Asia/Kolkata','Asia/Bangkok','Asia/Jakarta','Asia/Shanghai','Asia/Hong_Kong','Asia/Tokyo','Asia/Seoul','Asia/Singapore','Australia/Sydney','Australia/Perth','Pacific/Auckland'];
+
+function getTimezoneList() {
+  let zones;
+  if (typeof Intl.supportedValuesOf === 'function') {
+    try { zones = Intl.supportedValuesOf('timeZone'); } catch (e) { zones = null; }
+  }
+  if (!zones || zones.length === 0) zones = FALLBACK_ZONES.slice();
+  if (!zones.includes('UTC')) zones.unshift('UTC');
+  return zones;
+}
+
+const LOCAL_ZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+function populateZoneSelect(select) {
+  const zones = getTimezoneList();
+  zones.forEach(z => {
+    const opt = document.createElement('option');
+    opt.value = z;
+    opt.textContent = z === 'UTC' ? 'UTC' : z.replace(/_/g, ' ');
+    select.appendChild(opt);
+  });
+  select.value = zones.includes(LOCAL_ZONE) ? LOCAL_ZONE : 'UTC';
+}
+
+const tsZone = document.getElementById('tsZone');
+const dateZone = document.getElementById('dateZone');
+populateZoneSelect(tsZone);
+populateZoneSelect(dateZone);
+
+function getZoneParts(date, timeZone) {
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone, hour12: false,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  });
+  const parts = dtf.formatToParts(date).reduce((acc, p) => {
+    if (p.type !== 'literal') acc[p.type] = p.value;
+    return acc;
+  }, {});
+  const hour = parts.hour === '24' ? '0' : parts.hour;
+  return { y: +parts.year, m: +parts.month, d: +parts.day, h: +hour, mi: +parts.minute, s: +parts.second };
+}
+
+function zoneOffsetMs(date, timeZone) {
+  const p = getZoneParts(date, timeZone);
+  const asUtc = Date.UTC(p.y, p.m - 1, p.d, p.h, p.mi, p.s);
+  return asUtc - date.getTime();
+}
+
+function wallClockToUtcMs(y, m, d, h, mi, s, timeZone) {
+  const guess = Date.UTC(y, m - 1, d, h, mi, s);
+  const offset = zoneOffsetMs(new Date(guess), timeZone);
+  return guess - offset;
+}
+
+function formatInZone(date, timeZone) {
+  return date.toLocaleString('en-US', {
+    timeZone,
+    weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    timeZoneName: 'short'
+  });
+}
+
+function relativeTime(date) {
+  const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+  let duration = (date.getTime() - Date.now()) / 1000;
+  const divisions = [
+    { amount: 60, unit: 'second' },
+    { amount: 60, unit: 'minute' },
+    { amount: 24, unit: 'hour' },
+    { amount: 7, unit: 'day' },
+    { amount: 4.34524, unit: 'week' },
+    { amount: 12, unit: 'month' },
+    { amount: Number.POSITIVE_INFINITY, unit: 'year' }
+  ];
+  for (const division of divisions) {
+    if (Math.abs(duration) < division.amount) return rtf.format(Math.round(duration), division.unit);
+    duration /= division.amount;
+  }
+}
+
+const tsInput = document.getElementById('tsInput');
+const tsUnit = document.getElementById('tsUnit');
+const tsError = document.getElementById('tsError');
+const tsOutput = document.getElementById('tsOutput');
+
+function showTsOutput(text) { tsOutput.textContent = text; tsOutput.classList.remove('empty'); }
+function showTsError(msg) { tsError.textContent = msg; }
+
+document.getElementById('tsNowBtn').addEventListener('click', () => {
+  tsInput.value = tsUnit.value === 'milliseconds' ? String(Date.now()) : String(Math.floor(Date.now() / 1000));
+});
+
+document.getElementById('tsConvertBtn').addEventListener('click', () => {
+  showTsError('');
+  const raw = tsInput.value.trim();
+  if (!raw) { showTsError('Enter a Unix timestamp.'); return; }
+  if (!/^-?\d+$/.test(raw)) { showTsError('Timestamp must be a whole number.'); return; }
+  const ms = tsUnit.value === 'milliseconds' ? parseInt(raw, 10) : parseInt(raw, 10) * 1000;
+  const date = new Date(ms);
+  if (isNaN(date.getTime())) { showTsError('That timestamp is out of range.'); return; }
+
+  const lines = [
+    `Your local time (${LOCAL_ZONE}): ${formatInZone(date, LOCAL_ZONE)}`,
+    `UTC: ${formatInZone(date, 'UTC')}`,
+    `${tsZone.value}: ${formatInZone(date, tsZone.value)}`,
+    `ISO 8601: ${date.toISOString()}`,
+    `Relative: ${relativeTime(date)}`
+  ];
+  showTsOutput(lines.join('\n'));
+});
+
+document.getElementById('tsClearBtn').addEventListener('click', () => {
+  tsInput.value = '';
+  tsOutput.textContent = 'The date will appear here.';
+  tsOutput.classList.add('empty');
+  showTsError('');
+  tsInput.focus();
+});
+
+document.getElementById('tsCopyBtn').addEventListener('click', async () => {
+  if (tsOutput.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(tsOutput.textContent);
+    const fb = document.getElementById('tsCopyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { showTsError('Could not copy — select and copy manually.'); }
+});
+
+const dateInput = document.getElementById('dateInput');
+const dateError = document.getElementById('dateError');
+const dateOutput = document.getElementById('dateOutput');
+
+function showDateOutput(text) { dateOutput.textContent = text; dateOutput.classList.remove('empty'); }
+function showDateError(msg) { dateError.textContent = msg; }
+
+function toDatetimeLocalValue({ y, m, d, h, mi, s }) {
+  const pad = n => String(n).padStart(2, '0');
+  return `${y}-${pad(m)}-${pad(d)}T${pad(h)}:${pad(mi)}:${pad(s)}`;
+}
+
+document.getElementById('dateNowBtn').addEventListener('click', () => {
+  const parts = getZoneParts(new Date(), dateZone.value);
+  dateInput.value = toDatetimeLocalValue(parts);
+});
+
+document.getElementById('dateConvertBtn').addEventListener('click', () => {
+  showDateError('');
+  const raw = dateInput.value;
+  const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
+  if (!m) { showDateError('Enter a valid date and time.'); return; }
+  const utcMs = wallClockToUtcMs(+m[1], +m[2], +m[3], +m[4], +m[5], m[6] ? +m[6] : 0, dateZone.value);
+  const date = new Date(utcMs);
+
+  const lines = [
+    `Unix timestamp (seconds): ${Math.floor(utcMs / 1000)}`,
+    `Unix timestamp (milliseconds): ${utcMs}`,
+    `ISO 8601 (UTC): ${date.toISOString()}`,
+    `Relative: ${relativeTime(date)}`
+  ];
+  showDateOutput(lines.join('\n'));
+});
+
+document.getElementById('dateClearBtn').addEventListener('click', () => {
+  dateInput.value = '';
+  dateOutput.textContent = 'The timestamp will appear here.';
+  dateOutput.classList.add('empty');
+  showDateError('');
+  dateInput.focus();
+});
+
+document.getElementById('dateCopyBtn').addEventListener('click', async () => {
+  if (dateOutput.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(dateOutput.textContent);
+    const fb = document.getElementById('dateCopyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { showDateError('Could not copy — select and copy manually.'); }
+});
+
+tsInput.value = String(Math.floor(Date.now() / 1000));
+document.getElementById('tsConvertBtn').click();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

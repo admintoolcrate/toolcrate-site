@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Agent / Browser Info Checker | Toolcrate</title>
+<meta name="description" content="See exactly what your browser reports about itself: browser, OS, screen, language, timezone, and more. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>User Agent / Browser Info Checker</h1>
+    <p>See exactly what your browser reports about itself — no need to paste anything, it's detected live.</p>
+  </div>
+
+  <div class="panel">
+    <div class="stat-grid">
+      <div class="stat"><span class="stat-value" id="statBrowser">—</span><span class="stat-label">Browser</span></div>
+      <div class="stat"><span class="stat-value" id="statOS">—</span><span class="stat-label">Operating system</span></div>
+      <div class="stat"><span class="stat-value" id="statEngine">—</span><span class="stat-label">Engine</span></div>
+      <div class="stat"><span class="stat-value" id="statDevice">—</span><span class="stat-label">Device type</span></div>
+      <div class="stat"><span class="stat-value" id="statScreen">—</span><span class="stat-label">Screen resolution</span></div>
+      <div class="stat"><span class="stat-value" id="statViewport">—</span><span class="stat-label">Viewport size</span></div>
+      <div class="stat"><span class="stat-value" id="statPixelRatio">—</span><span class="stat-label">Pixel ratio</span></div>
+      <div class="stat"><span class="stat-value" id="statColorScheme">—</span><span class="stat-label">Color scheme</span></div>
+      <div class="stat"><span class="stat-value" id="statLanguage">—</span><span class="stat-label">Language</span></div>
+      <div class="stat"><span class="stat-value" id="statTimezone">—</span><span class="stat-label">Timezone</span></div>
+      <div class="stat"><span class="stat-value" id="statCookies">—</span><span class="stat-label">Cookies enabled</span></div>
+      <div class="stat"><span class="stat-value" id="statTouch">—</span><span class="stat-label">Touch support</span></div>
+      <div class="stat"><span class="stat-value" id="statCores">—</span><span class="stat-label">CPU cores</span></div>
+      <div class="stat"><span class="stat-value" id="statPlatform">—</span><span class="stat-label">Platform</span></div>
+      <div class="stat"><span class="stat-value" id="statOnline">—</span><span class="stat-label">Online status</span></div>
+      <div class="stat"><span class="stat-value" id="statDNT">—</span><span class="stat-label">Do Not Track</span></div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="uaOutput">Full User-Agent string</label>
+    <div id="uaOutput" class="output-panel">—</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Browser, OS, and engine are identified from the User-Agent string using the same kind of pattern matching most sites use, refined with the newer <code>navigator.userAgentData</code> Client Hints API where the browser supports it (currently Chromium-based browsers). Both approaches describe what the browser <em>chooses to report</em>, not a verified fact — any of it can be changed by browser settings, extensions, or developer tools, so treat this as informational rather than authoritative.</p>
+    <p>Everything else — screen size, language, timezone, touch support, CPU core count — comes directly from standard browser APIs (<code>navigator</code>, <code>screen</code>, <code>Intl</code>) with no parsing involved. Nothing detected here is sent anywhere; it's read and displayed entirely within your own browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const ua = navigator.userAgent;
+
+function parseBrowser(uaStr) {
+  const tests = [
+    { name: 'Edge', regex: /Edg\/([\d.]+)/ },
+    { name: 'Opera', regex: /OPR\/([\d.]+)/ },
+    { name: 'Samsung Internet', regex: /SamsungBrowser\/([\d.]+)/ },
+    { name: 'Firefox', regex: /Firefox\/([\d.]+)/ },
+    { name: 'Chrome', regex: /Chrome\/([\d.]+)/ },
+    { name: 'Safari', regex: /Version\/([\d.]+).*Safari/ }
+  ];
+  for (const t of tests) {
+    const m = uaStr.match(t.regex);
+    if (m) return `${t.name} ${m[1]}`;
+  }
+  return 'Unknown';
+}
+
+function parseOS(uaStr) {
+  let m;
+  if (/Windows NT 10/.test(uaStr)) return 'Windows 10/11';
+  if (/Windows NT/.test(uaStr)) return 'Windows';
+  if ((m = uaStr.match(/Mac OS X ([\d_]+)/))) return 'macOS ' + m[1].replace(/_/g, '.');
+  if ((m = uaStr.match(/Android ([\d.]+)/))) return 'Android ' + m[1];
+  if ((m = uaStr.match(/iPhone OS ([\d_]+)/))) return 'iOS ' + m[1].replace(/_/g, '.');
+  if ((m = uaStr.match(/CPU OS ([\d_]+)/))) return 'iPadOS ' + m[1].replace(/_/g, '.');
+  if (/Linux/.test(uaStr)) return 'Linux';
+  return 'Unknown';
+}
+
+function parseEngine(uaStr) {
+  if (/Gecko\/\d/.test(uaStr)) return 'Gecko';
+  if (/AppleWebKit/.test(uaStr)) return /Chrome|Chromium|Edg|OPR/.test(uaStr) ? 'Blink' : 'WebKit';
+  return 'Unknown';
+}
+
+function parseDeviceType(uaStr) {
+  const touchPoints = navigator.maxTouchPoints || 0;
+  if (/iPad/.test(uaStr) || (/Macintosh/.test(uaStr) && touchPoints > 1)) return 'Tablet';
+  if (/Mobi|Android.*Mobile/.test(uaStr)) return 'Mobile';
+  if (/Tablet|PlayBook|Silk/.test(uaStr) || (/Android/.test(uaStr) && !/Mobile/.test(uaStr))) return 'Tablet';
+  return 'Desktop';
+}
+
+document.getElementById('statBrowser').textContent = parseBrowser(ua);
+document.getElementById('statOS').textContent = parseOS(ua);
+document.getElementById('statEngine').textContent = parseEngine(ua);
+document.getElementById('statDevice').textContent = parseDeviceType(ua);
+document.getElementById('statLanguage').textContent = navigator.languages ? navigator.languages.join(', ') : navigator.language;
+document.getElementById('statTimezone').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+document.getElementById('statCookies').textContent = navigator.cookieEnabled ? 'Yes' : 'No';
+document.getElementById('statTouch').textContent = (navigator.maxTouchPoints > 0 || 'ontouchstart' in window) ? 'Yes' : 'No';
+document.getElementById('statCores').textContent = navigator.hardwareConcurrency ? String(navigator.hardwareConcurrency) : 'Unknown';
+document.getElementById('statPlatform').textContent = navigator.platform || 'Unknown';
+document.getElementById('statOnline').textContent = navigator.onLine ? 'Online' : 'Offline';
+document.getElementById('statDNT').textContent = (navigator.doNotTrack === '1' || window.doNotTrack === '1') ? 'Enabled' : (navigator.doNotTrack === null || navigator.doNotTrack === undefined ? 'Not set' : 'Disabled');
+document.getElementById('uaOutput').textContent = ua;
+
+function updateScreenStats() {
+  document.getElementById('statScreen').textContent = `${screen.width} × ${screen.height}`;
+  document.getElementById('statViewport').textContent = `${window.innerWidth} × ${window.innerHeight}`;
+  document.getElementById('statPixelRatio').textContent = String(window.devicePixelRatio || 1);
+}
+updateScreenStats();
+window.addEventListener('resize', updateScreenStats);
+
+function updateColorScheme() {
+  const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.getElementById('statColorScheme').textContent = dark ? 'Dark' : 'Light';
+}
+updateColorScheme();
+if (window.matchMedia) {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateColorScheme);
+}
+
+if (navigator.userAgentData && Array.isArray(navigator.userAgentData.brands)) {
+  const brands = navigator.userAgentData.brands.filter(b => !/Not.?A.?Brand/i.test(b.brand));
+  if (brands.length > 0) {
+    document.getElementById('statBrowser').textContent = brands.map(b => `${b.brand} ${b.version}`).join(', ');
+  }
+  document.getElementById('statDevice').textContent = navigator.userAgentData.mobile ? 'Mobile' : parseDeviceType(ua);
+  if (navigator.userAgentData.platform) {
+    document.getElementById('statOS').textContent = navigator.userAgentData.platform;
+  }
+  if (typeof navigator.userAgentData.getHighEntropyValues === 'function') {
+    navigator.userAgentData.getHighEntropyValues(['platformVersion']).then(info => {
+      if (info.platformVersion) {
+        document.getElementById('statOS').textContent = `${navigator.userAgentData.platform} ${info.platformVersion}`;
+      }
+    }).catch(() => {});
+  }
+}
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(ua);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable; nothing further to do */ }
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
