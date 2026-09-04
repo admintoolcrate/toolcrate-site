@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Readability Score Checker — Flesch-Kincaid | Toolcrate</title>
+<meta name="description" content="Check the Flesch Reading Ease, Flesch-Kincaid Grade Level, and Gunning Fog Index of your text. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Readability Score Checker</h1>
+    <p>Paste text to get its Flesch Reading Ease, Flesch-Kincaid Grade Level, and Gunning Fog scores.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Text</label>
+      <textarea id="input" rows="10" placeholder="Paste a paragraph or more — scores are more meaningful with at least a few sentences…" spellcheck="false"></textarea>
+    </div>
+    <div class="btn-row">
+      <button id="analyzeBtn">Analyze</button>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="stat-grid" id="statGrid" style="display: none;">
+    <div class="stat"><span class="stat-value" id="statWords">—</span><span class="stat-label">Words</span></div>
+    <div class="stat"><span class="stat-value" id="statSentences">—</span><span class="stat-label">Sentences</span></div>
+    <div class="stat"><span class="stat-value" id="statSyllables">—</span><span class="stat-label">Syllables</span></div>
+    <div class="stat"><span class="stat-value" id="statWordsPerSentence">—</span><span class="stat-label">Words / sentence</span></div>
+  </div>
+
+  <div id="scoresWrap" style="display: none;">
+    <div class="field">
+      <label>Flesch Reading Ease</label>
+      <div id="fleschOutput" class="output-panel">—</div>
+    </div>
+    <div class="field">
+      <label>Flesch-Kincaid Grade Level</label>
+      <div id="gradeOutput" class="output-panel">—</div>
+    </div>
+    <div class="field">
+      <label>Gunning Fog Index</label>
+      <div id="fogOutput" class="output-panel">—</div>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>All three scores are computed from the same three counts — words, sentences, and syllables per word — using their standard published formulas. Flesch Reading Ease runs roughly 0–100, where higher means easier to read; Flesch-Kincaid Grade Level and the Gunning Fog Index both estimate the US school grade a reader would need to follow the text comfortably. Syllable counts use the same vowel-group estimate as our <a href="/tools/syllable-counter.html">Syllable Counter</a> — a heuristic, not a dictionary lookup, so scores are a close approximation rather than an exact figure.</p>
+    <p>Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const input = document.getElementById('input');
+const errorEl = document.getElementById('error');
+const statGrid = document.getElementById('statGrid');
+const scoresWrap = document.getElementById('scoresWrap');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function countSyllables(word) {
+  let w = word.toLowerCase().replace(/[^a-z]/g, '');
+  if (w.length === 0) return 0;
+  if (w.length <= 3) return 1;
+  w = w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
+  w = w.replace(/^y/, '');
+  const matches = w.match(/[aeiouy]{1,2}/g);
+  return matches ? Math.max(1, matches.length) : 1;
+}
+
+function fleschLabel(score) {
+  if (score >= 90) return 'Very easy';
+  if (score >= 80) return 'Easy';
+  if (score >= 70) return 'Fairly easy';
+  if (score >= 60) return 'Standard';
+  if (score >= 50) return 'Fairly difficult';
+  if (score >= 30) return 'Difficult';
+  return 'Very confusing';
+}
+
+document.getElementById('analyzeBtn').addEventListener('click', () => {
+  showError('');
+  const text = input.value;
+  if (!text.trim()) {
+    showError('Enter some text first.');
+    statGrid.style.display = 'none';
+    scoresWrap.style.display = 'none';
+    return;
+  }
+
+  const words = text.match(/[A-Za-z]+(?:'[A-Za-z]+)*/g) || [];
+  const sentences = text.split(/[.!?]+(?:\s|$)/).map(s => s.trim()).filter(Boolean);
+
+  if (words.length === 0 || sentences.length === 0) {
+    showError('Could not find enough words and sentences to analyze — try a longer passage.');
+    statGrid.style.display = 'none';
+    scoresWrap.style.display = 'none';
+    return;
+  }
+
+  let totalSyllables = 0;
+  let complexWords = 0;
+  words.forEach(w => {
+    const n = countSyllables(w);
+    totalSyllables += n;
+    if (n >= 3) complexWords++;
+  });
+
+  const wordCount = words.length;
+  const sentenceCount = sentences.length;
+  const wordsPerSentence = wordCount / sentenceCount;
+  const syllablesPerWord = totalSyllables / wordCount;
+
+  const flesch = 206.835 - 1.015 * wordsPerSentence - 84.6 * syllablesPerWord;
+  const grade = 0.39 * wordsPerSentence + 11.8 * syllablesPerWord - 15.59;
+  const fog = 0.4 * (wordsPerSentence + 100 * (complexWords / wordCount));
+
+  document.getElementById('statWords').textContent = wordCount;
+  document.getElementById('statSentences').textContent = sentenceCount;
+  document.getElementById('statSyllables').textContent = totalSyllables;
+  document.getElementById('statWordsPerSentence').textContent = wordsPerSentence.toFixed(1);
+  statGrid.style.display = '';
+
+  document.getElementById('fleschOutput').textContent = `${flesch.toFixed(1)} — ${fleschLabel(flesch)}`;
+  document.getElementById('gradeOutput').textContent = `Grade ${Math.max(0, grade).toFixed(1)}`;
+  document.getElementById('fogOutput').textContent = `Grade ${Math.max(0, fog).toFixed(1)}`;
+  scoresWrap.style.display = '';
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

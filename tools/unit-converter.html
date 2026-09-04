@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Converter — Length, Weight, Temperature &amp; More | Toolcrate</title>
+<meta name="description" content="Convert length, weight, temperature, speed, data, and area units instantly. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Unit Converter</h1>
+    <p>Convert length, weight, temperature, speed, data, or area units, live as you type.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="categorySelect">Category</label>
+      <select id="categorySelect">
+        <option value="length">Length</option>
+        <option value="weight">Weight / Mass</option>
+        <option value="temperature">Temperature</option>
+        <option value="speed">Speed</option>
+        <option value="data">Data</option>
+        <option value="area">Area</option>
+      </select>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="fromValue">From</label>
+        <input type="number" id="fromValue" value="1" step="any">
+        <select id="fromUnit" style="margin-top: 0.5rem;"></select>
+      </div>
+      <div class="field">
+        <label for="toValue">To</label>
+        <input type="text" id="toValue" readonly>
+        <select id="toUnit" style="margin-top: 0.5rem;"></select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button id="swapBtn" class="secondary">⇄ Swap units</button>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Length, weight, speed, data, and area conversions use fixed, standard multipliers (for example, exactly 25.4 millimeters per inch); temperature uses the correct Celsius/Fahrenheit/Kelvin formulas rather than a simple ratio, since those scales don't share a zero point. The "Data" category here uses decimal multiples (1 KB = 1,000 bytes) — for the binary (1 KiB = 1,024 bytes) distinction that matters for file sizes and storage, see the dedicated <a href="/tools/file-size-converter.html">File Size Converter</a>.</p>
+    <p>Nothing you enter here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const CATEGORIES = {
+  length: {
+    linear: true,
+    units: [
+      { key: 'mm', label: 'Millimeters (mm)', factor: 0.001 },
+      { key: 'cm', label: 'Centimeters (cm)', factor: 0.01 },
+      { key: 'm', label: 'Meters (m)', factor: 1 },
+      { key: 'km', label: 'Kilometers (km)', factor: 1000 },
+      { key: 'in', label: 'Inches (in)', factor: 0.0254 },
+      { key: 'ft', label: 'Feet (ft)', factor: 0.3048 },
+      { key: 'yd', label: 'Yards (yd)', factor: 0.9144 },
+      { key: 'mi', label: 'Miles (mi)', factor: 1609.344 }
+    ]
+  },
+  weight: {
+    linear: true,
+    units: [
+      { key: 'mg', label: 'Milligrams (mg)', factor: 0.000001 },
+      { key: 'g', label: 'Grams (g)', factor: 0.001 },
+      { key: 'kg', label: 'Kilograms (kg)', factor: 1 },
+      { key: 't', label: 'Metric tons (t)', factor: 1000 },
+      { key: 'oz', label: 'Ounces (oz)', factor: 0.028349523125 },
+      { key: 'lb', label: 'Pounds (lb)', factor: 0.45359237 },
+      { key: 'st', label: 'Stone (st)', factor: 6.35029318 }
+    ]
+  },
+  temperature: {
+    linear: false,
+    units: [
+      { key: 'c', label: 'Celsius (°C)' },
+      { key: 'f', label: 'Fahrenheit (°F)' },
+      { key: 'k', label: 'Kelvin (K)' }
+    ]
+  },
+  speed: {
+    linear: true,
+    units: [
+      { key: 'mps', label: 'Meters/second (m/s)', factor: 1 },
+      { key: 'kph', label: 'Kilometers/hour (km/h)', factor: 0.277777778 },
+      { key: 'mph', label: 'Miles/hour (mph)', factor: 0.44704 },
+      { key: 'knot', label: 'Knots', factor: 0.514444444 },
+      { key: 'fps', label: 'Feet/second (ft/s)', factor: 0.3048 }
+    ]
+  },
+  data: {
+    linear: true,
+    units: [
+      { key: 'bit', label: 'Bits', factor: 0.125 },
+      { key: 'byte', label: 'Bytes', factor: 1 },
+      { key: 'KB', label: 'Kilobytes (KB)', factor: 1000 },
+      { key: 'MB', label: 'Megabytes (MB)', factor: 1000000 },
+      { key: 'GB', label: 'Gigabytes (GB)', factor: 1000000000 },
+      { key: 'TB', label: 'Terabytes (TB)', factor: 1000000000000 }
+    ]
+  },
+  area: {
+    linear: true,
+    units: [
+      { key: 'mm2', label: 'Sq. millimeters (mm²)', factor: 0.000001 },
+      { key: 'cm2', label: 'Sq. centimeters (cm²)', factor: 0.0001 },
+      { key: 'm2', label: 'Sq. meters (m²)', factor: 1 },
+      { key: 'km2', label: 'Sq. kilometers (km²)', factor: 1000000 },
+      { key: 'in2', label: 'Sq. inches (in²)', factor: 0.00064516 },
+      { key: 'ft2', label: 'Sq. feet (ft²)', factor: 0.09290304 },
+      { key: 'yd2', label: 'Sq. yards (yd²)', factor: 0.83612736 },
+      { key: 'acre', label: 'Acres', factor: 4046.8564224 },
+      { key: 'hectare', label: 'Hectares', factor: 10000 },
+      { key: 'mi2', label: 'Sq. miles (mi²)', factor: 2589988.110336 }
+    ]
+  }
+};
+
+function toCelsius(value, unit) {
+  if (unit === 'c') return value;
+  if (unit === 'f') return (value - 32) * 5 / 9;
+  return value - 273.15;
+}
+function fromCelsius(value, unit) {
+  if (unit === 'c') return value;
+  if (unit === 'f') return value * 9 / 5 + 32;
+  return value + 273.15;
+}
+
+const categorySelect = document.getElementById('categorySelect');
+const fromValue = document.getElementById('fromValue');
+const fromUnit = document.getElementById('fromUnit');
+const toValue = document.getElementById('toValue');
+const toUnit = document.getElementById('toUnit');
+const errorEl = document.getElementById('error');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function populateUnits() {
+  const cat = CATEGORIES[categorySelect.value];
+  [fromUnit, toUnit].forEach(sel => { sel.innerHTML = ''; });
+  cat.units.forEach(u => {
+    const opt1 = document.createElement('option');
+    opt1.value = u.key;
+    opt1.textContent = u.label;
+    fromUnit.appendChild(opt1);
+    const opt2 = document.createElement('option');
+    opt2.value = u.key;
+    opt2.textContent = u.label;
+    toUnit.appendChild(opt2);
+  });
+  fromUnit.selectedIndex = 0;
+  toUnit.selectedIndex = cat.units.length > 1 ? 1 : 0;
+}
+
+function formatNumber(n) {
+  if (!isFinite(n)) return '';
+  const rounded = Math.round((n + Number.EPSILON) * 1e6) / 1e6;
+  return String(rounded);
+}
+
+function convert() {
+  showError('');
+  const val = parseFloat(fromValue.value);
+  if (fromValue.value.trim() === '' || isNaN(val)) {
+    toValue.value = '';
+    return;
+  }
+  const cat = CATEGORIES[categorySelect.value];
+  let result;
+  if (cat.linear) {
+    const fromData = cat.units.find(u => u.key === fromUnit.value);
+    const toData = cat.units.find(u => u.key === toUnit.value);
+    result = val * fromData.factor / toData.factor;
+  } else {
+    const celsius = toCelsius(val, fromUnit.value);
+    result = fromCelsius(celsius, toUnit.value);
+  }
+  toValue.value = formatNumber(result);
+}
+
+categorySelect.addEventListener('change', () => { populateUnits(); convert(); });
+fromValue.addEventListener('input', convert);
+fromUnit.addEventListener('change', convert);
+toUnit.addEventListener('change', convert);
+
+document.getElementById('swapBtn').addEventListener('click', () => {
+  const tmp = fromUnit.value;
+  fromUnit.value = toUnit.value;
+  toUnit.value = tmp;
+  if (toValue.value !== '') fromValue.value = toValue.value;
+  convert();
+});
+
+populateUnits();
+convert();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

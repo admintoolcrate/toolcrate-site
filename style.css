@@ -314,14 +314,18 @@ button.secondary:hover { border-color: var(--ink); opacity: 1; background: var(-
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 1px;
-  background: var(--line);
   border: 1px solid var(--line);
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 1.65rem;
 }
-.stat { background: var(--panel); padding: 0.95rem 0.9rem; text-align: left; }
+.stat {
+  background: var(--panel);
+  padding: 0.95rem 0.9rem;
+  text-align: left;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
 .stat-value {
   font-size: 1.5rem;
   font-weight: 700;
