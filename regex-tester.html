@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regex Tester — Live Match Highlighting | Toolcrate</title>
+<meta name="description" content="Test regular expressions against your own text with live match highlighting, flags, and capture groups. Free, no signup, runs entirely in your browser.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<style>
+  /* Regex-specific: highlighted match spans inside the rendered text panel. */
+  .match-highlight {
+    background: var(--accent);
+    color: var(--paper);
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+  .match-highlight.alt { background: var(--ink-soft); }
+  #textOutput { white-space: pre-wrap; word-break: break-word; }
+  .group-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .group-item { font-size: 0.85rem; color: var(--ink-soft); }
+  .group-item b { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Regex Tester</h1>
+    <p>Test a regular expression against your own text, with matches highlighted live as you type.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field" style="flex: 3;">
+        <label for="pattern">Pattern</label>
+        <input type="text" id="pattern" placeholder="e.g. \b[A-Z][a-z]+\b" spellcheck="false" value="[A-Z][a-z]+">
+      </div>
+      <div class="field" style="flex: 1; min-width: 160px;">
+        <label for="flags">Flags</label>
+        <input type="text" id="flags" placeholder="g, i, m, s, u" spellcheck="false" value="g">
+      </div>
+    </div>
+    <div class="field">
+      <label for="testInput">Test string</label>
+      <textarea id="testInput" rows="6" spellcheck="false">Hello World, this is a Test string with Several Capitalized Words.</textarea>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="matchCount">0</span><span class="stat-label">Matches</span></div>
+  </div>
+
+  <div class="field">
+    <label>Highlighted text</label>
+    <div id="textOutput" class="output-panel">—</div>
+  </div>
+
+  <div class="field">
+    <label>Capture groups</label>
+    <div id="groupOutput" class="output-panel empty">No capture groups in this pattern, or no matches yet.</div>
+  </div>
+
+  <div class="ad-slot">Ad slot — in-content</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>This tester runs your pattern using JavaScript's native <code>RegExp</code> engine, so behavior matches exactly what you'd get in browser JavaScript or Node.js — flavors like PCRE (used in PHP or many online tools) can differ slightly in edge cases. Common flags: <code>g</code> finds all matches instead of stopping at the first, <code>i</code> ignores case, <code>m</code> makes <code>^</code> and <code>$</code> match line boundaries instead of just the start/end of the whole string, and <code>s</code> lets <code>.</code> match newlines.</p>
+    <p>Everything runs locally in your browser — the pattern and text you enter are never sent anywhere.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const patternEl = document.getElementById('pattern');
+const flagsEl = document.getElementById('flags');
+const testInputEl = document.getElementById('testInput');
+const errorEl = document.getElementById('error');
+const matchCountEl = document.getElementById('matchCount');
+const textOutput = document.getElementById('textOutput');
+const groupOutput = document.getElementById('groupOutput');
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function run() {
+  errorEl.textContent = '';
+  const patternStr = patternEl.value;
+  const text = testInputEl.value;
+  let flags = flagsEl.value.replace(/[^gimsuy]/g, '');
+  // De-duplicate flag characters to avoid a SyntaxError from repeats.
+  flags = [...new Set(flags.split(''))].join('');
+  if (flagsEl.value !== flags) flagsEl.value = flags;
+
+  if (patternStr === '') {
+    textOutput.textContent = escapeHtml(text) === '' ? '—' : text;
+    matchCountEl.textContent = '0';
+    groupOutput.textContent = 'No capture groups in this pattern, or no matches yet.';
+    groupOutput.classList.add('empty');
+    return;
+  }
+
+  let regex;
+  try {
+    // Always search globally internally so we can find every match for highlighting,
+    // regardless of whether the user included "g" themselves.
+    const searchFlags = flags.includes('g') ? flags : flags + 'g';
+    regex = new RegExp(patternStr, searchFlags);
+  } catch (e) {
+    errorEl.textContent = 'Invalid pattern: ' + e.message;
+    textOutput.textContent = text || '—';
+    matchCountEl.textContent = '0';
+    return;
+  }
+
+  const matches = [...text.matchAll(regex)];
+  matchCountEl.textContent = matches.length;
+
+  if (matches.length === 0) {
+    textOutput.textContent = text || '—';
+    groupOutput.textContent = 'No matches yet.';
+    groupOutput.classList.add('empty');
+    return;
+  }
+
+  // Build highlighted HTML by walking matches in order.
+  let html = '';
+  let lastIndex = 0;
+  matches.forEach((m, i) => {
+    const start = m.index;
+    const end = start + m[0].length;
+    html += escapeHtml(text.slice(lastIndex, start));
+    const cls = i % 2 === 0 ? 'match-highlight' : 'match-highlight alt';
+    html += `<span class="${cls}">${escapeHtml(m[0]) || '&nbsp;'}</span>`;
+    lastIndex = end;
+    // Guard against zero-length matches causing an infinite-looking highlight loop.
+    if (m[0].length === 0) lastIndex = start + 1;
+  });
+  html += escapeHtml(text.slice(lastIndex));
+  textOutput.innerHTML = html;
+
+  // Capture groups
+  const hasGroups = matches[0].length > 1;
+  if (!hasGroups) {
+    groupOutput.textContent = 'This pattern has no capture groups.';
+    groupOutput.classList.add('empty');
+  } else {
+    groupOutput.classList.remove('empty');
+    let groupHtml = '';
+    matches.forEach((m, i) => {
+      const groups = m.slice(1).map((g, gi) => `<b>Group ${gi + 1}:</b> ${g === undefined ? '(no match)' : escapeHtml(g)}`).join('<br>');
+      groupHtml += `<div class="group-item"><b>Match ${i + 1}</b> (&ldquo;${escapeHtml(m[0])}&rdquo;)<br>${groups}</div>`;
+    });
+    groupOutput.innerHTML = groupHtml;
+  }
+}
+
+[patternEl, flagsEl, testInputEl].forEach(el => el.addEventListener('input', run));
+run();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
