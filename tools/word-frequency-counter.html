@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Frequency Counter | Toolcrate</title>
+<meta name="description" content="Find the most common words in a block of text. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Word Frequency Counter</h1>
+    <p>Paste text to see which words appear most often.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Text</label>
+      <textarea id="input" rows="10" placeholder="Paste an article, essay, or any block of text…" spellcheck="false"></textarea>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="caseSensitive" style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Case-sensitive</span>
+        </label>
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="hideStopWords" checked style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Hide common stop words</span>
+        </label>
+      </div>
+      <div class="field">
+        <label for="minLength">Min word length</label>
+        <input type="number" id="minLength" value="1" min="1" max="20" style="max-width: 100px;">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button id="analyzeBtn">Analyze</button>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="stat-grid" id="statGrid" style="display: none;">
+    <div class="stat"><span class="stat-value" id="statTotal">—</span><span class="stat-label">Total words</span></div>
+    <div class="stat"><span class="stat-value" id="statUnique">—</span><span class="stat-label">Unique words</span></div>
+  </div>
+
+  <div class="field">
+    <label for="output">Most frequent words</label>
+    <div id="output" class="output-panel empty">Results will appear here.</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy result</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Words are extracted as runs of letters, digits, and internal apostrophes (so <code>don't</code> counts as one word), then counted. "Hide common stop words" filters out roughly 60 of the most frequent English function words (the, and, is, to, of, and similar) that would otherwise dominate almost any word-frequency list without saying much about the text's actual content.</p>
+    <p>Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const STOP_WORDS = new Set([
+  'a', 'an', 'the', 'and', 'or', 'but', 'if', 'so', 'as', 'of', 'at', 'by', 'for', 'in', 'into',
+  'on', 'to', 'with', 'from', 'up', 'down', 'out', 'off', 'over', 'under', 'is', 'am', 'are', 'was',
+  'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'shall',
+  'should', 'can', 'could', 'may', 'might', 'must', 'this', 'that', 'these', 'those', 'i', 'you',
+  'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them', 'my', 'your', 'his', 'its',
+  'our', 'their', 'not', 'no', 'yes', 'than', 'then', 'there', 'here', 'what', 'which', 'who',
+  'whom', 'whose', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more',
+  'most', 'other', 'some', 'such', 'only', 'own', 'same', 'too', 'very', 'just', 'about'
+]);
+
+const input = document.getElementById('input');
+const caseSensitive = document.getElementById('caseSensitive');
+const hideStopWords = document.getElementById('hideStopWords');
+const minLength = document.getElementById('minLength');
+const output = document.getElementById('output');
+const errorEl = document.getElementById('error');
+const statGrid = document.getElementById('statGrid');
+const statTotal = document.getElementById('statTotal');
+const statUnique = document.getElementById('statUnique');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+document.getElementById('analyzeBtn').addEventListener('click', () => {
+  showError('');
+  const text = input.value;
+  if (!text.trim()) { showError('Enter some text first.'); statGrid.style.display = 'none'; return; }
+
+  const raw = text.match(/[A-Za-z0-9]+(?:'[A-Za-z0-9]+)*/g) || [];
+  const minLen = Math.max(1, parseInt(minLength.value, 10) || 1);
+  const counts = new Map();
+  let totalCounted = 0;
+
+  raw.forEach(word => {
+    const key = caseSensitive.checked ? word : word.toLowerCase();
+    if (key.length < minLen) return;
+    if (hideStopWords.checked && STOP_WORDS.has(key.toLowerCase())) return;
+    counts.set(key, (counts.get(key) || 0) + 1);
+    totalCounted++;
+  });
+
+  statTotal.textContent = raw.length;
+  statUnique.textContent = counts.size;
+  statGrid.style.display = '';
+
+  if (counts.size === 0) {
+    output.textContent = 'No words matched the current filters.';
+    output.classList.add('empty');
+    return;
+  }
+
+  const sorted = Array.from(counts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  const lines = sorted.map(([word, count]) => `${word}: ${count}`);
+  output.textContent = lines.join('\n');
+  output.classList.remove('empty');
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

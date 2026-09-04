@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acronym Generator | Toolcrate</title>
+<meta name="description" content="Build an acronym from the first letters of a phrase, live as you type. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Acronym Generator</h1>
+    <p>Type a phrase and get its acronym, built from the first letter of each word.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Phrase</label>
+      <textarea id="input" rows="3" placeholder="As Soon As Possible" spellcheck="false"></textarea>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="skipSmall" style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Skip small words (a, the, of, and, in…)</span>
+        </label>
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="uppercase" checked style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Uppercase</span>
+        </label>
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="withDots" style="width: auto;">
+          <span style="font-size: 0.85rem; color: var(--ink-soft);">Add dots (A.S.A.P.)</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="output">Acronym</label>
+    <div id="output" class="output-panel empty">Your acronym will appear here.</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy result</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Each word's first letter is taken in order to build the acronym. "Skip small words" leaves out a short list of common articles, conjunctions, and prepositions (a, an, the, of, in, on, at, for, and, or, but, to, with) the way many real-world acronyms do — "As Soon As Possible" becomes ASAP either way here since none of its words are in that list, but a phrase like "State of the Union" would become SU instead of SOTU with it on.</p>
+    <p>Nothing you type here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const SMALL_WORDS = new Set(['a', 'an', 'the', 'of', 'in', 'on', 'at', 'for', 'and', 'or', 'but', 'to', 'with']);
+
+const input = document.getElementById('input');
+const skipSmall = document.getElementById('skipSmall');
+const uppercase = document.getElementById('uppercase');
+const withDots = document.getElementById('withDots');
+const output = document.getElementById('output');
+
+function render() {
+  const text = input.value.trim();
+  if (!text) {
+    output.textContent = 'Your acronym will appear here.';
+    output.classList.add('empty');
+    return;
+  }
+  const words = text.split(/\s+/).filter(Boolean);
+  const letters = words
+    .filter(w => !skipSmall.checked || !SMALL_WORDS.has(w.toLowerCase().replace(/[^a-z]/gi, '')))
+    .map(w => {
+      const m = w.match(/[a-zA-Z0-9]/);
+      return m ? m[0] : '';
+    })
+    .filter(Boolean);
+
+  if (letters.length === 0) {
+    output.textContent = 'No lettered words found to build an acronym from.';
+    output.classList.add('empty');
+    return;
+  }
+
+  let result = uppercase.checked ? letters.map(l => l.toUpperCase()).join('') : letters.join('');
+  if (withDots.checked) result = result.split('').join('.') + '.';
+
+  output.textContent = result;
+  output.classList.remove('empty');
+}
+
+[input, skipSmall, uppercase, withDots].forEach(el => el.addEventListener('input', render));
+render();
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

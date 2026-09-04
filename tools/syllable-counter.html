@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Syllable Counter | Toolcrate</title>
+<meta name="description" content="Estimate the number of syllables per word and in total, live as you type. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Syllable Counter</h1>
+    <p>Type a word or block of text to estimate its syllable count per word and in total.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="input">Text</label>
+      <textarea id="input" rows="6" placeholder="Type a word, sentence, or paragraph…" spellcheck="false"></textarea>
+    </div>
+  </div>
+
+  <div class="stat-grid" id="statGrid" style="display: none;">
+    <div class="stat"><span class="stat-value" id="statWords">—</span><span class="stat-label">Words</span></div>
+    <div class="stat"><span class="stat-value" id="statSyllables">—</span><span class="stat-label">Total syllables</span></div>
+    <div class="stat"><span class="stat-value" id="statAvg">—</span><span class="stat-label">Avg. per word</span></div>
+  </div>
+
+  <div class="field">
+    <label for="output">Per-word breakdown</label>
+    <div id="output" class="output-panel empty">Type something above.</div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>English spelling doesn't map cleanly to syllable count, so this uses the same vowel-group heuristic most readability calculators rely on: count groups of consecutive vowels, then adjust for common patterns like a silent trailing "e" or a word ending in "-le" after a consonant. It's an estimate, not a dictionary lookup — it gets the overwhelming majority of everyday words right, but unusual words and proper nouns can occasionally be off by one.</p>
+    <p>Nothing you type here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const input = document.getElementById('input');
+const output = document.getElementById('output');
+const statGrid = document.getElementById('statGrid');
+const statWords = document.getElementById('statWords');
+const statSyllables = document.getElementById('statSyllables');
+const statAvg = document.getElementById('statAvg');
+
+function countSyllables(word) {
+  let w = word.toLowerCase().replace(/[^a-z]/g, '');
+  if (w.length === 0) return 0;
+  if (w.length <= 3) return 1;
+  w = w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
+  w = w.replace(/^y/, '');
+  const matches = w.match(/[aeiouy]{1,2}/g);
+  return matches ? Math.max(1, matches.length) : 1;
+}
+
+function render() {
+  const text = input.value;
+  if (!text.trim()) {
+    output.textContent = 'Type something above.';
+    output.classList.add('empty');
+    statGrid.style.display = 'none';
+    return;
+  }
+
+  const words = text.match(/[A-Za-z]+(?:'[A-Za-z]+)*/g) || [];
+  if (words.length === 0) {
+    output.textContent = 'No words found.';
+    output.classList.add('empty');
+    statGrid.style.display = 'none';
+    return;
+  }
+
+  let total = 0;
+  const lines = words.map(w => {
+    const n = countSyllables(w);
+    total += n;
+    return `${w}: ${n}`;
+  });
+
+  statWords.textContent = words.length;
+  statSyllables.textContent = total;
+  statAvg.textContent = (total / words.length).toFixed(1);
+  statGrid.style.display = '';
+
+  output.textContent = lines.join('\n');
+  output.classList.remove('empty');
+}
+
+input.addEventListener('input', render);
+render();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
