@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace / Split Calculator | Toolcrate</title>
+<meta name="description" content="Calculate running pace per km and mile from a distance and finish time, with a split table. Free, instant, browser-only.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  #splitsTable { white-space: pre; font-family: 'Courier New', monospace; font-size: 0.85rem; overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Pace / Split Calculator</h1>
+    <p>Find your pace per km and mile from a distance and finish time, plus a kilometer split table.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="distance">Distance</label>
+        <input type="number" id="distance" value="10" min="0" step="any">
+      </div>
+      <div class="field">
+        <label for="distanceUnit">Unit</label>
+        <select id="distanceUnit">
+          <option value="km">Kilometers</option>
+          <option value="mi">Miles</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="hours">Hours</label>
+        <input type="number" id="hours" value="0" min="0" step="1">
+      </div>
+      <div class="field">
+        <label for="minutes">Minutes</label>
+        <input type="number" id="minutes" value="50" min="0" max="59" step="1">
+      </div>
+      <div class="field">
+        <label for="seconds">Seconds</label>
+        <input type="number" id="seconds" value="0" min="0" max="59" step="1">
+      </div>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="pacePerKm">—</span><span class="stat-label">Pace /km</span></div>
+    <div class="stat"><span class="stat-value" id="pacePerMi">—</span><span class="stat-label">Pace /mile</span></div>
+    <div class="stat"><span class="stat-value" id="speedKmh">—</span><span class="stat-label">Speed (km/h)</span></div>
+    <div class="stat"><span class="stat-value" id="speedMph">—</span><span class="stat-label">Speed (mph)</span></div>
+  </div>
+
+  <div class="field">
+    <label>Kilometer splits (cumulative time)</label>
+    <div id="splitsTable" class="output-panel empty">Enter a distance and time above.</div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Pace is your total time divided evenly across the distance, assuming a steady, even effort — it won't match a real race where pacing varies with terrain and fatigue, but it's a useful target for training runs. The split table shows the cumulative time you'd be at if you hit each kilometer at exactly that even pace.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const distance = document.getElementById('distance');
+const distanceUnit = document.getElementById('distanceUnit');
+const hours = document.getElementById('hours');
+const minutes = document.getElementById('minutes');
+const seconds = document.getElementById('seconds');
+const errorEl = document.getElementById('error');
+
+const pacePerKmEl = document.getElementById('pacePerKm');
+const pacePerMiEl = document.getElementById('pacePerMi');
+const speedKmhEl = document.getElementById('speedKmh');
+const speedMphEl = document.getElementById('speedMph');
+const splitsTable = document.getElementById('splitsTable');
+
+const KM_PER_MILE = 1.609344;
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function formatMinSec(totalSeconds) {
+  const m = Math.floor(totalSeconds / 60);
+  const s = Math.round(totalSeconds % 60);
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function formatHMS(totalSeconds) {
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = Math.round(totalSeconds % 60);
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function calc() {
+  showError('');
+  const dist = parseFloat(distance.value);
+  const h = parseFloat(hours.value) || 0;
+  const m = parseFloat(minutes.value) || 0;
+  const s = parseFloat(seconds.value) || 0;
+  const totalSeconds = h * 3600 + m * 60 + s;
+
+  if (isNaN(dist) || dist <= 0 || totalSeconds <= 0) {
+    [pacePerKmEl, pacePerMiEl, speedKmhEl, speedMphEl].forEach(el => el.textContent = '—');
+    splitsTable.textContent = 'Enter a distance and time above.';
+    splitsTable.classList.add('empty');
+    return;
+  }
+
+  const distKm = distanceUnit.value === 'km' ? dist : dist * KM_PER_MILE;
+  const distMi = distanceUnit.value === 'mi' ? dist : dist / KM_PER_MILE;
+
+  const secPerKm = totalSeconds / distKm;
+  const secPerMi = totalSeconds / distMi;
+
+  pacePerKmEl.textContent = formatMinSec(secPerKm) + '/km';
+  pacePerMiEl.textContent = formatMinSec(secPerMi) + '/mi';
+  speedKmhEl.textContent = (distKm / (totalSeconds / 3600)).toFixed(2);
+  speedMphEl.textContent = (distMi / (totalSeconds / 3600)).toFixed(2);
+
+  splitsTable.classList.remove('empty');
+  const lines = [];
+  const wholeKm = Math.floor(distKm);
+  for (let k = 1; k <= wholeKm; k++) {
+    lines.push(`${String(k).padStart(2, ' ')} km: ${formatHMS(k * secPerKm)}`);
+  }
+  if (distKm > wholeKm) {
+    lines.push(`${distKm.toFixed(2)} km (finish): ${formatHMS(totalSeconds)}`);
+  } else if (wholeKm === 0) {
+    lines.push(`${distKm.toFixed(2)} km (finish): ${formatHMS(totalSeconds)}`);
+  }
+  splitsTable.textContent = lines.join('\n');
+}
+
+[distance, distanceUnit, hours, minutes, seconds].forEach(el => el.addEventListener('input', calc));
+calc();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

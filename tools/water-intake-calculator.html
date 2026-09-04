@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Water Intake Calculator | Toolcrate</title>
+<meta name="description" content="Estimate a daily water intake target from your body weight, exercise, and climate. Educational tool, not medical advice.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Water Intake Calculator</h1>
+    <p>A daily water intake estimate based on your body weight, exercise, and climate.</p>
+  </div>
+
+  <div class="disclaimer-note"><strong>Educational tool, not medical advice.</strong> Actual needs vary by individual, diet, and health conditions. See our <a href="/terms.html">terms</a> for details.</div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="weight">Body weight</label>
+        <input type="number" id="weight" value="70" min="0" step="any">
+      </div>
+      <div class="field">
+        <label for="unit">Unit</label>
+        <select id="unit">
+          <option value="kg">kg</option>
+          <option value="lb">lb</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="exerciseMinutes">Exercise (minutes/day)</label>
+        <input type="number" id="exerciseMinutes" value="30" min="0" step="1">
+      </div>
+    </div>
+    <div class="field">
+      <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" id="hotClimate" style="width: auto;">
+        <span style="font-size: 0.85rem; color: var(--ink-soft);">Hot or humid climate</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="litersValue">—</span><span class="stat-label">Liters/day</span></div>
+    <div class="stat"><span class="stat-value" id="ouncesValue">—</span><span class="stat-label">Fl oz/day</span></div>
+    <div class="stat"><span class="stat-value" id="cupsValue">—</span><span class="stat-label">Cups/day (8 fl oz)</span></div>
+    <div class="stat"><span class="stat-value" id="glassesValue">—</span><span class="stat-label">Glasses/day (250 mL)</span></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this estimate</h2>
+    <p>The baseline is a commonly cited rule of thumb — about 35 mL per kg of body weight — plus roughly 12 mL for every minute of exercise (in the range of the 350–700 mL per 30–60 minutes often recommended for moderate activity), plus a flat 500 mL if you're in a hot or humid climate where sweat losses run higher. This includes water from food and other drinks, not just what you drink from a glass, and it's a starting point, not a target to hit exactly every day.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const weight = document.getElementById('weight');
+const unit = document.getElementById('unit');
+const exerciseMinutes = document.getElementById('exerciseMinutes');
+const hotClimate = document.getElementById('hotClimate');
+
+const litersValueEl = document.getElementById('litersValue');
+const ouncesValueEl = document.getElementById('ouncesValue');
+const cupsValueEl = document.getElementById('cupsValue');
+const glassesValueEl = document.getElementById('glassesValue');
+
+function calc() {
+  const w = parseFloat(weight.value);
+  const mins = parseFloat(exerciseMinutes.value) || 0;
+
+  if (isNaN(w) || w <= 0 || mins < 0) {
+    [litersValueEl, ouncesValueEl, cupsValueEl, glassesValueEl].forEach(el => el.textContent = '—');
+    return;
+  }
+
+  const weightKg = unit.value === 'kg' ? w : w * 0.453592;
+  let mL = weightKg * 35 + mins * 12;
+  if (hotClimate.checked) mL += 500;
+
+  const liters = mL / 1000;
+  const flOz = mL / 29.5735;
+
+  litersValueEl.textContent = liters.toFixed(2);
+  ouncesValueEl.textContent = flOz.toFixed(0);
+  cupsValueEl.textContent = (flOz / 8).toFixed(1);
+  glassesValueEl.textContent = (mL / 250).toFixed(1);
+}
+
+[weight, unit, exerciseMinutes, hotClimate].forEach(el => el.addEventListener('input', calc));
+calc();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>

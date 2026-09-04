@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Body Fat % Calculator — U.S. Navy Method | Toolcrate</title>
+<meta name="description" content="Estimate body fat percentage using the U.S. Navy circumference method. Educational tool, not medical advice.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Body Fat % Calculator</h1>
+    <p>Estimate body fat percentage from a few tape-measure circumferences, using the U.S. Navy method.</p>
+  </div>
+
+  <div class="disclaimer-note"><strong>Educational tool, not medical advice.</strong> This circumference-based method is a population estimate, not a body composition scan — it can be off by several percentage points for a given individual. See our <a href="/terms.html">terms</a> for details.</div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="sex">Sex</label>
+        <select id="sex">
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="unitSystem">Units</label>
+        <select id="unitSystem">
+          <option value="metric">Metric (cm)</option>
+          <option value="imperial">Imperial (in)</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="height">Height</label>
+        <input type="number" id="height" value="175" min="0" step="any">
+      </div>
+      <div class="field">
+        <label for="neck">Neck circumference</label>
+        <input type="number" id="neck" value="38" min="0" step="any">
+      </div>
+      <div class="field">
+        <label for="waist">Waist circumference</label>
+        <input type="number" id="waist" value="85" min="0" step="any">
+      </div>
+      <div class="field" id="hipField" style="display: none;">
+        <label for="hip">Hip circumference</label>
+        <input type="number" id="hip" value="95" min="0" step="any">
+      </div>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="bodyFatValue">—</span><span class="stat-label">Estimated body fat</span></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>The formula</h2>
+    <p>The U.S. Navy method (all measurements in inches, converted automatically if you enter metric) is: for men, <code>495 ÷ (1.0324 − 0.19077×log₁₀(waist−neck) + 0.15456×log₁₀(height)) − 450</code>; for women, <code>495 ÷ (1.29579 − 0.35004×log₁₀(waist+hip−neck) + 0.22100×log₁₀(height)) − 450</code>. Measure the waist at the navel, the neck just below the larynx, and hips (for women) at the widest point — the closer and more consistent your tape measurements, the more useful the estimate.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const sex = document.getElementById('sex');
+const unitSystem = document.getElementById('unitSystem');
+const height = document.getElementById('height');
+const neck = document.getElementById('neck');
+const waist = document.getElementById('waist');
+const hip = document.getElementById('hip');
+const hipField = document.getElementById('hipField');
+const errorEl = document.getElementById('error');
+const bodyFatValueEl = document.getElementById('bodyFatValue');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function toInches(v) {
+  return unitSystem.value === 'metric' ? v / 2.54 : v;
+}
+
+function calc() {
+  showError('');
+  const h = parseFloat(height.value);
+  const n = parseFloat(neck.value);
+  const w = parseFloat(waist.value);
+  const hp = parseFloat(hip.value);
+
+  if (isNaN(h) || h <= 0 || isNaN(n) || n <= 0 || isNaN(w) || w <= 0) {
+    bodyFatValueEl.textContent = '—';
+    return;
+  }
+  if (sex.value === 'female' && (isNaN(hp) || hp <= 0)) {
+    bodyFatValueEl.textContent = '—';
+    return;
+  }
+
+  const hIn = toInches(h);
+  const nIn = toInches(n);
+  const wIn = toInches(w);
+  const hpIn = toInches(hp);
+
+  let bf;
+  if (sex.value === 'male') {
+    const diff = wIn - nIn;
+    if (diff <= 0) { showError('Waist must be larger than neck.'); bodyFatValueEl.textContent = '—'; return; }
+    bf = 495 / (1.0324 - 0.19077 * Math.log10(diff) + 0.15456 * Math.log10(hIn)) - 450;
+  } else {
+    const diff = wIn + hpIn - nIn;
+    if (diff <= 0) { showError('Waist + hip must be larger than neck.'); bodyFatValueEl.textContent = '—'; return; }
+    bf = 495 / (1.29579 - 0.35004 * Math.log10(diff) + 0.22100 * Math.log10(hIn)) - 450;
+  }
+
+  if (!isFinite(bf) || bf < 0 || bf > 70) {
+    showError('These measurements produce an out-of-range estimate — double-check the values entered.');
+    bodyFatValueEl.textContent = '—';
+    return;
+  }
+
+  bodyFatValueEl.textContent = bf.toFixed(1) + '%';
+}
+
+sex.addEventListener('change', () => {
+  hipField.style.display = sex.value === 'female' ? '' : 'none';
+  calc();
+});
+[unitSystem, height, neck, waist, hip].forEach(el => el.addEventListener('input', calc));
+calc();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
