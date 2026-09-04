@@ -9,6 +9,15 @@
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
 </script>
 <link rel="stylesheet" href="../style.css">
+<style>
+  /* 16 stats: fixed columns that divide evenly, so no empty trailing cells
+     show the grid's own background through the gaps. */
+  .stat-grid { grid-template-columns: repeat(4, 1fr); }
+  .stat-value { font-size: 1.15rem; word-break: break-word; }
+  @media (max-width: 640px) {
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
 </head>
 <body>
 
