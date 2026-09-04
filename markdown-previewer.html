@@ -84,9 +84,7 @@ Some **bold** and *italic* text, plus `inline code`.
 
 > A blockquote for emphasis.
 
-[A link](https://example.com)
-
-          </textarea>
+[A link](https://example.com)</textarea>
       </div>
       <div class="field">
         <label for="preview">Preview</label>
@@ -121,8 +119,6 @@ function escapeHtml(str) {
   }[ch]));
 }
 
-// Inline-level formatting: code spans first (so their contents are protected from
-// further escaping/formatting), then images, links, bold, italic.
 function renderInline(text) {
   const codeSpans = [];
   text = text.replace(/`([^`]+)`/g, (m, code) => {
@@ -137,4 +133,186 @@ function renderInline(text) {
   text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   text = text.replace(/__([^_]+)__/g, '<strong>$1</strong>');
   text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-  text = text.replace(/(?<![a-zA-Z0-9_])_([^_]+)_(?![a-zA-Z0-9_])/g,
+  text = text.replace(/(?<![a-zA-Z0-9_])_([^_]+)_(?![a-zA-Z0-9_])/g, '<em>$1</em>');
+
+  text = text.replace(/\u0000(\d+)\u0000/g, (m, i) => '<code>' + codeSpans[parseInt(i, 10)] + '</code>');
+
+  return text;
+}
+
+function renderTableIfPresent(lines, startIdx) {
+  if (startIdx + 1 >= lines.length) return null;
+  const headerLine = lines[startIdx];
+  const sepLine = lines[startIdx + 1];
+  if (!/^\s*\|?.+\|.+\|?\s*$/.test(headerLine)) return null;
+  if (!/^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(sepLine)) return null;
+
+  const splitRow = row => row.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+  const headers = splitRow(headerLine);
+  let i = startIdx + 2;
+  const bodyRows = [];
+  while (i < lines.length && lines[i].includes('|')) {
+    bodyRows.push(splitRow(lines[i]));
+    i++;
+  }
+
+  let html = '<table><thead><tr>' + headers.map(h => '<th>' + renderInline(h) + '</th>').join('') + '</tr></thead><tbody>';
+  bodyRows.forEach(row => {
+    html += '<tr>' + row.map(c => '<td>' + renderInline(c) + '</td>').join('') + '</tr>';
+  });
+  html += '</tbody></table>';
+
+  return { html, nextIndex: i };
+}
+
+function renderMarkdown(md) {
+  const lines = md.replace(/\r\n/g, '\n').split('\n');
+  let html = '';
+  let i = 0;
+  let inCodeBlock = false;
+  let codeBuffer = [];
+  let listStack = [];
+  let inBlockquote = false;
+  let blockquoteBuffer = [];
+
+  function closeLists() {
+    while (listStack.length) {
+      const top = listStack.pop();
+      if (top.liOpen) html += '</li>';
+      html += '</' + top.type + '>';
+    }
+  }
+  function closeBlockquote() {
+    if (inBlockquote) {
+      html += '<blockquote>' + blockquoteBuffer.map(renderInline).join('<br>') + '</blockquote>';
+      blockquoteBuffer = [];
+      inBlockquote = false;
+    }
+  }
+
+  while (i < lines.length) {
+    const line = lines[i];
+    const fenceMatch = line.match(/^\s*([`]{3,})/);
+
+    if (fenceMatch) {
+      closeLists(); closeBlockquote();
+      if (!inCodeBlock) {
+        inCodeBlock = true;
+        codeBuffer = [];
+      } else {
+        html += '<pre><code>' + escapeHtml(codeBuffer.join('\n')) + '</code></pre>';
+        inCodeBlock = false;
+      }
+      i++;
+      continue;
+    }
+    if (inCodeBlock) {
+      codeBuffer.push(line);
+      i++;
+      continue;
+    }
+
+    if (line.trim() === '') {
+      closeLists(); closeBlockquote();
+      i++;
+      continue;
+    }
+
+    const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
+    if (headingMatch) {
+      closeLists(); closeBlockquote();
+      const level = headingMatch[1].length;
+      html += '<h' + level + '>' + renderInline(headingMatch[2]) + '</h' + level + '>';
+      i++;
+      continue;
+    }
+
+    if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) {
+      closeLists(); closeBlockquote();
+      html += '<hr>';
+      i++;
+      continue;
+    }
+
+    const tableResult = renderTableIfPresent(lines, i);
+    if (tableResult) {
+      closeLists(); closeBlockquote();
+      html += tableResult.html;
+      i = tableResult.nextIndex;
+      continue;
+    }
+
+    if (/^\s*>\s?/.test(line)) {
+      closeLists();
+      inBlockquote = true;
+      blockquoteBuffer.push(line.replace(/^\s*>\s?/, ''));
+      i++;
+      continue;
+    } else {
+      closeBlockquote();
+    }
+
+    const ulMatch = line.match(/^(\s*)[-*+]\s+(.*)$/);
+    const olMatch = line.match(/^(\s*)\d+\.\s+(.*)$/);
+    if (ulMatch || olMatch) {
+      const type = ulMatch ? 'ul' : 'ol';
+      const content = ulMatch ? ulMatch[2] : olMatch[2];
+      const itemIndent = (ulMatch || olMatch)[1].length;
+
+      while (listStack.length && listStack[listStack.length - 1].indent > itemIndent) {
+        const top = listStack.pop();
+        if (top.liOpen) html += '</li>';
+        html += '</' + top.type + '>';
+      }
+
+      const top = listStack[listStack.length - 1];
+      if (!top || top.indent < itemIndent) {
+        html += '<' + type + '>';
+        listStack.push({ type, indent: itemIndent, liOpen: false });
+      } else if (top.type !== type) {
+        listStack.pop();
+        if (top.liOpen) html += '</li>';
+        html += '</' + top.type + '>';
+        html += '<' + type + '>';
+        listStack.push({ type, indent: itemIndent, liOpen: false });
+      } else if (top.liOpen) {
+        html += '</li>';
+      }
+
+      html += '<li>' + renderInline(content);
+      listStack[listStack.length - 1].liOpen = true;
+      i++;
+      continue;
+    } else {
+      closeLists();
+    }
+
+    html += '<p>' + renderInline(line) + '</p>';
+    i++;
+  }
+
+  closeLists();
+  closeBlockquote();
+  if (inCodeBlock) {
+    html += '<pre><code>' + escapeHtml(codeBuffer.join('\n')) + '</code></pre>';
+  }
+
+  return html;
+}
+
+function update() {
+  const md = input.value;
+  if (md.trim() === '') {
+    preview.innerHTML = '<span class="preview-empty">Preview will appear here.</span>';
+    return;
+  }
+  preview.innerHTML = renderMarkdown(md);
+}
+
+input.addEventListener('input', update);
+update();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
