@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Clamp() Calculator — Fluid Type &amp; Spacing | Toolcrate</title>
+<meta name="description" content="Generate a fluid CSS clamp() value that scales smoothly between a min and max size across a viewport range, with a live resizable preview. No signup, nothing uploaded to a server.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .preview-frame-wrap { width: 100%; overflow-x: auto; padding: 1rem 0; }
+  #previewFrame { border: 1px solid var(--line); border-radius: 8px; display: block; margin: 0 auto; height: 140px; }
+  .frame-width-label { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: 0.4rem; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>CSS Clamp() Calculator</h1>
+    <p>Generate a fluid <code>clamp()</code> value that scales smoothly between a min and max size across a viewport range.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="minWidth">Min viewport width (px)</label>
+        <input type="number" id="minWidth" value="375" min="1">
+      </div>
+      <div class="field">
+        <label for="maxWidth">Max viewport width (px)</label>
+        <input type="number" id="maxWidth" value="1440" min="1">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="minSize">Min size</label>
+        <input type="number" id="minSize" value="1" step="any">
+      </div>
+      <div class="field">
+        <label for="maxSize">Max size</label>
+        <input type="number" id="maxSize" value="2.5" step="any">
+      </div>
+      <div class="field">
+        <label for="unit">Unit</label>
+        <select id="unit">
+          <option value="rem">rem</option>
+          <option value="px">px</option>
+        </select>
+      </div>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="field">
+    <label for="output">CSS</label>
+    <div id="output" class="output-panel">—</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy value</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="frameWidthSlider">Live preview — drag to resize the sample viewport</label>
+    <input type="range" id="frameWidthSlider" min="280" max="1600" value="800" style="width:100%;">
+    <div class="preview-frame-wrap">
+      <iframe id="previewFrame" title="Fluid size preview" width="800"></iframe>
+    </div>
+    <div class="frame-width-label" id="frameWidthLabel">800px viewport</div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>The generated value is a <code>clamp(MIN, PREFERRED, MAX)</code> expression: below the min viewport width it holds at the min size, above the max viewport width it holds at the max size, and in between it scales linearly using a calculated <code>vw</code>-based formula — the same slope-and-intercept method used by most fluid-typography calculators. It works for any size property, not just <code>font-size</code>: padding, margin, gap, and <code>width</code> all accept it.</p>
+    <p>The preview below is a real <code>&lt;iframe&gt;</code>, not a resized <code>div</code> — <code>vw</code> units are always relative to the actual browser viewport, so a container alone can't demonstrate them accurately, but an iframe has its own real viewport that changes as you resize it. Nothing you enter here is sent to a server; the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const minWidthEl = document.getElementById('minWidth');
+const maxWidthEl = document.getElementById('maxWidth');
+const minSizeEl = document.getElementById('minSize');
+const maxSizeEl = document.getElementById('maxSize');
+const unitEl = document.getElementById('unit');
+const errorEl = document.getElementById('error');
+const output = document.getElementById('output');
+const frameWidthSlider = document.getElementById('frameWidthSlider');
+const frameWidthLabel = document.getElementById('frameWidthLabel');
+const previewFrame = document.getElementById('previewFrame');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+function computeClamp() {
+  const minWidth = parseFloat(minWidthEl.value);
+  const maxWidth = parseFloat(maxWidthEl.value);
+  const minSize = parseFloat(minSizeEl.value);
+  const maxSize = parseFloat(maxSizeEl.value);
+  const unit = unitEl.value;
+
+  if ([minWidth, maxWidth, minSize, maxSize].some(isNaN)) {
+    throw new Error('All fields must be numbers.');
+  }
+  if (minWidth >= maxWidth) throw new Error('Max viewport width must be greater than min viewport width.');
+  if (minSize > maxSize) throw new Error('Max size must be greater than or equal to min size.');
+
+  const slope = (maxSize - minSize) / (maxWidth - minWidth);
+  const yAxisIntersection = -minWidth * slope + minSize;
+
+  const fmt = n => parseFloat(n.toFixed(4));
+  const preferred = `${fmt(yAxisIntersection)}${unit} + ${fmt(slope * 100)}vw`;
+  return `clamp(${fmt(minSize)}${unit}, ${preferred}, ${fmt(maxSize)}${unit})`;
+}
+
+function updatePreviewFrame(clampValue) {
+  const width = frameWidthSlider.value;
+  previewFrame.setAttribute('width', width);
+  previewFrame.srcdoc = `<!DOCTYPE html><html><head><style>
+    html,body{margin:0;height:100%;display:flex;align-items:center;justify-content:center;background:#f5f5f4;font-family:sans-serif;}
+    p{margin:0;padding:0 1rem;text-align:center;color:#111;font-size:${clampValue};line-height:1.3;}
+  </style></head><body><p>The quick brown fox jumps over the lazy dog.</p></body></html>`;
+}
+
+function render() {
+  showError('');
+  try {
+    const clampValue = computeClamp();
+    output.textContent = clampValue;
+    output.classList.remove('empty');
+    updatePreviewFrame(clampValue);
+  } catch (e) {
+    showError(e.message);
+  }
+}
+
+[minWidthEl, maxWidthEl, minSizeEl, maxSizeEl, unitEl].forEach(el => el.addEventListener('input', render));
+
+frameWidthSlider.addEventListener('input', () => {
+  frameWidthLabel.textContent = `${frameWidthSlider.value}px viewport`;
+  render();
+});
+
+// Default the preview to a width that actually fits the available space,
+// instead of always starting at 800px (which overflows on mobile).
+const initialFrameWidth = Math.min(800, Math.max(280, Math.floor(previewFrame.parentElement.clientWidth) || 800));
+frameWidthSlider.value = initialFrameWidth;
+frameWidthLabel.textContent = `${initialFrameWidth}px viewport`;
+
+render();
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
