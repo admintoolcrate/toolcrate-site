@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metronome | Toolcrate</title>
+<meta name="description" content="An adjustable-tempo metronome with selectable time signature, right in your browser. No signup, no app to install.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .bpm-display { text-align: center; font-size: 3.5rem; font-weight: 800; line-height: 1; margin: 0.5rem 0; letter-spacing: -0.02em; }
+  .bpm-unit { text-align: center; color: var(--muted); font-size: 0.9rem; }
+  .beat-row { display: flex; justify-content: center; gap: 0.6rem; margin: 1.3rem 0; }
+  .beat-dot {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--line); background: var(--panel);
+    transition: background 0.05s ease, transform 0.05s ease;
+  }
+  .beat-dot.accent { border-color: var(--accent); }
+  .beat-dot.active { background: var(--accent); transform: scale(1.15); }
+  .beat-dot.active.accent { background: var(--ok, var(--accent)); }
+  #startBtn { width: 100%; padding: 1.1rem; font-size: 1.1rem; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Metronome</h1>
+    <p>Adjustable tempo and time signature, ticking in your browser.</p>
+  </div>
+
+  <div class="panel">
+    <div class="bpm-display" id="bpmDisplay">120</div>
+    <div class="bpm-unit">BPM</div>
+    <input type="range" id="bpmSlider" min="30" max="240" value="120" style="width: 100%; margin-top: 0.75rem;">
+
+    <div class="row" style="margin-top: 1.2rem;">
+      <div class="field">
+        <label for="bpmInput">Tempo (BPM)</label>
+        <input type="number" id="bpmInput" min="30" max="240" value="120" step="1">
+      </div>
+      <div class="field">
+        <label for="timeSignature">Time signature</label>
+        <select id="timeSignature">
+          <option value="2">2/4</option>
+          <option value="3">3/4</option>
+          <option value="4" selected>4/4</option>
+          <option value="6">6/8</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="beat-row" id="beatRow"></div>
+
+    <div class="btn-row" style="justify-content: center;">
+      <button id="startBtn">Start</button>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="currentBeat">—</span><span class="stat-label">Current beat</span></div>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Clicks are synthesized with the Web Audio API and scheduled slightly ahead of when they play (a standard "lookahead" technique), rather than triggered directly by a JavaScript timer — timers can drift or stutter under browser load, while audio-clock-scheduled events stay locked to sample-accurate timing. Beat 1 of each measure gets a higher-pitched accent click so you can hear where the bar starts.</p>
+    <p>Nothing here is sent to a server — the entire metronome runs as JavaScript in your browser tab, and needs a tab interaction (like pressing Start) before audio can play, per browser autoplay rules.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 Toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a></span>
+  </div>
+</footer>
+
+<script>
+const bpmDisplay = document.getElementById('bpmDisplay');
+const bpmSlider = document.getElementById('bpmSlider');
+const bpmInput = document.getElementById('bpmInput');
+const timeSignature = document.getElementById('timeSignature');
+const beatRow = document.getElementById('beatRow');
+const startBtn = document.getElementById('startBtn');
+const currentBeatEl = document.getElementById('currentBeat');
+
+let bpm = 120;
+let beatsPerBar = 4;
+let audioCtx = null;
+let isPlaying = false;
+let currentBeatIndex = 0;
+let nextNoteTime = 0;
+let schedulerTimer = null;
+const SCHEDULE_AHEAD_TIME = 0.1;
+const LOOKAHEAD_MS = 25;
+
+function renderBeatDots() {
+  beatRow.innerHTML = '';
+  for (let i = 0; i < beatsPerBar; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'beat-dot' + (i === 0 ? ' accent' : '');
+    dot.dataset.beat = i;
+    beatRow.appendChild(dot);
+  }
+}
+
+function setBpm(value) {
+  bpm = Math.min(240, Math.max(30, Math.round(value)));
+  bpmDisplay.textContent = bpm;
+  bpmSlider.value = bpm;
+  bpmInput.value = bpm;
+}
+
+function playClick(time, isAccent) {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.frequency.value = isAccent ? 1500 : 1000;
+  gain.gain.setValueAtTime(0.35, time);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(time);
+  osc.stop(time + 0.05);
+}
+
+function scheduleNote(beatIndex, time) {
+  playClick(time, beatIndex === 0);
+  const delayMs = Math.max(0, (time - audioCtx.currentTime) * 1000);
+  setTimeout(() => {
+    document.querySelectorAll('.beat-dot').forEach(d => d.classList.remove('active'));
+    const dot = beatRow.children[beatIndex];
+    if (dot) dot.classList.add('active');
+    currentBeatEl.textContent = `${beatIndex + 1} / ${beatsPerBar}`;
+  }, delayMs);
+}
+
+function nextNote() {
+  const secondsPerBeat = 60.0 / bpm;
+  nextNoteTime += secondsPerBeat;
+  currentBeatIndex = (currentBeatIndex + 1) % beatsPerBar;
+}
+
+function scheduler() {
+  while (nextNoteTime < audioCtx.currentTime + SCHEDULE_AHEAD_TIME) {
+    scheduleNote(currentBeatIndex, nextNoteTime);
+    nextNote();
+  }
+  schedulerTimer = setTimeout(scheduler, LOOKAHEAD_MS);
+}
+
+function start() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  isPlaying = true;
+  currentBeatIndex = 0;
+  nextNoteTime = audioCtx.currentTime + 0.05;
+  startBtn.textContent = 'Stop';
+  scheduler();
+}
+
+function stop() {
+  isPlaying = false;
+  clearTimeout(schedulerTimer);
+  startBtn.textContent = 'Start';
+  document.querySelectorAll('.beat-dot').forEach(d => d.classList.remove('active'));
+  currentBeatEl.textContent = '—';
+}
+
+startBtn.addEventListener('click', () => {
+  if (isPlaying) stop(); else start();
+});
+
+bpmSlider.addEventListener('input', () => setBpm(bpmSlider.value));
+bpmInput.addEventListener('input', () => setBpm(parseInt(bpmInput.value, 10) || 120));
+
+timeSignature.addEventListener('change', () => {
+  beatsPerBar = parseInt(timeSignature.value, 10);
+  renderBeatDots();
+  if (isPlaying) { stop(); start(); }
+});
+
+renderBeatDots();
+</script>
+
+<script src="../theme.js"></script>
+</body>
+</html>
