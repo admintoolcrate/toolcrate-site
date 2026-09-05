@@ -64,7 +64,11 @@
     box-sizing: border-box;
   }
   .ck-piece.R { background: #C0392B; border: 2px solid #7a2318; }
-  .ck-piece.B { background: #2A2A2A; border: 2px solid #050505; }
+  /* A fixed dark border here nearly disappeared against the dark board
+     in dark mode (a dark piece on a dark board with a darker-still edge).
+     var(--ink) flips light/dark with the theme, so the rim always
+     contrasts against the board regardless of which theme is active. */
+  .ck-piece.B { background: #3A3A3A; border: 2px solid var(--ink); }
   .ck-piece.king::after { content: '♛'; display: block; text-align: center; line-height: 24px; color: #E1C24A; font-size: 0.9rem; }
   .ttt-status { text-align: center; font-weight: 600; margin: 1rem 0; min-height: 1.4em; }
 </style>
