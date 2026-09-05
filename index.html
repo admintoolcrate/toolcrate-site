@@ -29,17 +29,19 @@
     </div>
   </div>
 
-  <nav class="quick-jump">
-    <a href="#dev">Developer</a>
-    <a href="#text">Text</a>
-    <a href="#convert">Convert</a>
-    <a href="#math">Math</a>
-    <a href="#generators">Generators</a>
-    <a href="#everyday">Everyday</a>
-    <a href="#datetime">Date &amp; Time</a>
-    <a href="#health">Health</a>
-    <a href="#music">Music</a>
-    <a href="#utility">Utility</a>
+  <nav class="tag-filter" id="tagFilter">
+    <button type="button" class="tag-pill" data-tag="Convert">Convert <span class="tag-count">18</span></button>
+    <button type="button" class="tag-pill" data-tag="Date &amp; Time">Date &amp; Time <span class="tag-count">15</span></button>
+    <button type="button" class="tag-pill" data-tag="Developer">Developer <span class="tag-count">30</span></button>
+    <button type="button" class="tag-pill" data-tag="Everyday">Everyday <span class="tag-count">28</span></button>
+    <button type="button" class="tag-pill" data-tag="Generators">Generators <span class="tag-count">11</span></button>
+    <button type="button" class="tag-pill" data-tag="Health">Health <span class="tag-count">9</span></button>
+    <button type="button" class="tag-pill" data-tag="Math">Math <span class="tag-count">18</span></button>
+    <button type="button" class="tag-pill" data-tag="Music">Music <span class="tag-count">5</span></button>
+    <button type="button" class="tag-pill" data-tag="Statistics">Statistics <span class="tag-count">5</span></button>
+    <button type="button" class="tag-pill" data-tag="Text">Text <span class="tag-count">20</span></button>
+    <button type="button" class="tag-pill" data-tag="Utility">Utility <span class="tag-count">10</span></button>
+    <button type="button" id="clearTags" class="tag-clear" hidden>Clear filters ✕</button>
   </nav>
 
   <div class="search-panel">
@@ -51,7 +53,6 @@
     <div class="search-meta">
       <label class="sort-control">Sort
         <select id="sortSelect">
-          <option value="default">Category order</option>
           <option value="name-asc">Name (A–Z)</option>
           <option value="name-desc">Name (Z–A)</option>
         </select>
@@ -73,175 +74,118 @@
   <ul class="tool-list" id="recentList"></ul>
   </section>
 
-  <section class="category-group" id="dev">
-  <p class="category-label">01 — Developer <span class="category-count">22 tools</span></p>
-  <ul class="tool-list">
-    <li><a href="/tools/json-formatter.html"><span class="tool-name">JSON Formatter &amp; Validator</span><span class="tool-desc">Pretty-print, minify, validate</span></a></li>
-    <li><a href="/tools/uuid-generator.html"><span class="tool-name">UUID Generator</span><span class="tool-desc">Generate v4 UUIDs in bulk</span></a></li>
-    <li><a href="/tools/base64.html"><span class="tool-name">Base64 Encoder / Decoder</span><span class="tool-desc">Text to and from Base64</span></a></li>
-    <li><a href="/tools/url-encoder.html"><span class="tool-name">URL Encoder / Decoder</span><span class="tool-desc">Percent-encode or decode text</span></a></li>
-    <li><a href="/tools/html-entity-encoder.html"><span class="tool-name">HTML Entity Encoder / Decoder</span><span class="tool-desc">Escape or unescape HTML entities</span></a></li>
-    <li><a href="/tools/hash-generator.html"><span class="tool-name">Hash Generator</span><span class="tool-desc">MD5, SHA-1, SHA-256</span></a></li>
-    <li><a href="/tools/number-base-converter.html"><span class="tool-name">Number Base Converter</span><span class="tool-desc">Binary, octal, decimal, hex</span></a></li>
-    <li><a href="/tools/regex-tester.html"><span class="tool-name">Regex Tester</span><span class="tool-desc">Live match highlighting</span></a></li>
-    <li><a href="/tools/diff-checker.html"><span class="tool-name">Diff Checker</span><span class="tool-desc">Compare two blocks of text or code</span></a></li>
-    <li><a href="/tools/markdown-previewer.html"><span class="tool-name">Markdown Previewer</span><span class="tool-desc">Live-rendered Markdown</span></a></li>
-    <li><a href="/tools/yaml-json-converter.html"><span class="tool-name">YAML ↔ JSON Converter</span><span class="tool-desc">Convert between formats</span></a></li>
-    <li><a href="/tools/csv-json-converter.html"><span class="tool-name">CSV ↔ JSON Converter</span><span class="tool-desc">Convert between formats</span></a></li>
-    <li><a href="/tools/xml-formatter.html"><span class="tool-name">XML Formatter</span><span class="tool-desc">Pretty-print and validate XML</span></a></li>
-    <li><a href="/tools/cron-explainer.html"><span class="tool-name">Cron Expression Explainer</span><span class="tool-desc">Plain-English schedule breakdown</span></a></li>
-    <li><a href="/tools/color-converter.html"><span class="tool-name">Color Picker / Converter</span><span class="tool-desc">HEX, RGB, HSL</span></a></li>
-    <li><a href="/tools/timestamp-converter.html"><span class="tool-name">Timestamp / Unix Converter</span><span class="tool-desc">Timezone aware</span></a></li>
-    <li><a href="/tools/jwt-decoder.html"><span class="tool-name">JWT Decoder</span><span class="tool-desc">Header and payload, no signature check</span></a></li>
-    <li><a href="/tools/user-agent-checker.html"><span class="tool-name">User Agent / Browser Info Checker</span><span class="tool-desc">See what your browser reports</span></a></li>
-    <li><a href="/tools/meta-tag-generator.html"><span class="tool-name">Meta Tag / Open Graph Generator</span><span class="tool-desc">SEO and social preview tags</span></a></li>
-    <li><a href="/tools/css-gradient-generator.html"><span class="tool-name">CSS Gradient Generator</span><span class="tool-desc">Linear and radial, with live preview</span></a></li>
-    <li><a href="/tools/box-shadow-generator.html"><span class="tool-name">Box Shadow Generator</span><span class="tool-desc">Layered shadows with live preview</span></a></li>
-    <li><a href="/tools/css-clamp-calculator.html"><span class="tool-name">CSS Clamp() Calculator</span><span class="tool-desc">Fluid font-size and spacing values</span></a></li>
+  <ul class="tool-list" id="allToolsList">
+    <li data-tags="Health"><a href="/tools/one-rep-max-calculator.html"><span class="tool-name">1-Rep Max Calculator</span><span class="tool-desc">Epley and Brzycki formulas</span></a></li>
+    <li data-tags="Text"><a href="/tools/acronym-generator.html"><span class="tool-name">Acronym Generator</span><span class="tool-desc">Build an acronym from a phrase</span></a></li>
+    <li data-tags="Date &amp; Time,Everyday"><a href="/tools/date-add-subtract.html"><span class="tool-name">Add / Subtract Days from a Date</span><span class="tool-desc">Find a date N days out</span></a></li>
+    <li data-tags="Everyday,Date &amp; Time"><a href="/tools/age-calculator.html"><span class="tool-name">Age Calculator</span><span class="tool-desc">Exact age and next birthday countdown</span></a></li>
+    <li data-tags="Date &amp; Time,Everyday,Health"><a href="/tools/age-in-units.html"><span class="tool-name">Age in Days / Hours / Minutes</span><span class="tool-desc">Your exact age in smaller units</span></a></li>
+    <li data-tags="Text"><a href="/tools/anagram-solver.html"><span class="tool-name">Anagram Solver / Finder</span><span class="tool-desc">Find valid anagrams of a word</span></a></li>
+    <li data-tags="Text"><a href="/tools/ascii-art-generator.html"><span class="tool-name">ASCII Art Generator</span><span class="tool-desc">Text-to-ASCII banner</span></a></li>
+    <li data-tags="Generators,Utility"><a href="/tools/barcode-generator.html"><span class="tool-name">Barcode Generator</span><span class="tool-desc">Common 1D barcode formats</span></a></li>
+    <li data-tags="Developer,Convert"><a href="/tools/base64.html"><span class="tool-name">Base64 Encoder / Decoder</span><span class="tool-desc">Text to and from Base64</span></a></li>
+    <li data-tags="Text"><a href="/tools/binary-text-converter.html"><span class="tool-name">Binary ↔ Text Converter</span><span class="tool-desc">Convert text to binary and back</span></a></li>
+    <li data-tags="Health"><a href="/tools/bmi-calculator.html"><span class="tool-name">BMI Calculator</span><span class="tool-desc">Metric/imperial, WHO ranges, educational</span></a></li>
+    <li data-tags="Health"><a href="/tools/body-fat-calculator.html"><span class="tool-name">Body Fat % Calculator</span><span class="tool-desc">U.S. Navy method</span></a></li>
+    <li data-tags="Developer"><a href="/tools/box-shadow-generator.html"><span class="tool-name">Box Shadow Generator</span><span class="tool-desc">Layered shadows with live preview</span></a></li>
+    <li data-tags="Music"><a href="/tools/bpm-tap-tempo.html"><span class="tool-name">BPM Tap Tempo</span><span class="tool-desc">Tap along to find a song's tempo</span></a></li>
+    <li data-tags="Health"><a href="/tools/tdee-calculator.html"><span class="tool-name">Calorie / TDEE Calculator</span><span class="tool-desc">Mifflin-St Jeor equation</span></a></li>
+    <li data-tags="Text"><a href="/tools/case-converter.html"><span class="tool-name">Case Converter</span><span class="tool-desc">UPPER, lower, Title, camelCase</span></a></li>
+    <li data-tags="Music"><a href="/tools/chord-interval-calculator.html"><span class="tool-name">Chord &amp; Interval Calculator</span><span class="tool-desc">Build chords from a root note</span></a></li>
+    <li data-tags="Convert"><a href="/tools/clothing-size-converter.html"><span class="tool-name">Clothing Size Converter</span><span class="tool-desc">US, UK, EU sizing</span></a></li>
+    <li data-tags="Generators,Everyday"><a href="/tools/coin-flip.html"><span class="tool-name">Coin Flip</span><span class="tool-desc">Heads or tails, with a running tally</span></a></li>
+    <li data-tags="Utility,Developer"><a href="/tools/color-blindness-simulator.html"><span class="tool-name">Color Blindness Simulator</span><span class="tool-desc">Preview a color under common deficiencies</span></a></li>
+    <li data-tags="Developer,Convert"><a href="/tools/color-converter.html"><span class="tool-name">Color Picker / Converter</span><span class="tool-desc">HEX, RGB, HSL</span></a></li>
+    <li data-tags="Utility,Developer"><a href="/tools/contrast-checker.html"><span class="tool-name">Contrast Checker</span><span class="tool-desc">WCAG AA/AAA color contrast</span></a></li>
+    <li data-tags="Convert,Everyday"><a href="/tools/cooking-converter.html"><span class="tool-name">Cooking Measurement Converter</span><span class="tool-desc">By ingredient, not a flat rate</span></a></li>
+    <li data-tags="Utility,Everyday,Date &amp; Time"><a href="/tools/countdown-timer.html"><span class="tool-name">Countdown Timer</span><span class="tool-desc">Set a timer, get notified</span></a></li>
+    <li data-tags="Date &amp; Time,Everyday"><a href="/tools/countdown-to-date.html"><span class="tool-name">Countdown to a Specific Date</span><span class="tool-desc">Live countdown to any moment</span></a></li>
+    <li data-tags="Developer"><a href="/tools/cron-explainer.html"><span class="tool-name">Cron Expression Explainer</span><span class="tool-desc">Plain-English schedule breakdown</span></a></li>
+    <li data-tags="Developer"><a href="/tools/css-clamp-calculator.html"><span class="tool-name">CSS Clamp() Calculator</span><span class="tool-desc">Fluid font-size and spacing values</span></a></li>
+    <li data-tags="Developer"><a href="/tools/css-gradient-generator.html"><span class="tool-name">CSS Gradient Generator</span><span class="tool-desc">Linear and radial, with live preview</span></a></li>
+    <li data-tags="Developer,Convert"><a href="/tools/csv-json-converter.html"><span class="tool-name">CSV ↔ JSON Converter</span><span class="tool-desc">Convert between formats</span></a></li>
+    <li data-tags="Date &amp; Time,Everyday"><a href="/tools/day-of-week-finder.html"><span class="tool-name">Day of the Week Finder</span><span class="tool-desc">What day any date fell on</span></a></li>
+    <li data-tags="Date &amp; Time,Everyday"><a href="/tools/days-between-dates.html"><span class="tool-name">Days Between Two Dates</span><span class="tool-desc">Exact day count between any two dates</span></a></li>
+    <li data-tags="Generators,Everyday"><a href="/tools/dice-roller.html"><span class="tool-name">Dice Roller</span><span class="tool-desc">Any number and size of dice</span></a></li>
+    <li data-tags="Developer"><a href="/tools/diff-checker.html"><span class="tool-name">Diff Checker</span><span class="tool-desc">Compare two blocks of text or code</span></a></li>
+    <li data-tags="Everyday,Math"><a href="/tools/discount-calculator.html"><span class="tool-name">Discount Calculator</span><span class="tool-desc">Sale price and amount saved</span></a></li>
+    <li data-tags="Text"><a href="/tools/duplicate-line-remover.html"><span class="tool-name">Duplicate Line Remover</span><span class="tool-desc">Clean up repeated lines</span></a></li>
+    <li data-tags="Utility,Text,Everyday"><a href="/tools/emoji-picker.html"><span class="tool-name">Emoji Picker / Search</span><span class="tool-desc">Find and copy any emoji</span></a></li>
+    <li data-tags="Generators,Developer"><a href="/tools/fake-data-generator.html"><span class="tool-name">Fake / Placeholder Data Generator</span><span class="tool-desc">Names, emails, addresses for testing</span></a></li>
+    <li data-tags="Convert,Developer"><a href="/tools/file-size-converter.html"><span class="tool-name">File Size Converter</span><span class="tool-desc">Bytes to GB, binary vs. decimal</span></a></li>
+    <li data-tags="Text"><a href="/tools/find-replace.html"><span class="tool-name">Find &amp; Replace</span><span class="tool-desc">With optional regex</span></a></li>
+    <li data-tags="Math"><a href="/tools/fraction-simplifier.html"><span class="tool-name">Fraction Simplifier</span><span class="tool-desc">Reduce to lowest terms</span></a></li>
+    <li data-tags="Math"><a href="/tools/fraction-decimal-percentage.html"><span class="tool-name">Fraction ↔ Decimal ↔ Percentage</span><span class="tool-desc">Convert between all three</span></a></li>
+    <li data-tags="Math"><a href="/tools/gcd-lcm.html"><span class="tool-name">GCD &amp; LCM Calculator</span><span class="tool-desc">Greatest common divisor, least common multiple</span></a></li>
+    <li data-tags="Everyday,Math"><a href="/tools/gpa-calculator.html"><span class="tool-name">GPA Calculator</span><span class="tool-desc">4.0 scale, add as many courses as needed</span></a></li>
+    <li data-tags="Music"><a href="/tools/tuner.html"><span class="tool-name">Guitar / Instrument Tuner</span><span class="tool-desc">Mic-based pitch detection</span></a></li>
+    <li data-tags="Developer"><a href="/tools/hash-generator.html"><span class="tool-name">Hash Generator</span><span class="tool-desc">MD5, SHA-1, SHA-256</span></a></li>
+    <li data-tags="Health"><a href="/tools/heart-rate-zones.html"><span class="tool-name">Heart Rate Zone Calculator</span><span class="tool-desc">Training zones from max HR</span></a></li>
+    <li data-tags="Developer,Convert"><a href="/tools/html-entity-encoder.html"><span class="tool-name">HTML Entity Encoder / Decoder</span><span class="tool-desc">Escape or unescape HTML entities</span></a></li>
+    <li data-tags="Developer"><a href="/tools/json-formatter.html"><span class="tool-name">JSON Formatter &amp; Validator</span><span class="tool-desc">Pretty-print, minify, validate</span></a></li>
+    <li data-tags="Developer"><a href="/tools/jwt-decoder.html"><span class="tool-name">JWT Decoder</span><span class="tool-desc">Header and payload, no signature check</span></a></li>
+    <li data-tags="Date &amp; Time,Everyday"><a href="/tools/leap-year-checker.html"><span class="tool-name">Leap Year Checker</span><span class="tool-desc">Check any year, see the rule applied</span></a></li>
+    <li data-tags="Text"><a href="/tools/line-sorter.html"><span class="tool-name">Line Sorter</span><span class="tool-desc">A–Z, Z–A, length, numeric, shuffle</span></a></li>
+    <li data-tags="Text"><a href="/tools/lorem-ipsum-generator.html"><span class="tool-name">Lorem Ipsum Generator</span><span class="tool-desc">Placeholder text, by word/sentence/paragraph</span></a></li>
+    <li data-tags="Developer"><a href="/tools/markdown-previewer.html"><span class="tool-name">Markdown Previewer</span><span class="tool-desc">Live-rendered Markdown</span></a></li>
+    <li data-tags="Math,Everyday"><a href="/tools/markup-margin.html"><span class="tool-name">Markup vs. Margin</span><span class="tool-desc">Two different percentages, explained</span></a></li>
+    <li data-tags="Math,Statistics"><a href="/tools/mean-median-mode.html"><span class="tool-name">Mean, Median, Mode &amp; Std. Dev.</span><span class="tool-desc">Full stats from a list of numbers</span></a></li>
+    <li data-tags="Developer"><a href="/tools/meta-tag-generator.html"><span class="tool-name">Meta Tag / Open Graph Generator</span><span class="tool-desc">SEO and social preview tags</span></a></li>
+    <li data-tags="Music"><a href="/tools/metronome.html"><span class="tool-name">Metronome</span><span class="tool-desc">Adjustable tempo and time signature</span></a></li>
+    <li data-tags="Text"><a href="/tools/morse-code-converter.html"><span class="tool-name">Morse Code Converter</span><span class="tool-desc">Text to and from Morse</span></a></li>
+    <li data-tags="Music"><a href="/tools/note-frequency-reference.html"><span class="tool-name">Note Frequency Reference</span><span class="tool-desc">Hz for every note and octave</span></a></li>
+    <li data-tags="Developer,Convert"><a href="/tools/number-base-converter.html"><span class="tool-name">Number Base Converter</span><span class="tool-desc">Binary, octal, decimal, hex</span></a></li>
+    <li data-tags="Convert"><a href="/tools/number-to-words.html"><span class="tool-name">Number to Words Converter</span><span class="tool-desc">Spell out any number</span></a></li>
+    <li data-tags="Health"><a href="/tools/pace-calculator.html"><span class="tool-name">Pace / Split Calculator</span><span class="tool-desc">Running pace and splits</span></a></li>
+    <li data-tags="Text"><a href="/tools/palindrome-checker.html"><span class="tool-name">Palindrome Checker</span><span class="tool-desc">Check any word or phrase</span></a></li>
+    <li data-tags="Convert"><a href="/tools/paper-size-reference.html"><span class="tool-name">Paper Size Reference</span><span class="tool-desc">A-series, US Letter/Legal, mm/inches</span></a></li>
+    <li data-tags="Generators,Developer"><a href="/tools/passphrase-generator.html"><span class="tool-name">Passphrase Generator</span><span class="tool-desc">Memorable word-based passphrases</span></a></li>
+    <li data-tags="Generators,Developer"><a href="/tools/password-generator.html"><span class="tool-name">Password Generator</span><span class="tool-desc">Length, character sets, entropy indicator</span></a></li>
+    <li data-tags="Math"><a href="/tools/percentage-difference.html"><span class="tool-name">Percentage Difference</span><span class="tool-desc">Compare two values, no direction</span></a></li>
+    <li data-tags="Math"><a href="/tools/percentage-error.html"><span class="tool-name">Percentage Error</span><span class="tool-desc">For lab and experimental results</span></a></li>
+    <li data-tags="Math,Everyday"><a href="/tools/percentage-change.html"><span class="tool-name">Percentage Increase / Decrease</span><span class="tool-desc">Find or apply a % change</span></a></li>
+    <li data-tags="Math,Everyday"><a href="/tools/percentage-of-number.html"><span class="tool-name">Percentage of a Number</span><span class="tool-desc">What is X% of Y</span></a></li>
+    <li data-tags="Math"><a href="/tools/prime-checker.html"><span class="tool-name">Prime Number Checker</span><span class="tool-desc">Check primality, see factorization</span></a></li>
+    <li data-tags="Generators,Utility"><a href="/tools/qr-code-generator.html"><span class="tool-name">QR Code Generator</span><span class="tool-desc">Text or URL, downloadable</span></a></li>
+    <li data-tags="Generators,Everyday"><a href="/tools/random-picker.html"><span class="tool-name">Random Name / Team Picker</span><span class="tool-desc">Draw names or split into teams</span></a></li>
+    <li data-tags="Generators,Everyday"><a href="/tools/random-number-generator.html"><span class="tool-name">Random Number Generator</span><span class="tool-desc">Any range, with or without repeats</span></a></li>
+    <li data-tags="Math"><a href="/tools/ratio-simplifier.html"><span class="tool-name">Ratio Simplifier</span><span class="tool-desc">Reduce any ratio to lowest terms</span></a></li>
+    <li data-tags="Text,Statistics"><a href="/tools/readability-checker.html"><span class="tool-name">Readability Score Checker</span><span class="tool-desc">Flesch-Kincaid and similar scores</span></a></li>
+    <li data-tags="Developer"><a href="/tools/regex-tester.html"><span class="tool-name">Regex Tester</span><span class="tool-desc">Live match highlighting</span></a></li>
+    <li data-tags="Math"><a href="/tools/reverse-percentage.html"><span class="tool-name">Reverse Percentage</span><span class="tool-desc">Find the original before a % was applied</span></a></li>
+    <li data-tags="Convert"><a href="/tools/ring-size-converter.html"><span class="tool-name">Ring Size Converter</span><span class="tool-desc">US, UK, EU, and diameter</span></a></li>
+    <li data-tags="Convert"><a href="/tools/roman-numeral-converter.html"><span class="tool-name">Roman Numeral Converter</span><span class="tool-desc">To and from Roman numerals</span></a></li>
+    <li data-tags="Math,Everyday"><a href="/tools/sales-tax.html"><span class="tool-name">Sales Tax Calculator</span><span class="tool-desc">Add or remove tax from a price</span></a></li>
+    <li data-tags="Convert,Developer"><a href="/tools/screen-resolution-calculator.html"><span class="tool-name">Screen Resolution / Aspect Ratio Calculator</span><span class="tool-desc">Compare resolutions and ratios</span></a></li>
+    <li data-tags="Convert"><a href="/tools/shoe-size-converter.html"><span class="tool-name">Shoe Size Converter</span><span class="tool-desc">US, UK, EU, CM — by region and gender</span></a></li>
+    <li data-tags="Math,Everyday"><a href="/tools/interest-calculator.html"><span class="tool-name">Simple &amp; Compound Interest</span><span class="tool-desc">Educational, not financial advice</span></a></li>
+    <li data-tags="Text"><a href="/tools/slug-generator.html"><span class="tool-name">Slug Generator</span><span class="tool-desc">URL-friendly slugs from any text</span></a></li>
+    <li data-tags="Utility,Everyday,Health,Date &amp; Time"><a href="/tools/stopwatch.html"><span class="tool-name">Stopwatch</span><span class="tool-desc">With lap tracking</span></a></li>
+    <li data-tags="Text,Statistics"><a href="/tools/syllable-counter.html"><span class="tool-name">Syllable Counter</span><span class="tool-desc">Estimate syllables per word</span></a></li>
+    <li data-tags="Text"><a href="/tools/text-repeater.html"><span class="tool-name">Text Repeater</span><span class="tool-desc">Repeat text N times</span></a></li>
+    <li data-tags="Text"><a href="/tools/text-reverser.html"><span class="tool-name">Text Reverser</span><span class="tool-desc">Reverse characters, words, or lines</span></a></li>
+    <li data-tags="Utility,Everyday"><a href="/tools/text-to-speech.html"><span class="tool-name">Text-to-Speech Reader</span><span class="tool-desc">Have any text read aloud</span></a></li>
+    <li data-tags="Everyday,Date &amp; Time"><a href="/tools/time-card-calculator.html"><span class="tool-name">Time Card Calculator</span><span class="tool-desc">Work hours, overtime, pay</span></a></li>
+    <li data-tags="Date &amp; Time"><a href="/tools/time-duration-calculator.html"><span class="tool-name">Time Duration Calculator</span><span class="tool-desc">Hours and minutes between two times</span></a></li>
+    <li data-tags="Date &amp; Time"><a href="/tools/timezone-difference-calculator.html"><span class="tool-name">Time Zone Difference Calculator</span><span class="tool-desc">Compare two time zones</span></a></li>
+    <li data-tags="Developer,Convert,Date &amp; Time"><a href="/tools/timestamp-converter.html"><span class="tool-name">Timestamp / Unix Converter</span><span class="tool-desc">Timezone aware</span></a></li>
+    <li data-tags="Everyday,Math"><a href="/tools/tip-calculator.html"><span class="tool-name">Tip Calculator</span><span class="tool-desc">Bill splitting included</span></a></li>
+    <li data-tags="Convert,Everyday"><a href="/tools/unit-converter.html"><span class="tool-name">Unit Converter</span><span class="tool-desc">Length, weight, temperature, speed, data, area</span></a></li>
+    <li data-tags="Developer,Convert"><a href="/tools/url-encoder.html"><span class="tool-name">URL Encoder / Decoder</span><span class="tool-desc">Percent-encode or decode text</span></a></li>
+    <li data-tags="Developer"><a href="/tools/user-agent-checker.html"><span class="tool-name">User Agent / Browser Info Checker</span><span class="tool-desc">See what your browser reports</span></a></li>
+    <li data-tags="Generators,Developer"><a href="/tools/username-generator.html"><span class="tool-name">Username Generator</span><span class="tool-desc">Random handles from word combos</span></a></li>
+    <li data-tags="Developer"><a href="/tools/uuid-generator.html"><span class="tool-name">UUID Generator</span><span class="tool-desc">Generate v4 UUIDs in bulk</span></a></li>
+    <li data-tags="Health"><a href="/tools/water-intake-calculator.html"><span class="tool-name">Water Intake Calculator</span><span class="tool-desc">Daily target estimate</span></a></li>
+    <li data-tags="Date &amp; Time,Everyday"><a href="/tools/week-number-calculator.html"><span class="tool-name">Week Number Calculator</span><span class="tool-desc">ISO week number for any date</span></a></li>
+    <li data-tags="Math,Everyday"><a href="/tools/percent-of-x-is-y.html"><span class="tool-name">What Percent Is X of Y?</span><span class="tool-desc">Find the percentage share</span></a></li>
+    <li data-tags="Text"><a href="/tools/whitespace-remover.html"><span class="tool-name">Whitespace / Extra Space Remover</span><span class="tool-desc">Trim and collapse spacing</span></a></li>
+    <li data-tags="Generators,Utility"><a href="/tools/wifi-qr-generator.html"><span class="tool-name">Wi-Fi QR Code Generator</span><span class="tool-desc">Scan-to-connect network codes</span></a></li>
+    <li data-tags="Text,Statistics"><a href="/tools/word-counter.html"><span class="tool-name">Word &amp; Character Counter</span><span class="tool-desc">Live stats, reading time</span></a></li>
+    <li data-tags="Text,Statistics"><a href="/tools/word-frequency-counter.html"><span class="tool-name">Word Frequency Counter</span><span class="tool-desc">Most common words in a text</span></a></li>
+    <li data-tags="Utility,Date &amp; Time"><a href="/tools/world-clock.html"><span class="tool-name">World Clock / Time Zone Converter</span><span class="tool-desc">Compare times across cities</span></a></li>
+    <li data-tags="Developer"><a href="/tools/xml-formatter.html"><span class="tool-name">XML Formatter</span><span class="tool-desc">Pretty-print and validate XML</span></a></li>
+    <li data-tags="Developer,Convert"><a href="/tools/yaml-json-converter.html"><span class="tool-name">YAML ↔ JSON Converter</span><span class="tool-desc">Convert between formats</span></a></li>
   </ul>
-  </section>
-
-  <section class="category-group" id="text">
-  <p class="category-label">02 — Text <span class="category-count">19 tools</span></p>
-  <ul class="tool-list">
-    <li><a href="/tools/word-counter.html"><span class="tool-name">Word &amp; Character Counter</span><span class="tool-desc">Live stats, reading time</span></a></li>
-    <li><a href="/tools/case-converter.html"><span class="tool-name">Case Converter</span><span class="tool-desc">UPPER, lower, Title, camelCase</span></a></li>
-    <li><a href="/tools/duplicate-line-remover.html"><span class="tool-name">Duplicate Line Remover</span><span class="tool-desc">Clean up repeated lines</span></a></li>
-    <li><a href="/tools/find-replace.html"><span class="tool-name">Find &amp; Replace</span><span class="tool-desc">With optional regex</span></a></li>
-    <li><a href="/tools/line-sorter.html"><span class="tool-name">Line Sorter</span><span class="tool-desc">A–Z, Z–A, length, numeric, shuffle</span></a></li>
-    <li><a href="/tools/text-reverser.html"><span class="tool-name">Text Reverser</span><span class="tool-desc">Reverse characters, words, or lines</span></a></li>
-    <li><a href="/tools/whitespace-remover.html"><span class="tool-name">Whitespace / Extra Space Remover</span><span class="tool-desc">Trim and collapse spacing</span></a></li>
-    <li><a href="/tools/text-repeater.html"><span class="tool-name">Text Repeater</span><span class="tool-desc">Repeat text N times</span></a></li>
-    <li><a href="/tools/slug-generator.html"><span class="tool-name">Slug Generator</span><span class="tool-desc">URL-friendly slugs from any text</span></a></li>
-    <li><a href="/tools/lorem-ipsum-generator.html"><span class="tool-name">Lorem Ipsum Generator</span><span class="tool-desc">Placeholder text, by word/sentence/paragraph</span></a></li>
-    <li><a href="/tools/ascii-art-generator.html"><span class="tool-name">ASCII Art Generator</span><span class="tool-desc">Text-to-ASCII banner</span></a></li>
-    <li><a href="/tools/morse-code-converter.html"><span class="tool-name">Morse Code Converter</span><span class="tool-desc">Text to and from Morse</span></a></li>
-    <li><a href="/tools/binary-text-converter.html"><span class="tool-name">Binary ↔ Text Converter</span><span class="tool-desc">Convert text to binary and back</span></a></li>
-    <li><a href="/tools/palindrome-checker.html"><span class="tool-name">Palindrome Checker</span><span class="tool-desc">Check any word or phrase</span></a></li>
-    <li><a href="/tools/anagram-solver.html"><span class="tool-name">Anagram Solver / Finder</span><span class="tool-desc">Find valid anagrams of a word</span></a></li>
-    <li><a href="/tools/acronym-generator.html"><span class="tool-name">Acronym Generator</span><span class="tool-desc">Build an acronym from a phrase</span></a></li>
-    <li><a href="/tools/word-frequency-counter.html"><span class="tool-name">Word Frequency Counter</span><span class="tool-desc">Most common words in a text</span></a></li>
-    <li><a href="/tools/syllable-counter.html"><span class="tool-name">Syllable Counter</span><span class="tool-desc">Estimate syllables per word</span></a></li>
-    <li><a href="/tools/readability-checker.html"><span class="tool-name">Readability Score Checker</span><span class="tool-desc">Flesch-Kincaid and similar scores</span></a></li>
-  </ul>
-  </section>
-
-  <section class="category-group" id="convert">
-  <p class="category-label">03 — Convert <span class="category-count">10 tools</span></p>
-  <ul class="tool-list">
-    <li><a href="/tools/cooking-converter.html"><span class="tool-name">Cooking Measurement Converter</span><span class="tool-desc">By ingredient, not a flat rate</span></a></li>
-    <li><a href="/tools/unit-converter.html"><span class="tool-name">Unit Converter</span><span class="tool-desc">Length, weight, temperature, speed, data, area</span></a></li>
-    <li><a href="/tools/shoe-size-converter.html"><span class="tool-name">Shoe Size Converter</span><span class="tool-desc">US, UK, EU, CM — by region and gender</span></a></li>
-    <li><a href="/tools/file-size-converter.html"><span class="tool-name">File Size Converter</span><span class="tool-desc">Bytes to GB, binary vs. decimal</span></a></li>
-    <li><a href="/tools/screen-resolution-calculator.html"><span class="tool-name">Screen Resolution / Aspect Ratio Calculator</span><span class="tool-desc">Compare resolutions and ratios</span></a></li>
-    <li><a href="/tools/paper-size-reference.html"><span class="tool-name">Paper Size Reference</span><span class="tool-desc">A-series, US Letter/Legal, mm/inches</span></a></li>
-    <li><a href="/tools/roman-numeral-converter.html"><span class="tool-name">Roman Numeral Converter</span><span class="tool-desc">To and from Roman numerals</span></a></li>
-    <li><a href="/tools/number-to-words.html"><span class="tool-name">Number to Words Converter</span><span class="tool-desc">Spell out any number</span></a></li>
-    <li><a href="/tools/clothing-size-converter.html"><span class="tool-name">Clothing Size Converter</span><span class="tool-desc">US, UK, EU sizing</span></a></li>
-    <li><a href="/tools/ring-size-converter.html"><span class="tool-name">Ring Size Converter</span><span class="tool-desc">US, UK, EU, and diameter</span></a></li>
-  </ul>
-  </section>
-
-  <section class="category-group" id="math">
-  <p class="category-label">04 — Math &amp; Percentages <span class="category-count">15 tools</span></p>
-  <ul class="tool-list">
-    <li><a href="/tools/percentage-of-number.html"><span class="tool-name">Percentage of a Number</span><span class="tool-desc">What is X% of Y</span></a></li>
-    <li><a href="/tools/percent-of-x-is-y.html"><span class="tool-name">What Percent Is X of Y?</span><span class="tool-desc">Find the percentage share</span></a></li>
-    <li><a href="/tools/percentage-change.html"><span class="tool-name">Percentage Increase / Decrease</span><span class="tool-desc">Find or apply a % change</span></a></li>
-    <li><a href="/tools/percentage-difference.html"><span class="tool-name">Percentage Difference</span><span class="tool-desc">Compare two values, no direction</span></a></li>
-    <li><a href="/tools/reverse-percentage.html"><span class="tool-name">Reverse Percentage</span><span class="tool-desc">Find the original before a % was applied</span></a></li>
-    <li><a href="/tools/percentage-error.html"><span class="tool-name">Percentage Error</span><span class="tool-desc">For lab and experimental results</span></a></li>
-    <li><a href="/tools/ratio-simplifier.html"><span class="tool-name">Ratio Simplifier</span><span class="tool-desc">Reduce any ratio to lowest terms</span></a></li>
-    <li><a href="/tools/fraction-decimal-percentage.html"><span class="tool-name">Fraction ↔ Decimal ↔ Percentage</span><span class="tool-desc">Convert between all three</span></a></li>
-    <li><a href="/tools/mean-median-mode.html"><span class="tool-name">Mean, Median, Mode &amp; Std. Dev.</span><span class="tool-desc">Full stats from a list of numbers</span></a></li>
-    <li><a href="/tools/gcd-lcm.html"><span class="tool-name">GCD &amp; LCM Calculator</span><span class="tool-desc">Greatest common divisor, least common multiple</span></a></li>
-    <li><a href="/tools/fraction-simplifier.html"><span class="tool-name">Fraction Simplifier</span><span class="tool-desc">Reduce to lowest terms</span></a></li>
-    <li><a href="/tools/prime-checker.html"><span class="tool-name">Prime Number Checker</span><span class="tool-desc">Check primality, see factorization</span></a></li>
-    <li><a href="/tools/sales-tax.html"><span class="tool-name">Sales Tax Calculator</span><span class="tool-desc">Add or remove tax from a price</span></a></li>
-    <li><a href="/tools/markup-margin.html"><span class="tool-name">Markup vs. Margin</span><span class="tool-desc">Two different percentages, explained</span></a></li>
-    <li><a href="/tools/interest-calculator.html"><span class="tool-name">Simple &amp; Compound Interest</span><span class="tool-desc">Educational, not financial advice</span></a></li>
-  </ul>
-  </section>
-
-  <section class="category-group" id="generators">
-  <p class="category-label">05 — Generators <span class="category-count">11 tools</span></p>
-  <ul class="tool-list">
-    <li><a href="/tools/password-generator.html"><span class="tool-name">Password Generator</span><span class="tool-desc">Length, character sets, entropy indicator</span></a></li>
-    <li><a href="/tools/qr-code-generator.html"><span class="tool-name">QR Code Generator</span><span class="tool-desc">Text or URL, downloadable</span></a></li>
-    <li><a href="/tools/random-number-generator.html"><span class="tool-name">Random Number Generator</span><span class="tool-desc">Any range, with or without repeats</span></a></li>
-    <li><a href="/tools/random-picker.html"><span class="tool-name">Random Name / Team Picker</span><span class="tool-desc">Draw names or split into teams</span></a></li>
-    <li><a href="/tools/dice-roller.html"><span class="tool-name">Dice Roller</span><span class="tool-desc">Any number and size of dice</span></a></li>
-    <li><a href="/tools/coin-flip.html"><span class="tool-name">Coin Flip</span><span class="tool-desc">Heads or tails, with a running tally</span></a></li>
-    <li><a href="/tools/username-generator.html"><span class="tool-name">Username Generator</span><span class="tool-desc">Random handles from word combos</span></a></li>
-    <li><a href="/tools/barcode-generator.html"><span class="tool-name">Barcode Generator</span><span class="tool-desc">Common 1D barcode formats</span></a></li>
-    <li><a href="/tools/fake-data-generator.html"><span class="tool-name">Fake / Placeholder Data Generator</span><span class="tool-desc">Names, emails, addresses for testing</span></a></li>
-    <li><a href="/tools/wifi-qr-generator.html"><span class="tool-name">Wi-Fi QR Code Generator</span><span class="tool-desc">Scan-to-connect network codes</span></a></li>
-    <li><a href="/tools/passphrase-generator.html"><span class="tool-name">Passphrase Generator</span><span class="tool-desc">Memorable word-based passphrases</span></a></li>
-  </ul>
-  </section>
-
-  <section class="category-group" id="everyday">
-  <p class="category-label">06 — Everyday Calculators <span class="category-count">5 tools</span></p>
-  <ul class="tool-list">
-    <li><a href="/tools/tip-calculator.html"><span class="tool-name">Tip Calculator</span><span class="tool-desc">Bill splitting included</span></a></li>
-    <li><a href="/tools/discount-calculator.html"><span class="tool-name">Discount Calculator</span><span class="tool-desc">Sale price and amount saved</span></a></li>
-    <li><a href="/tools/age-calculator.html"><span class="tool-name">Age Calculator</span><span class="tool-desc">Exact age and next birthday countdown</span></a></li>
-    <li><a href="/tools/gpa-calculator.html"><span class="tool-name">GPA Calculator</span><span class="tool-desc">4.0 scale, add as many courses as needed</span></a></li>
-    <li><a href="/tools/time-card-calculator.html"><span class="tool-name">Time Card Calculator</span><span class="tool-desc">Work hours, overtime, pay</span></a></li>
-  </ul>
-  </section>
-
-  <section class="category-group" id="datetime">
-  <p class="category-label">07 — Date &amp; Time <span class="category-count">9 tools</span></p>
-  <ul class="tool-list">
-    <li><a href="/tools/days-between-dates.html"><span class="tool-name">Days Between Two Dates</span><span class="tool-desc">Exact day count between any two dates</span></a></li>
-    <li><a href="/tools/date-add-subtract.html"><span class="tool-name">Add / Subtract Days from a Date</span><span class="tool-desc">Find a date N days out</span></a></li>
-    <li><a href="/tools/week-number-calculator.html"><span class="tool-name">Week Number Calculator</span><span class="tool-desc">ISO week number for any date</span></a></li>
-    <li><a href="/tools/countdown-to-date.html"><span class="tool-name">Countdown to a Specific Date</span><span class="tool-desc">Live countdown to any moment</span></a></li>
-    <li><a href="/tools/time-duration-calculator.html"><span class="tool-name">Time Duration Calculator</span><span class="tool-desc">Hours and minutes between two times</span></a></li>
-    <li><a href="/tools/timezone-difference-calculator.html"><span class="tool-name">Time Zone Difference Calculator</span><span class="tool-desc">Compare two time zones</span></a></li>
-    <li><a href="/tools/day-of-week-finder.html"><span class="tool-name">Day of the Week Finder</span><span class="tool-desc">What day any date fell on</span></a></li>
-    <li><a href="/tools/leap-year-checker.html"><span class="tool-name">Leap Year Checker</span><span class="tool-desc">Check any year, see the rule applied</span></a></li>
-    <li><a href="/tools/age-in-units.html"><span class="tool-name">Age in Days / Hours / Minutes</span><span class="tool-desc">Your exact age in smaller units</span></a></li>
-  </ul>
-  </section>
-
-  <section class="category-group" id="health">
-  <p class="category-label">08 — Health &amp; Fitness <span class="category-count">7 tools</span></p>
-  <ul class="tool-list">
-    <li><a href="/tools/bmi-calculator.html"><span class="tool-name">BMI Calculator</span><span class="tool-desc">Metric/imperial, WHO ranges, educational</span></a></li>
-    <li><a href="/tools/tdee-calculator.html"><span class="tool-name">Calorie / TDEE Calculator</span><span class="tool-desc">Mifflin-St Jeor equation</span></a></li>
-    <li><a href="/tools/one-rep-max-calculator.html"><span class="tool-name">1-Rep Max Calculator</span><span class="tool-desc">Epley and Brzycki formulas</span></a></li>
-    <li><a href="/tools/water-intake-calculator.html"><span class="tool-name">Water Intake Calculator</span><span class="tool-desc">Daily target estimate</span></a></li>
-    <li><a href="/tools/body-fat-calculator.html"><span class="tool-name">Body Fat % Calculator</span><span class="tool-desc">U.S. Navy method</span></a></li>
-    <li><a href="/tools/pace-calculator.html"><span class="tool-name">Pace / Split Calculator</span><span class="tool-desc">Running pace and splits</span></a></li>
-    <li><a href="/tools/heart-rate-zones.html"><span class="tool-name">Heart Rate Zone Calculator</span><span class="tool-desc">Training zones from max HR</span></a></li>
-  </ul>
-  </section>
-
-  <section class="category-group" id="music">
-  <p class="category-label">09 — Music <span class="category-count">5 tools</span></p>
-  <ul class="tool-list">
-    <li><a href="/tools/bpm-tap-tempo.html"><span class="tool-name">BPM Tap Tempo</span><span class="tool-desc">Tap along to find a song's tempo</span></a></li>
-    <li><a href="/tools/metronome.html"><span class="tool-name">Metronome</span><span class="tool-desc">Adjustable tempo and time signature</span></a></li>
-    <li><a href="/tools/tuner.html"><span class="tool-name">Guitar / Instrument Tuner</span><span class="tool-desc">Mic-based pitch detection</span></a></li>
-    <li><a href="/tools/chord-interval-calculator.html"><span class="tool-name">Chord &amp; Interval Calculator</span><span class="tool-desc">Build chords from a root note</span></a></li>
-    <li><a href="/tools/note-frequency-reference.html"><span class="tool-name">Note Frequency Reference</span><span class="tool-desc">Hz for every note and octave</span></a></li>
-  </ul>
-  </section>
-
-  <section class="category-group" id="utility">
-  <p class="category-label">10 — Utility <span class="category-count">7 tools</span></p>
-  <ul class="tool-list">
-    <li><a href="/tools/countdown-timer.html"><span class="tool-name">Countdown Timer</span><span class="tool-desc">Set a timer, get notified</span></a></li>
-    <li><a href="/tools/stopwatch.html"><span class="tool-name">Stopwatch</span><span class="tool-desc">With lap tracking</span></a></li>
-    <li><a href="/tools/world-clock.html"><span class="tool-name">World Clock / Time Zone Converter</span><span class="tool-desc">Compare times across cities</span></a></li>
-    <li><a href="/tools/text-to-speech.html"><span class="tool-name">Text-to-Speech Reader</span><span class="tool-desc">Have any text read aloud</span></a></li>
-    <li><a href="/tools/contrast-checker.html"><span class="tool-name">Contrast Checker</span><span class="tool-desc">WCAG AA/AAA color contrast</span></a></li>
-    <li><a href="/tools/color-blindness-simulator.html"><span class="tool-name">Color Blindness Simulator</span><span class="tool-desc">Preview a color under common deficiencies</span></a></li>
-    <li><a href="/tools/emoji-picker.html"><span class="tool-name">Emoji Picker / Search</span><span class="tool-desc">Find and copy any emoji</span></a></li>
-  </ul>
-  </section>
 
   <div class="explainer">
     <h2>Why use these instead of a search snippet</h2>
@@ -278,7 +222,9 @@
   const clearBtn = document.getElementById('searchClear');
   const resultsSummary = document.getElementById('resultsSummary');
   const noResults = document.getElementById('noResults');
-  const groups = Array.from(document.querySelectorAll('.category-group'));
+  const tagFilter = document.getElementById('tagFilter');
+  const tagPills = Array.from(tagFilter.querySelectorAll('.tag-pill'));
+  const allToolsList = document.getElementById('allToolsList');
   const favoritesSection = document.getElementById('favoritesSection');
   const favoritesList = document.getElementById('favoritesList');
   const recentSection = document.getElementById('recentSection');
@@ -303,29 +249,30 @@
 
   let favorites = new Set(loadJSON(FAVORITES_KEY, []));
   let recent = loadJSON(RECENT_KEY, []);
+  let activeTags = new Set();
 
-  // Build a master index of every tool from the category lists, and wire
-  // each original row up with a star button + recent-visit tracking.
+  // Build a master index of every tool from the flat list, and wire each
+  // original row up with a star button + recent-visit tracking.
   const allTools = [];
   const items = [];
-  groups.forEach(group => {
-    const categoryText = group.querySelector('.category-label').textContent.toLowerCase();
-    group.querySelectorAll('.tool-list li').forEach((li, index) => {
-      const a = li.querySelector('a');
-      const href = a.getAttribute('href');
-      const name = li.querySelector('.tool-name').textContent;
-      const desc = li.querySelector('.tool-desc').textContent;
-      allTools.push({ href, name, desc });
-      li.dataset.originalIndex = index;
-      li.insertBefore(makeStarBtn(href), li.firstChild);
-      a.addEventListener('click', () => recordRecent(href));
-      items.push({ li, group, text: li.textContent.toLowerCase() + ' ' + categoryText });
-    });
+  Array.from(allToolsList.querySelectorAll('li')).forEach(li => {
+    const a = li.querySelector('a');
+    const href = a.getAttribute('href');
+    const name = li.querySelector('.tool-name').textContent;
+    const desc = li.querySelector('.tool-desc').textContent;
+    const tags = li.dataset.tags.split(',');
+    allTools.push({ href, name, desc, tags });
+    li.insertBefore(makeStarBtn(href), li.firstChild);
+    a.addEventListener('click', () => recordRecent(href));
+    items.push({ li, tags, text: li.textContent.toLowerCase() + ' ' + tags.join(' ').toLowerCase() });
   });
   const totalCount = items.length;
 
   function loadSort() {
-    try { return localStorage.getItem(SORT_KEY) || 'default'; } catch (e) { return 'default'; }
+    try {
+      const v = localStorage.getItem(SORT_KEY);
+      return (v === 'name-desc') ? 'name-desc' : 'name-asc';
+    } catch (e) { return 'name-asc'; }
   }
   function saveSort(value) {
     try { localStorage.setItem(SORT_KEY, value); } catch (e) { /* storage unavailable */ }
@@ -333,19 +280,12 @@
 
   function applySort() {
     const mode = sortSelect.value;
-    groups.forEach(group => {
-      const list = group.querySelector('.tool-list');
-      const lis = Array.from(list.querySelectorAll('li'));
-      if (mode === 'name-asc' || mode === 'name-desc') {
-        lis.sort((a, b) => {
-          const cmp = a.querySelector('.tool-name').textContent.localeCompare(b.querySelector('.tool-name').textContent);
-          return mode === 'name-asc' ? cmp : -cmp;
-        });
-      } else {
-        lis.sort((a, b) => Number(a.dataset.originalIndex) - Number(b.dataset.originalIndex));
-      }
-      lis.forEach(li => list.appendChild(li));
+    const lis = Array.from(allToolsList.querySelectorAll('li'));
+    lis.sort((a, b) => {
+      const cmp = a.querySelector('.tool-name').textContent.localeCompare(b.querySelector('.tool-name').textContent);
+      return mode === 'name-desc' ? -cmp : cmp;
     });
+    lis.forEach(li => allToolsList.appendChild(li));
   }
 
   sortSelect.value = loadSort();
@@ -354,6 +294,29 @@
     applySort();
   });
   applySort();
+
+  const clearTagsBtn = document.getElementById('clearTags');
+
+  function updateClearTagsVisibility() {
+    clearTagsBtn.hidden = activeTags.size === 0;
+  }
+
+  tagPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      const tag = pill.dataset.tag;
+      if (activeTags.has(tag)) activeTags.delete(tag); else activeTags.add(tag);
+      pill.classList.toggle('active', activeTags.has(tag));
+      updateClearTagsVisibility();
+      applyFilter();
+    });
+  });
+
+  clearTagsBtn.addEventListener('click', () => {
+    activeTags.clear();
+    tagPills.forEach(pill => pill.classList.remove('active'));
+    updateClearTagsVisibility();
+    applyFilter();
+  });
 
   function makeStarBtn(href) {
     const btn = document.createElement('button');
@@ -407,7 +370,7 @@
     return li;
   }
 
-  function searchActive() { return searchInput.value.trim() !== ''; }
+  function searchActive() { return searchInput.value.trim() !== '' || activeTags.size > 0; }
 
   function renderPinned() {
     const active = searchActive();
@@ -431,24 +394,28 @@
     const query = searchInput.value.trim().toLowerCase();
     clearBtn.hidden = query.length === 0;
 
-    const visibleByGroup = new Map(groups.map(g => [g, 0]));
     let visibleTotal = 0;
 
     items.forEach(item => {
-      const matches = query === '' || item.text.includes(query);
+      const matchesQuery = query === '' || item.text.includes(query);
+      const matchesTags = activeTags.size === 0 || item.tags.some(t => activeTags.has(t));
+      const matches = matchesQuery && matchesTags;
       item.li.hidden = !matches;
-      if (matches) {
-        visibleTotal++;
-        visibleByGroup.set(item.group, visibleByGroup.get(item.group) + 1);
-      }
+      if (matches) visibleTotal++;
     });
 
-    groups.forEach(group => { group.hidden = visibleByGroup.get(group) === 0; });
-
-    resultsSummary.textContent = query === '' ? '' : `${visibleTotal} of ${totalCount} tools`;
+    const filterIsActive = query !== '' || activeTags.size > 0;
+    resultsSummary.textContent = filterIsActive ? `${visibleTotal} of ${totalCount} tools` : '';
     noResults.hidden = visibleTotal !== 0;
     if (!noResults.hidden) {
-      noResults.textContent = `No tools match "${searchInput.value.trim()}".`;
+      const activeTagList = [...activeTags].join(', ');
+      if (query && activeTags.size > 0) {
+        noResults.textContent = `No tools match "${searchInput.value.trim()}" in ${activeTagList}.`;
+      } else if (activeTags.size > 0) {
+        noResults.textContent = `No tools tagged ${activeTagList}.`;
+      } else {
+        noResults.textContent = `No tools match "${searchInput.value.trim()}".`;
+      }
     }
 
     renderPinned();
