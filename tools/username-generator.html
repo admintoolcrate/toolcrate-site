@@ -103,6 +103,7 @@
     <div id="output" class="output-panel empty">Usernames will appear here.</div>
     <div class="btn-row">
       <button id="copyBtn" class="secondary">Copy all</button>
+      <button id="downloadBtn" class="secondary">Download .txt</button>
       <span id="copyFeedback" class="copy-feedback">Copied</span>
     </div>
   </div>
@@ -205,6 +206,19 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
     fb.classList.add('show');
     setTimeout(() => fb.classList.remove('show'), 1500);
   } catch (e) { /* clipboard unavailable */ }
+});
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  if (output.classList.contains('empty')) return;
+  const blob = new Blob([output.textContent], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'usernames.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 
 document.getElementById('generateBtn').click();

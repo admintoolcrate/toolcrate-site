@@ -91,6 +91,11 @@
   <div class="field">
     <label for="output">Result</label>
     <div id="output" class="output-panel empty">Result will appear here.</div>
+    <div class="btn-row">
+      <button id="copyBtn" class="secondary">Copy result</button>
+      <button id="downloadBtn" class="secondary">Download .txt</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
   </div>
 
   <div class="explainer">
@@ -190,6 +195,29 @@ document.getElementById('clearBtn').addEventListener('click', () => {
   output.classList.add('empty');
   showError('');
   input.focus();
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (output.classList.contains('empty')) return;
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  if (output.classList.contains('empty')) return;
+  const blob = new Blob([output.textContent], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'pick-result.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 </script>
 

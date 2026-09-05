@@ -124,6 +124,7 @@
     <div id="output" class="output-panel empty">Generated data will appear here.</div>
     <div class="btn-row">
       <button id="copyBtn" class="secondary">Copy result</button>
+      <button id="downloadBtn" class="secondary">Download</button>
       <span id="copyFeedback" class="copy-feedback">Copied</span>
     </div>
   </div>
@@ -273,6 +274,22 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
     fb.classList.add('show');
     setTimeout(() => fb.classList.remove('show'), 1500);
   } catch (e) { /* clipboard unavailable */ }
+});
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  if (output.classList.contains('empty')) return;
+  const format = formatSelect.value;
+  const ext = format === 'csv' ? 'csv' : format === 'json' ? 'json' : 'txt';
+  const mime = format === 'csv' ? 'text/csv' : format === 'json' ? 'application/json' : 'text/plain';
+  const blob = new Blob([output.textContent], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'fake-data.' + ext;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 
 document.getElementById('generateBtn').click();
