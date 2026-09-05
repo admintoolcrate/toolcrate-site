@@ -85,8 +85,8 @@
 
   <div class="explainer">
     <h2>About this tool</h2>
-    <p>Standard 4-string bass tuning (low to high: E A D G), 12 frets per string, synthesized with the same Karplus-Strong string synthesis as the virtual guitar — a feedback loop that physically approximates a plucked string's decay — but pitched an octave lower with a darker body filter to sit in a bass register. It's an approximation of a bass guitar's timbre, not a modeled or sampled instrument.</p>
-    <p>Nothing here is recorded or uploaded — sound is generated and played entirely in your browser.</p>
+    <p>Standard 4-string bass tuning (low to high: E A D G), 12 frets per string. Each note is a real recorded bass sample from a public General MIDI soundfont, fetched the first time you play it and cached after that — this is the one instrument on toolcrate that isn't purely synthesized, because a plucked bass string is hard to fake convincingly with oscillators alone. If a sample can't load (no connection, etc.) that note falls back to a synthesized pluck instead of staying silent.</p>
+    <p>Samples come from a third-party CDN the first time each note is played; nothing you do here is recorded or sent anywhere.</p>
   </div>
 
   <div class="related-tools">
@@ -175,8 +175,55 @@ function karplusStrongBuffer(freq, durationSec, decay) {
   return buffer;
 }
 
-function pluck(midi) {
-  ensureAudio();
+// Real recorded bass notes, not synthesis: the FluidR3 General MIDI
+// soundfont (public domain / MIT-licensed samples, widely used by web MIDI
+// players) has individual note samples for every General MIDI instrument.
+// We fetch and decode them lazily and cache the decoded buffers, so only
+// the notes actually played get downloaded. If a fetch or decode ever
+// fails (offline, the CDN unreachable, etc.) that specific note falls back
+// to the synthesized pluck below instead of staying silent.
+const SAMPLE_BASE = 'https://cdn.jsdelivr.net/gh/gleitz/midi-js-soundfonts@gh-pages/FluidR3_GM/electric_bass_finger-mp3/';
+const sampleCache = new Map(); // midi -> AudioBuffer | 'failed' | Promise<AudioBuffer|null>
+
+function sampleFileName(midi) {
+  const names = ['C', 'Cs', 'D', 'Ds', 'E', 'F', 'Fs', 'G', 'Gs', 'A', 'As', 'B'];
+  return names[midi % 12] + (Math.floor(midi / 12) - 1) + '.mp3';
+}
+
+async function loadSample(midi) {
+  const cached = sampleCache.get(midi);
+  if (cached === 'failed') return null;
+  if (cached) return cached; // an AudioBuffer, or a load already in flight
+
+  const promise = (async () => {
+    try {
+      const res = await fetch(SAMPLE_BASE + sampleFileName(midi));
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const arrayBuffer = await res.arrayBuffer();
+      const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+      sampleCache.set(midi, audioBuffer);
+      return audioBuffer;
+    } catch (e) {
+      sampleCache.set(midi, 'failed');
+      return null;
+    }
+  })();
+  sampleCache.set(midi, promise);
+  return promise;
+}
+
+function playSample(buffer, gainLevel) {
+  const now = audioCtx.currentTime;
+  const src = audioCtx.createBufferSource();
+  src.buffer = buffer;
+  const gain = audioCtx.createGain();
+  gain.gain.value = gainLevel;
+  src.connect(gain);
+  gain.connect(audioCtx.destination);
+  src.start(now);
+}
+
+function pluckSynth(midi) {
   const freq = midiToFreq(midi);
   const now = audioCtx.currentTime;
   const duration = 2.8;
@@ -210,6 +257,29 @@ function pluck(midi) {
   src.stop(now + duration);
 }
 
+function pluck(midi) {
+  ensureAudio();
+  const buffer = sampleCache.get(midi);
+  if (buffer instanceof AudioBuffer) {
+    playSample(buffer, 0.9);
+    return;
+  }
+  // Sample not ready yet (still loading, or failed) — play the
+  // synthesized version now so the note is never silent, and kick off
+  // (or rely on the already-in-flight) sample load for next time.
+  pluckSynth(midi);
+  loadSample(midi);
+}
+
+function preloadSamples() {
+  ensureAudio();
+  const midis = new Set();
+  OPEN_STRINGS.forEach(str => {
+    for (let fret = 0; fret <= FRET_COUNT; fret++) midis.add(str.midi + fret);
+  });
+  midis.forEach(midi => loadSample(midi));
+}
+
 function buildFretboard() {
   fretboard.innerHTML = '';
   OPEN_STRINGS.forEach(str => {
@@ -237,6 +307,11 @@ fretboard.addEventListener('pointerdown', (e) => {
   btn.classList.add('active');
   setTimeout(() => btn.classList.remove('active'), 200);
 });
+
+// Kick off sample downloads on first interaction with the page (not on
+// load) so the tool doesn't fetch anything for a visitor who never plays
+// a note.
+fretboard.addEventListener('pointerdown', preloadSamples, { once: true });
 </script>
 
 <script src="../theme.js"></script>
