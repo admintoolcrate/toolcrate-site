@@ -146,6 +146,15 @@ function karplusStrongBuffer(freq, durationSec, decay) {
   const N = Math.max(2, Math.round(sr / freq));
   const ring = new Float32Array(N);
   for (let i = 0; i < N; i++) ring[i] = Math.random() * 2 - 1;
+  // Bass notes have a much longer ring (many more samples per cycle) than
+  // guitar, so raw white noise as the initial excitation reads as a harsh
+  // click rather than a soft pluck. A couple of light smoothing passes
+  // over the initial burst rounds that off without changing the pitch.
+  for (let pass = 0; pass < 2; pass++) {
+    const smoothed = new Float32Array(N);
+    for (let i = 0; i < N; i++) smoothed[i] = (ring[i] + ring[(i + 1) % N]) * 0.5;
+    ring.set(smoothed);
+  }
   const totalSamples = Math.floor(durationSec * sr);
   const data = new Float32Array(totalSamples);
   let idx = 0;
@@ -173,17 +182,20 @@ function pluck(midi) {
 
   const body = audioCtx.createBiquadFilter();
   body.type = 'lowpass';
-  body.frequency.value = 1800;
-  body.Q.value = 0.6;
+  body.frequency.value = 1200;
+  body.Q.value = 0.5;
 
+  // A fixed low-shelf boost below the whole playable range (E1 to G2 +12
+  // frets is roughly 41-196Hz) adds sub warmth without landing inside it —
+  // a peaking boost centered inside that range made notes near it boom
+  // while others didn't, which is what made this sound uneven and harsh.
   const warmth = audioCtx.createBiquadFilter();
-  warmth.type = 'peaking';
-  warmth.frequency.value = 110;
-  warmth.Q.value = 1;
-  warmth.gain.value = 6;
+  warmth.type = 'lowshelf';
+  warmth.frequency.value = 90;
+  warmth.gain.value = 4;
 
   const gain = audioCtx.createGain();
-  gain.gain.value = 1.1;
+  gain.gain.value = 0.95;
 
   src.connect(body);
   body.connect(warmth);

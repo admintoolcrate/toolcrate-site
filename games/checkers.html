@@ -96,6 +96,9 @@
         </select>
       </div>
     </div>
+    <div class="btn-row" id="swapSidesRow">
+      <button type="button" id="swapSidesBtn" class="secondary">Swap sides (play as Black)</button>
+    </div>
   </div>
 
   <div class="stat-grid">
@@ -155,12 +158,18 @@ const redLabelEl = document.getElementById('redLabel');
 const blackLabelEl = document.getElementById('blackLabel');
 const newRoundBtn = document.getElementById('newRoundBtn');
 const resetScoreBtn = document.getElementById('resetScoreBtn');
+const swapSidesRow = document.getElementById('swapSidesRow');
+const swapSidesBtn = document.getElementById('swapSidesBtn');
 
 const SCORE_KEY = 'toolcrate-game-checkers-score';
 const SIZE = 8;
 
 let mode = 'computer';
+let humanColor = 'R';
 let board, currentColor, forcedFrom, selected, gameOver, scores;
+
+function computerColor() { return humanColor === 'R' ? 'B' : 'R'; }
+function colorName(color) { return color === 'R' ? 'Red' : 'Black'; }
 
 function loadScores() {
   try {
@@ -176,8 +185,17 @@ function updateScoreDisplay() {
   redWinsEl.textContent = scores.R;
   blackWinsEl.textContent = scores.B;
   drawsEl.textContent = scores.draw;
-  redLabelEl.textContent = mode === 'computer' ? 'You (Red)' : 'Red wins';
-  blackLabelEl.textContent = mode === 'computer' ? 'Computer (Black)' : 'Black wins';
+  if (mode === 'computer') {
+    redLabelEl.textContent = humanColor === 'R' ? 'You (Red)' : 'Computer (Red)';
+    blackLabelEl.textContent = humanColor === 'B' ? 'You (Black)' : 'Computer (Black)';
+  } else {
+    redLabelEl.textContent = 'Red wins';
+    blackLabelEl.textContent = 'Black wins';
+  }
+}
+
+function updateSwapButtonLabel() {
+  swapSidesBtn.textContent = humanColor === 'R' ? 'Swap sides (play as Black)' : 'Swap sides (play as Red)';
 }
 
 function setMode(newMode) {
@@ -185,9 +203,16 @@ function setMode(newMode) {
   vsComputerBtn.classList.toggle('active', mode === 'computer');
   vsHumanBtn.classList.toggle('active', mode === 'human');
   difficultyRow.style.display = mode === 'computer' ? '' : 'none';
+  swapSidesRow.style.display = mode === 'computer' ? '' : 'none';
   updateScoreDisplay();
   newRound();
 }
+swapSidesBtn.addEventListener('click', () => {
+  humanColor = humanColor === 'R' ? 'B' : 'R';
+  updateSwapButtonLabel();
+  updateScoreDisplay();
+  newRound();
+});
 vsComputerBtn.addEventListener('click', () => setMode('computer'));
 vsHumanBtn.addEventListener('click', () => setMode('human'));
 
@@ -306,12 +331,19 @@ function minimaxCheckers(b, color, forced, depth, alpha, beta, aiColor) {
 
 function newRound() {
   board = initBoard();
-  currentColor = 'R';
+  currentColor = 'R'; // Red always moves first, whichever color the human is playing.
   forcedFrom = null;
   selected = null;
   gameOver = false;
-  statusText.textContent = mode === 'computer' ? 'Your turn (Red)' : "Red's turn";
+  if (mode === 'computer') {
+    statusText.textContent = currentColor === humanColor ? 'Your turn (' + colorName(currentColor) + ')' : "Computer's turn...";
+  } else {
+    statusText.textContent = colorName(currentColor) + "'s turn";
+  }
   render();
+  if (mode === 'computer' && currentColor === computerColor()) {
+    setTimeout(computerTurn, 400);
+  }
 }
 
 function pieceCounts(b) {
@@ -329,9 +361,9 @@ function endGameIfOver() {
   saveScores();
   updateScoreDisplay();
   if (mode === 'computer') {
-    statusText.textContent = winner === 'R' ? 'You win!' : 'Computer wins!';
+    statusText.textContent = winner === humanColor ? 'You win!' : 'Computer wins!';
   } else {
-    statusText.textContent = (winner === 'R' ? 'Red' : 'Black') + ' wins!';
+    statusText.textContent = colorName(winner) + ' wins!';
   }
   return true;
 }
@@ -350,29 +382,30 @@ function applyPlyAndAdvance(ply) {
   if (endGameIfOver()) return;
   if (!continues) {
     statusText.textContent = mode === 'computer'
-      ? (currentColor === 'R' ? 'Your turn (Red)' : "Computer's turn...")
-      : (currentColor === 'R' ? "Red's turn" : "Black's turn");
+      ? (currentColor === humanColor ? 'Your turn (' + colorName(currentColor) + ')' : "Computer's turn...")
+      : (colorName(currentColor) + "'s turn");
   } else {
     statusText.textContent = 'Jump again with the same piece';
   }
-  if (mode === 'computer' && currentColor === 'B' && !gameOver) {
+  if (mode === 'computer' && currentColor === computerColor() && !gameOver) {
     setTimeout(computerTurn, 400);
   }
 }
 
 function computerTurn() {
-  if (gameOver || currentColor !== 'B') return;
+  const cColor = computerColor();
+  if (gameOver || currentColor !== cColor) return;
   const depth = difficultySelect.value === 'easy' ? 1 : 5;
   let move;
   if (difficultySelect.value === 'easy' && Math.random() < 0.6) {
-    const options = legalMovesFor(board, 'B', forcedFrom);
+    const options = legalMovesFor(board, cColor, forcedFrom);
     move = options[Math.floor(Math.random() * options.length)];
   } else {
-    move = minimaxCheckers(cloneBoard(board), 'B', forcedFrom, depth, -Infinity, Infinity, 'B').move;
+    move = minimaxCheckers(cloneBoard(board), cColor, forcedFrom, depth, -Infinity, Infinity, cColor).move;
   }
   if (!move) return;
   applyPlyAndAdvance(move);
-  if (!gameOver && currentColor === 'B') setTimeout(computerTurn, 350);
+  if (!gameOver && currentColor === cColor) setTimeout(computerTurn, 350);
 }
 
 function render() {
@@ -401,7 +434,7 @@ function render() {
       if (selected && selected[0] === r && selected[1] === c) cell.classList.add('selected');
       if (destinationsForSelected.some(m => m.to[0] === r && m.to[1] === c)) cell.classList.add('selectable');
 
-      const isHumanTurn = mode === 'human' || currentColor === 'R';
+      const isHumanTurn = mode === 'human' || currentColor === humanColor;
       if ((r + c) % 2 === 1 && !gameOver && isHumanTurn) {
         cell.addEventListener('click', () => handleCellClick(r, c, selectableFroms, destinationsForSelected));
       }
@@ -436,6 +469,7 @@ resetScoreBtn.addEventListener('click', () => {
 difficultySelect.addEventListener('change', newRound);
 
 loadScores();
+updateSwapButtonLabel();
 updateScoreDisplay();
 newRound();
 </script>

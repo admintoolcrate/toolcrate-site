@@ -6,18 +6,18 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<title>Shape Party | toolcrate</title>
-<meta name="description" content="A gentle tap-the-shape game for babies and toddlers. Big colorful shapes, cheerful sounds, and no way to lose.">
-<link rel="canonical" href="https://toolcrate.cc/games/shape-party.html">
+<title>Peekaboo Animals | toolcrate</title>
+<meta name="description" content="A gentle peekaboo game for babies and toddlers. Tap a tile to reveal a cute animal, then it hides again. No score, no losing.">
+<link rel="canonical" href="https://toolcrate.cc/games/peekaboo.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="toolcrate">
-<meta property="og:url" content="https://toolcrate.cc/games/shape-party.html">
-<meta property="og:title" content="Shape Party | toolcrate">
-<meta property="og:description" content="A gentle tap-the-shape game for babies and toddlers. Big colorful shapes, cheerful sounds, and no way to lose.">
+<meta property="og:url" content="https://toolcrate.cc/games/peekaboo.html">
+<meta property="og:title" content="Peekaboo Animals | toolcrate">
+<meta property="og:description" content="A gentle peekaboo game for babies and toddlers. Tap a tile to reveal a cute animal, then it hides again. No score, no losing.">
 <meta property="og:image" content="https://toolcrate.cc/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Shape Party | toolcrate">
-<meta name="twitter:description" content="A gentle tap-the-shape game for babies and toddlers. Big colorful shapes, cheerful sounds, and no way to lose.">
+<meta name="twitter:title" content="Peekaboo Animals | toolcrate">
+<meta name="twitter:description" content="A gentle peekaboo game for babies and toddlers. Tap a tile to reveal a cute animal, then it hides again. No score, no losing.">
 <meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -25,28 +25,26 @@
 <link rel="stylesheet" href="../style.css">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
 <style>
-  .party-grid {
+  .peek-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 0.8rem;
   }
-  @media (max-width: 480px) { .party-grid { grid-template-columns: repeat(2, 1fr); } }
-  .party-shape {
+  @media (max-width: 480px) { .peek-grid { grid-template-columns: repeat(2, 1fr); } }
+  .peek-tile {
     aspect-ratio: 1;
     border: none;
+    border-radius: 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 3rem;
     transition: transform 0.15s ease;
   }
-  .party-shape.bounce { animation: shapeBounce 0.4s ease; }
-  @keyframes shapeBounce { 0% { transform: scale(1); } 40% { transform: scale(1.15); } 100% { transform: scale(1); } }
-  .party-shape.circle { border-radius: 50%; }
-  .party-shape.square { border-radius: 10%; }
-  .party-shape.triangle { clip-path: polygon(50% 4%, 4% 96%, 96% 96%); }
-  .party-shape.star, .party-shape.heart, .party-shape.diamond { font-size: min(9rem, 24vw); background: none !important; }
-  .party-callout { text-align: center; font-size: 1.6rem; font-weight: 700; margin: 1rem 0; min-height: 2.2em; color: var(--ink); }
+  .peek-tile.reveal { animation: peekPop 0.3s ease; }
+  @keyframes peekPop { 0% { transform: scale(0.8); } 55% { transform: scale(1.1); } 100% { transform: scale(1); } }
+  .peek-callout { text-align: center; font-size: 1.5rem; font-weight: 700; margin: 1rem 0; min-height: 2.2em; color: var(--ink); }
 </style>
 </head>
 <body>
@@ -60,23 +58,20 @@
 
 <main>
   <div class="tool-header">
-    <h1>Shape Party</h1>
-    <p>Tap any shape — it bounces, makes a sound, and names itself. Nothing to win or lose.</p>
+    <h1>Peekaboo Animals</h1>
+    <p>Tap a tile to peek at the animal hiding behind it. It waves hello, then hides again.</p>
     <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
   <span class="copy-feedback" id="shareFeedback">Copied</span>
   </div>
 
   <div class="panel">
-    <div class="party-callout" id="callout">Tap a shape!</div>
-    <div class="party-grid" id="grid"></div>
-    <div class="btn-row" style="justify-content:center; margin-top: 1rem;">
-      <button type="button" id="shuffleBtn" class="secondary">Shuffle colors</button>
-    </div>
+    <div class="peek-callout" id="callout">Tap a tile!</div>
+    <div class="peek-grid" id="grid"></div>
   </div>
 
   <div class="explainer">
     <h2>About this game</h2>
-    <p>Made for babies and toddlers (with a grown-up nearby): six big shapes in bright colors. Tapping one plays a cheerful note and names its color and shape out loud on screen — a gentle way to start recognizing shapes and colors, not a test of anything.</p>
+    <p>Made for babies and toddlers (with a grown-up nearby): six covered tiles, each hiding a different animal. Tapping one plays a cheerful chime and reveals it with its name and sound word, then it covers back up after a moment, ready to peek at again. Nothing to win or lose.</p>
   </div>
 
 <div class="ad-slot">
@@ -103,87 +98,75 @@
 <script>
 const grid = document.getElementById('grid');
 const callout = document.getElementById('callout');
-const shuffleBtn = document.getElementById('shuffleBtn');
 
-const SHAPES = [
-  { type: 'circle', label: 'Circle', glyph: '' },
-  { type: 'square', label: 'Square', glyph: '' },
-  { type: 'triangle', label: 'Triangle', glyph: '' },
-  { type: 'star', label: 'Star', glyph: '★' },
-  { type: 'heart', label: 'Heart', glyph: '♥' },
-  { type: 'diamond', label: 'Diamond', glyph: '♦' },
+const ANIMALS = [
+  { emoji: '🐶', name: 'Dog', sound: 'Woof!' },
+  { emoji: '🐱', name: 'Cat', sound: 'Meow!' },
+  { emoji: '🐮', name: 'Cow', sound: 'Moo!' },
+  { emoji: '🐸', name: 'Frog', sound: 'Ribbit!' },
+  { emoji: '🦁', name: 'Lion', sound: 'Roar!' },
+  { emoji: '🐷', name: 'Pig', sound: 'Oink!' },
 ];
-const COLOR_NAMES = [
-  { name: 'Red', hex: '#FF5C5C' },
-  { name: 'Orange', hex: '#FF9F40' },
-  { name: 'Yellow', hex: '#FFD93D' },
-  { name: 'Green', hex: '#6BCB77' },
-  { name: 'Blue', hex: '#4D96FF' },
-  { name: 'Purple', hex: '#C77DFF' },
-];
-const NOTE_FREQS = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25]; // C D E G A C major-ish, pleasant
+const COLORS = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#FF922B', '#C77DFF'];
 
 let audioCtx = null;
 function ensureAudio() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
 }
-function playNote(freq) {
+function playChime() {
   ensureAudio();
   const now = audioCtx.currentTime;
-  const osc = audioCtx.createOscillator();
-  osc.type = 'triangle';
-  osc.frequency.value = freq;
-  const gain = audioCtx.createGain();
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.3, now + 0.02);
-  gain.gain.exponentialRampToValueAtTime(0.0005, now + 0.5);
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.start(now);
-  osc.stop(now + 0.52);
+  [523.25, 659.25, 783.99].forEach((freq, i) => {
+    const start = now + i * 0.08;
+    const osc = audioCtx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.linearRampToValueAtTime(0.22, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0005, start + 0.35);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(start);
+    osc.stop(start + 0.36);
+  });
 }
 
-let currentColors = [];
-
-function assignColors() {
-  const shuffled = COLOR_NAMES.slice().sort(() => Math.random() - 0.5);
-  currentColors = SHAPES.map((_, i) => shuffled[i % shuffled.length]);
-}
+const tileState = ANIMALS.map(() => ({ revealed: false, timer: null }));
 
 function buildGrid() {
   grid.innerHTML = '';
-  SHAPES.forEach((shape, i) => {
+  ANIMALS.forEach((animal, i) => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'party-shape ' + shape.type;
+    btn.className = 'peek-tile';
+    btn.style.background = COLORS[i];
+    btn.textContent = '?';
     btn.dataset.index = i;
-    if (shape.glyph) {
-      btn.style.color = currentColors[i].hex;
-      btn.textContent = shape.glyph;
-    } else {
-      btn.style.background = currentColors[i].hex;
-    }
-    btn.addEventListener('pointerdown', () => tapShape(i, btn));
+    btn.addEventListener('pointerdown', () => tapTile(i, btn));
     grid.appendChild(btn);
   });
 }
 
-function tapShape(i, btn) {
-  playNote(NOTE_FREQS[i % NOTE_FREQS.length]);
-  btn.classList.remove('bounce');
+function tapTile(i, btn) {
+  const state = tileState[i];
+  if (state.revealed) return;
+  state.revealed = true;
+  playChime();
+  btn.textContent = ANIMALS[i].emoji;
+  btn.classList.remove('reveal');
   void btn.offsetWidth;
-  btn.classList.add('bounce');
-  callout.textContent = currentColors[i].name + ' ' + SHAPES[i].label + '!';
+  btn.classList.add('reveal');
+  callout.textContent = ANIMALS[i].name + '! ' + ANIMALS[i].sound;
+
+  clearTimeout(state.timer);
+  state.timer = setTimeout(() => {
+    state.revealed = false;
+    btn.textContent = '?';
+  }, 1600);
 }
 
-shuffleBtn.addEventListener('click', () => {
-  assignColors();
-  buildGrid();
-  callout.textContent = 'Tap a shape!';
-});
-
-assignColors();
 buildGrid();
 </script>
 
