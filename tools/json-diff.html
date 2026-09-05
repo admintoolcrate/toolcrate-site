@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>JSON Diff — Compare Two JSON Blobs | toolcrate</title>
+<meta name="description" content="Compare two JSON objects and see exactly what was added, removed, or changed, line by line. No signup, nothing uploaded to a server.">
+<link rel="canonical" href="https://toolcrate.cc/tools/json-diff.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/tools/json-diff.html">
+<meta property="og:title" content="JSON Diff — Compare Two JSON Blobs | toolcrate">
+<meta property="og:description" content="Compare two JSON objects and see exactly what was added, removed, or changed, line by line. No signup, nothing uploaded to a server.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="JSON Diff — Compare Two JSON Blobs | toolcrate">
+<meta name="twitter:description" content="Compare two JSON objects and see exactly what was added, removed, or changed, line by line. No signup, nothing uploaded to a server.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "JSON Diff",
+  "description": "Compare two JSON objects and see exactly what was added, removed, or changed, line by line. No signup, nothing uploaded to a server.",
+  "url": "https://toolcrate.cc/tools/json-diff.html",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .diff-output {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+  .diff-line {
+    display: flex;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .diff-line:last-child { border-bottom: none; }
+  .diff-gutter {
+    flex: 0 0 2.4rem;
+    text-align: right;
+    padding: 0.35rem 0.6rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+    border-right: 1px solid var(--line-soft);
+  }
+  .diff-marker {
+    flex: 0 0 1.6rem;
+    text-align: center;
+    padding: 0.35rem 0;
+    font-weight: 600;
+    user-select: none;
+  }
+  .diff-text { flex: 1; padding: 0.35rem 0.75rem 0.35rem 0; font-family: 'Courier New', monospace; }
+  .diff-added { background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .diff-added .diff-marker { color: var(--ok); }
+  .diff-removed { background: color-mix(in srgb, var(--danger) 12%, transparent); }
+  .diff-removed .diff-marker { color: var(--danger); }
+  .diff-unchanged .diff-text { color: var(--ink-soft); }
+  .diff-empty { padding: 1.35rem 1.55rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>JSON Diff</h1>
+    <p>Compare two JSON blobs and see exactly what changed.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="original">Original JSON</label>
+        <textarea id="original" rows="9" placeholder='{"a": 1, "b": 2}' spellcheck="false"></textarea>
+      </div>
+      <div class="field">
+        <label for="changed">Changed JSON</label>
+        <textarea id="changed" rows="9" placeholder='{"a": 1, "b": 3}' spellcheck="false"></textarea>
+      </div>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="addedCount">0</span><span class="stat-label">Lines added</span></div>
+    <div class="stat"><span class="stat-value" id="removedCount">0</span><span class="stat-label">Lines removed</span></div>
+    <div class="stat"><span class="stat-value" id="unchangedCount">0</span><span class="stat-label">Lines unchanged</span></div>
+  </div>
+
+  <div class="field">
+    <label>Diff</label>
+    <div id="diffOutput" class="diff-output"><div class="diff-empty">Paste JSON into both boxes above to see the difference.</div></div>
+  </div>
+
+  <div class="explainer">
+    <h2>How this comparison works</h2>
+    <p>Both inputs are parsed and re-serialized with consistent 2-space indentation, then compared line by line using a longest-common-subsequence approach — the same underlying idea behind tools like <code>diff</code> and Git's change view. This means it's a textual diff of the formatted JSON, not a structural one: reordering an object's keys will show as removed-and-re-added lines even though the data is equivalent, since JSON object key order isn't semantically meaningful but does change the text.</p>
+    <p>Nothing you paste here is uploaded — parsing and comparison both run locally in your browser.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const originalEl = document.getElementById('original');
+const changedEl = document.getElementById('changed');
+const errorEl = document.getElementById('error');
+const diffOutput = document.getElementById('diffOutput');
+const addedCountEl = document.getElementById('addedCount');
+const removedCountEl = document.getElementById('removedCount');
+const unchangedCountEl = document.getElementById('unchangedCount');
+
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+
+function diffLines(a, b) {
+  const n = a.length, m = b.length;
+  const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    }
+  }
+  const result = [];
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (a[i] === b[j]) {
+      result.push({ type: 'same', line: a[i] });
+      i++; j++;
+    } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+      result.push({ type: 'remove', line: a[i] });
+      i++;
+    } else {
+      result.push({ type: 'add', line: b[j] });
+      j++;
+    }
+  }
+  while (i < n) { result.push({ type: 'remove', line: a[i] }); i++; }
+  while (j < m) { result.push({ type: 'add', line: b[j] }); j++; }
+  return result;
+}
+
+function resetStats() {
+  addedCountEl.textContent = '0';
+  removedCountEl.textContent = '0';
+  unchangedCountEl.textContent = '0';
+}
+
+function run() {
+  errorEl.textContent = '';
+  const rawOriginal = originalEl.value.trim();
+  const rawChanged = changedEl.value.trim();
+
+  if (rawOriginal === '' && rawChanged === '') {
+    diffOutput.innerHTML = '<div class="diff-empty">Paste JSON into both boxes above to see the difference.</div>';
+    resetStats();
+    return;
+  }
+
+  let parsedA, parsedB;
+  try {
+    parsedA = rawOriginal === '' ? null : JSON.parse(rawOriginal);
+  } catch (e) {
+    errorEl.textContent = 'Original: invalid JSON — ' + e.message;
+    diffOutput.innerHTML = '<div class="diff-empty">Fix the JSON above to see the difference.</div>';
+    resetStats();
+    return;
+  }
+  try {
+    parsedB = rawChanged === '' ? null : JSON.parse(rawChanged);
+  } catch (e) {
+    errorEl.textContent = 'Changed: invalid JSON — ' + e.message;
+    diffOutput.innerHTML = '<div class="diff-empty">Fix the JSON above to see the difference.</div>';
+    resetStats();
+    return;
+  }
+
+  const aText = parsedA === null ? '' : JSON.stringify(parsedA, null, 2);
+  const bText = parsedB === null ? '' : JSON.stringify(parsedB, null, 2);
+
+  const aLines = aText === '' ? [] : aText.split('\n');
+  const bLines = bText === '' ? [] : bText.split('\n');
+
+  const diff = diffLines(aLines, bLines);
+
+  let added = 0, removed = 0, unchanged = 0;
+  let origLineNum = 0, newLineNum = 0;
+  const rows = [];
+  let aIdx = 0, bIdx = 0;
+
+  diff.forEach(entry => {
+    if (entry.type === 'same') {
+      origLineNum++; newLineNum++;
+      unchanged++;
+      rows.push({ type: 'same', gutter: origLineNum, text: aLines[aIdx] });
+      aIdx++; bIdx++;
+    } else if (entry.type === 'remove') {
+      origLineNum++;
+      removed++;
+      rows.push({ type: 'remove', gutter: origLineNum, text: aLines[aIdx] });
+      aIdx++;
+    } else {
+      newLineNum++;
+      added++;
+      rows.push({ type: 'add', gutter: newLineNum, text: bLines[bIdx] });
+      bIdx++;
+    }
+  });
+
+  addedCountEl.textContent = added;
+  removedCountEl.textContent = removed;
+  unchangedCountEl.textContent = unchanged;
+
+  diffOutput.innerHTML = rows.map(row => {
+    const cls = row.type === 'same' ? 'diff-unchanged' : row.type === 'add' ? 'diff-added' : 'diff-removed';
+    const marker = row.type === 'same' ? '' : row.type === 'add' ? '+' : '−';
+    const text = row.text === '' ? '&nbsp;' : escapeHtml(row.text);
+    return '<div class="diff-line ' + cls + '"><span class="diff-gutter">' + row.gutter + '</span><span class="diff-marker">' + marker + '</span><span class="diff-text">' + text + '</span></div>';
+  }).join('');
+}
+
+originalEl.addEventListener('input', run);
+changedEl.addEventListener('input', run);
+run();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>
