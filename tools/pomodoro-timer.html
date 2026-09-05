@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifests/tools/pomodoro-timer.json">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pomodoro Timer">
+<title>Pomodoro Timer | toolcrate</title>
+<meta name="description" content="A focus timer using the Pomodoro Technique. Customizable work/break lengths, auto-cycling, sound cues, and a wake lock so your screen stays on.">
+<link rel="canonical" href="https://toolcrate.cc/tools/pomodoro-timer.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/tools/pomodoro-timer.html">
+<meta property="og:title" content="Pomodoro Timer | toolcrate">
+<meta property="og:description" content="A focus timer using the Pomodoro Technique. Customizable work/break lengths, auto-cycling, sound cues, and a wake lock so your screen stays on.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Pomodoro Timer | toolcrate">
+<meta name="twitter:description" content="A focus timer using the Pomodoro Technique. Customizable work/break lengths, auto-cycling, sound cues, and a wake lock so your screen stays on.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Pomodoro Timer",
+  "description": "A focus timer using the Pomodoro Technique. Customizable work/break lengths, auto-cycling, sound cues, and a wake lock so your screen stays on.",
+  "url": "https://toolcrate.cc/tools/pomodoro-timer.html",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .pomo-phase-label { text-align: center; font-weight: 600; font-size: 1.05rem; margin-bottom: 0.25rem; }
+  .pomo-phase-label.focus { color: var(--accent); }
+  .pomo-phase-label.short-break, .pomo-phase-label.long-break { color: var(--ok); }
+  .pomo-session-label { text-align: center; color: var(--muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .pomo-display { text-align: center; font-size: 4.5rem; font-weight: 800; letter-spacing: -0.02em; margin: 0.25rem 0 1rem; font-variant-numeric: tabular-nums; }
+  .pomo-ring-wrap { position: relative; width: min(260px, 70vw); margin: 0 auto; }
+  .pomo-ring-wrap svg { width: 100%; height: auto; display: block; }
+  .pomo-ring-bg { fill: none; stroke: var(--line); stroke-width: 8; }
+  .pomo-ring-fg { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 0.25s linear; }
+  .pomo-phase-label.short-break ~ .pomo-ring-wrap .pomo-ring-fg,
+  .pomo-ring-fg.break { stroke: var(--ok); }
+  .pomo-ring-center { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+  .pomo-controls { display: flex; gap: 0.6rem; justify-content: center; margin-top: 1.25rem; flex-wrap: wrap; }
+  .pomo-stat-row { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 0.75rem; }
+  .pomo-checkbox-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; font-size: 0.9rem; }
+  .pomo-checkbox-row input { width: auto; }
+  @media print { .pomo-controls, .ad-slot { display: none; } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Pomodoro Timer</h1>
+    <p>Work in focused bursts with timed breaks in between, tracked right here on the page.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  <p class="last-updated">Last updated <time datetime="2026-09-05">Sep 5, 2026</time></p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="focusInput">Focus (minutes)</label>
+        <input type="number" id="focusInput" value="25" min="1" max="180" step="1">
+      </div>
+      <div class="field">
+        <label for="shortBreakInput">Short break (minutes)</label>
+        <input type="number" id="shortBreakInput" value="5" min="1" max="60" step="1">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="longBreakInput">Long break (minutes)</label>
+        <input type="number" id="longBreakInput" value="15" min="1" max="120" step="1">
+      </div>
+      <div class="field">
+        <label for="cyclesInput">Focus sessions before long break</label>
+        <input type="number" id="cyclesInput" value="4" min="2" max="12" step="1">
+      </div>
+    </div>
+    <div class="pomo-checkbox-row">
+      <input type="checkbox" id="autoAdvanceCheck" checked>
+      <label for="autoAdvanceCheck">Auto-start the next phase</label>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="pomo-phase-label focus" id="phaseLabel">Ready to focus</div>
+    <div class="pomo-session-label" id="sessionLabel">Session 1 of 4</div>
+    <div class="pomo-ring-wrap">
+      <svg viewBox="0 0 100 100">
+        <circle class="pomo-ring-bg" cx="50" cy="50" r="44"></circle>
+        <circle class="pomo-ring-fg" id="ringFg" cx="50" cy="50" r="44"></circle>
+      </svg>
+      <div class="pomo-ring-center"><div class="pomo-display" id="timeDisplay">25:00</div></div>
+    </div>
+    <div class="pomo-controls">
+      <button type="button" id="startBtn">Start</button>
+      <button type="button" id="pauseBtn" class="secondary" disabled>Pause</button>
+      <button type="button" id="skipBtn" class="secondary" disabled>Skip phase</button>
+      <button type="button" id="resetBtn" class="secondary">Reset</button>
+    </div>
+    <div class="pomo-stat-row">Completed today: <strong id="completedToday">0</strong> · Total completed: <strong id="completedTotal">0</strong></div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>The Pomodoro Technique breaks work into focused intervals (traditionally 25 minutes) separated by short breaks, with a longer break after a handful of intervals. This timer runs the whole cycle for you: it counts down against a real end timestamp (so it stays accurate even if the tab is backgrounded), plays a tone and briefly flashes the tab title at each transition, and can auto-advance straight into the next phase — or wait for you to start it manually if you'd rather control the pace. While a timer is running, it also requests a screen wake lock where your browser supports it, so the display doesn't sleep mid-session.</p>
+    <p>Completed focus sessions are tallied locally in your browser (today's count resets at midnight) — nothing here is sent to a server.</p>
+  </div>
+
+  <div class="related-tools">
+    <h2>Related tools</h2>
+    <ul class="tool-list">
+      <li><a href="/tools/countdown-timer.html"><span class="tool-name">Countdown Timer</span><span class="tool-desc">Set a timer, get notified</span></a></li>
+      <li><a href="/tools/stopwatch.html"><span class="tool-name">Stopwatch</span><span class="tool-desc">With lap tracking</span></a></li>
+      <li><a href="/tools/workout-generator.html"><span class="tool-name">Workout Generator</span><span class="tool-desc">Randomized workout with a live timer</span></a></li>
+    </ul>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const focusInput = document.getElementById('focusInput');
+const shortBreakInput = document.getElementById('shortBreakInput');
+const longBreakInput = document.getElementById('longBreakInput');
+const cyclesInput = document.getElementById('cyclesInput');
+const autoAdvanceCheck = document.getElementById('autoAdvanceCheck');
+const phaseLabel = document.getElementById('phaseLabel');
+const sessionLabel = document.getElementById('sessionLabel');
+const timeDisplay = document.getElementById('timeDisplay');
+const ringFg = document.getElementById('ringFg');
+const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const skipBtn = document.getElementById('skipBtn');
+const resetBtn = document.getElementById('resetBtn');
+const completedTodayEl = document.getElementById('completedToday');
+const completedTotalEl = document.getElementById('completedTotal');
+
+const STATS_KEY = 'toolcrate-pomodoro-stats';
+const RING_CIRCUMFERENCE = 2 * Math.PI * 44;
+ringFg.style.strokeDasharray = String(RING_CIRCUMFERENCE);
+
+let phase = 'focus'; // 'focus' | 'short-break' | 'long-break'
+let focusCount = 0; // completed focus sessions in the current long-break cycle
+let started = false; // false only in the untouched, pre-first-start state
+let phaseEndAt = null;
+let phaseDurationMs = 0;
+let pausedAt = null;
+let tickTimer = null;
+let running = false;
+let wakeLock = null;
+let titleFlashTimer = null;
+const originalTitle = document.title;
+
+function loadStats() {
+  let stats = { total: 0, today: 0, date: '' };
+  try {
+    const raw = localStorage.getItem(STATS_KEY);
+    if (raw) stats = Object.assign(stats, JSON.parse(raw));
+  } catch (e) { /* storage unavailable */ }
+  const todayKey = new Date().toDateString();
+  if (stats.date !== todayKey) {
+    stats.date = todayKey;
+    stats.today = 0;
+  }
+  return stats;
+}
+function saveStats(stats) {
+  try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch (e) { /* storage unavailable */ }
+}
+function renderStats() {
+  const stats = loadStats();
+  completedTodayEl.textContent = stats.today;
+  completedTotalEl.textContent = stats.total;
+}
+function recordCompletedFocus() {
+  const stats = loadStats();
+  stats.total += 1;
+  stats.today += 1;
+  saveStats(stats);
+  renderStats();
+}
+
+function totalCycles() {
+  return Math.max(2, parseInt(cyclesInput.value, 10) || 4);
+}
+function durationForPhase(p) {
+  if (p === 'focus') return Math.max(1, parseInt(focusInput.value, 10) || 25) * 60000;
+  if (p === 'short-break') return Math.max(1, parseInt(shortBreakInput.value, 10) || 5) * 60000;
+  return Math.max(1, parseInt(longBreakInput.value, 10) || 15) * 60000;
+}
+function phaseTitle(p) {
+  if (p === 'focus') return 'Focus';
+  if (p === 'short-break') return 'Short break';
+  return 'Long break';
+}
+
+function formatCountdown(ms) {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+
+function playTone(freq, count, interval) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    for (let i = 0; i < count; i++) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = freq;
+      const start = ctx.currentTime + i * interval;
+      gain.gain.setValueAtTime(0.28, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + interval * 0.8);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + interval * 0.8);
+    }
+  } catch (e) { /* audio unavailable */ }
+}
+
+function flashTitle(text) {
+  let on = false;
+  clearInterval(titleFlashTimer);
+  titleFlashTimer = setInterval(() => {
+    document.title = on ? originalTitle : text;
+    on = !on;
+  }, 1000);
+  setTimeout(stopTitleFlash, 6000);
+}
+function stopTitleFlash() {
+  clearInterval(titleFlashTimer);
+  document.title = originalTitle;
+}
+function notify(body) {
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+    try { new Notification('Toolcrate Pomodoro Timer', { body }); } catch (e) { /* ignore */ }
+  }
+}
+
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+  } catch (e) { /* not fatal, e.g. permission or unsupported */ }
+}
+function releaseWakeLock() {
+  if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
+}
+
+function updateRing() {
+  const remaining = Math.max(0, phaseEndAt - Date.now());
+  const fraction = phaseDurationMs > 0 ? remaining / phaseDurationMs : 0;
+  ringFg.style.strokeDashoffset = String(RING_CIRCUMFERENCE * (1 - fraction));
+  ringFg.classList.toggle('break', phase !== 'focus');
+  timeDisplay.textContent = formatCountdown(remaining);
+}
+
+function renderPhaseLabels() {
+  phaseLabel.textContent = started ? phaseTitle(phase) : 'Ready to focus';
+  phaseLabel.className = 'pomo-phase-label ' + (phase === 'focus' ? 'focus' : phase);
+  const sessionNumber = phase === 'focus' ? focusCount + 1 : focusCount;
+  sessionLabel.textContent = 'Session ' + sessionNumber + ' of ' + totalCycles();
+}
+
+function beginPhase(p) {
+  started = true;
+  phase = p;
+  phaseDurationMs = durationForPhase(p);
+  phaseEndAt = Date.now() + phaseDurationMs;
+  pausedAt = null;
+  running = true;
+  renderPhaseLabels();
+  updateRing();
+  startBtn.disabled = true;
+  startBtn.textContent = 'Start';
+  pauseBtn.disabled = false;
+  pauseBtn.textContent = 'Pause';
+  skipBtn.disabled = false;
+  [focusInput, shortBreakInput, longBreakInput, cyclesInput].forEach((el) => el.disabled = true);
+  requestWakeLock();
+  clearInterval(tickTimer);
+  tickTimer = setInterval(tick, 200);
+}
+
+function advancePhase(auto) {
+  clearInterval(tickTimer);
+  running = false;
+  pausedAt = null;
+
+  if (phase === 'focus') {
+    recordCompletedFocus();
+    focusCount += 1;
+    playTone(880, 2, 0.3);
+    flashTitle('✅ Break time!');
+    notify('Focus session done — take a break.');
+    const nextPhase = focusCount >= totalCycles() ? 'long-break' : 'short-break';
+    startNextOrWait(nextPhase);
+  } else {
+    if (phase === 'long-break') focusCount = 0;
+    playTone(660, 2, 0.3);
+    flashTitle('⏱ Back to focus');
+    notify('Break\'s over — back to focus.');
+    startNextOrWait('focus');
+  }
+}
+
+function startNextOrWait(nextPhase) {
+  phase = nextPhase;
+  phaseDurationMs = durationForPhase(nextPhase);
+  renderPhaseLabels();
+  if (autoAdvanceCheck.checked) {
+    beginPhase(nextPhase);
+  } else {
+    phaseEndAt = Date.now() + phaseDurationMs;
+    updateRing();
+    releaseWakeLock();
+    startBtn.disabled = false;
+    startBtn.textContent = 'Start ' + phaseTitle(nextPhase).toLowerCase();
+    pauseBtn.disabled = true;
+    skipBtn.disabled = true;
+  }
+}
+
+function tick() {
+  const remaining = phaseEndAt - Date.now();
+  if (remaining <= 0) {
+    advancePhase(true);
+    return;
+  }
+  updateRing();
+}
+
+function start() {
+  if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+  stopTitleFlash();
+  if (pausedAt !== null) {
+    const pausedDuration = Date.now() - pausedAt;
+    phaseEndAt += pausedDuration;
+    pausedAt = null;
+    running = true;
+    renderPhaseLabels();
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
+    skipBtn.disabled = false;
+    requestWakeLock();
+    clearInterval(tickTimer);
+    tickTimer = setInterval(tick, 200);
+    return;
+  }
+  beginPhase(phase);
+}
+
+function pause() {
+  clearInterval(tickTimer);
+  running = false;
+  pausedAt = Date.now();
+  startBtn.disabled = false;
+  startBtn.textContent = 'Resume';
+  pauseBtn.disabled = true;
+  releaseWakeLock();
+}
+
+function skip() {
+  advancePhase(false);
+}
+
+function reset() {
+  clearInterval(tickTimer);
+  stopTitleFlash();
+  releaseWakeLock();
+  running = false;
+  pausedAt = null;
+  started = false;
+  phase = 'focus';
+  focusCount = 0;
+  phaseDurationMs = durationForPhase('focus');
+  phaseEndAt = Date.now() + phaseDurationMs;
+  renderPhaseLabels();
+  updateRing();
+  startBtn.disabled = false;
+  startBtn.textContent = 'Start';
+  pauseBtn.disabled = true;
+  skipBtn.disabled = true;
+  [focusInput, shortBreakInput, longBreakInput, cyclesInput].forEach((el) => el.disabled = false);
+}
+
+startBtn.addEventListener('click', start);
+pauseBtn.addEventListener('click', pause);
+skipBtn.addEventListener('click', skip);
+resetBtn.addEventListener('click', reset);
+[focusInput, shortBreakInput, longBreakInput, cyclesInput].forEach((el) => {
+  el.addEventListener('input', () => {
+    if (!running && pausedAt === null) {
+      phaseDurationMs = durationForPhase(phase);
+      phaseEndAt = Date.now() + phaseDurationMs;
+      updateRing();
+    }
+  });
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && running && wakeLock === null) requestWakeLock();
+});
+window.addEventListener('beforeunload', releaseWakeLock);
+
+renderStats();
+reset();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>

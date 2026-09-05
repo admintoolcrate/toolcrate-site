@@ -538,8 +538,9 @@ select {
 .field { margin-bottom: 1.05rem; }
 .field:last-child { margin-bottom: 0; }
 
-.row { display: flex; gap: 1rem; flex-wrap: wrap; }
-.row .field { flex: 1; min-width: 140px; }
+.row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.05rem; }
+.row:last-child { margin-bottom: 0; }
+.row .field { flex: 1; min-width: 140px; margin-bottom: 0; }
 
 button, .btn {
   font-family: 'Inter', sans-serif;
