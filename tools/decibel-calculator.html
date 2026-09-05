@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Decibel Calculator — dB, Power &amp; Amplitude Ratios | toolcrate</title>
+<meta name="description" content="Convert between decibels and power or amplitude ratios, or find the combined level of multiple sound sources. No signup, nothing uploaded to a server.">
+<link rel="canonical" href="https://toolcrate.cc/tools/decibel-calculator.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/tools/decibel-calculator.html">
+<meta property="og:title" content="Decibel Calculator — dB, Power &amp; Amplitude Ratios | toolcrate">
+<meta property="og:description" content="Convert between decibels and power or amplitude ratios, or find the combined level of multiple sound sources. No signup, nothing uploaded to a server.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Decibel Calculator — dB, Power &amp; Amplitude Ratios | toolcrate">
+<meta name="twitter:description" content="Convert between decibels and power or amplitude ratios, or find the combined level of multiple sound sources. No signup, nothing uploaded to a server.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Decibel Calculator",
+  "description": "Convert between decibels and power or amplitude ratios, or find the combined level of multiple sound sources. No signup, nothing uploaded to a server.",
+  "url": "https://toolcrate.cc/tools/decibel-calculator.html",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Decibel Calculator</h1>
+    <p>Convert between decibels and power/amplitude ratios, or add up multiple sound sources.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="modeSelect">What do you want to calculate?</label>
+      <select id="modeSelect">
+        <option value="ratioToDb">Ratio → decibels</option>
+        <option value="dbToRatio">Decibels → ratio</option>
+        <option value="sum">Combine multiple sound levels (dB SPL)</option>
+      </select>
+    </div>
+
+    <div id="ratioToDbFields">
+      <div class="row">
+        <div class="field">
+          <label for="ratioInput">Ratio (P2 / P1 or A2 / A1)</label>
+          <input type="number" id="ratioInput" value="2" min="0" step="any">
+        </div>
+        <div class="field">
+          <label for="ratioType">Ratio type</label>
+          <select id="ratioType">
+            <option value="power">Power ratio (10·log₁₀)</option>
+            <option value="amplitude">Amplitude/voltage ratio (20·log₁₀)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="dbToRatioFields" style="display:none;">
+      <div class="row">
+        <div class="field">
+          <label for="dbInput">Decibels (dB)</label>
+          <input type="number" id="dbInput" value="6" step="any">
+        </div>
+        <div class="field">
+          <label for="dbRatioType">Ratio type</label>
+          <select id="dbRatioType">
+            <option value="power">Power ratio</option>
+            <option value="amplitude">Amplitude/voltage ratio</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="sumFields" style="display:none;">
+      <div class="field">
+        <label for="levelsInput">Sound levels in dB SPL, one per line or comma-separated</label>
+        <textarea id="levelsInput" rows="4" placeholder="70&#10;73&#10;68">70, 73, 68</textarea>
+      </div>
+    </div>
+
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="resultValue">—</span><span class="stat-label" id="resultLabel">Result</span></div>
+  </div>
+
+  <div class="explainer">
+    <h2>How these conversions work</h2>
+    <p>The decibel is a logarithmic ratio, not an absolute unit — it always compares two quantities. For <strong>power-like</strong> quantities (acoustic power, electrical power, sound intensity), dB = 10·log₁₀(P2/P1). For <strong>amplitude-like</strong> quantities (voltage, sound pressure, pressure amplitude), dB = 20·log₁₀(A2/A1) — the factor of 20 instead of 10 accounts for power being proportional to amplitude squared.</p>
+    <p>Combining sound sources isn't simple addition because decibels are logarithmic: two equally loud 70 dB sources together produce about 73 dB, not 140 dB. This tool converts each level back to linear intensity, sums them, and converts the total back to dB using L = 10·log₁₀(Σ 10^(Li/10)). Nothing entered here is sent to a server — the calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const modeSelect = document.getElementById('modeSelect');
+const ratioToDbFields = document.getElementById('ratioToDbFields');
+const dbToRatioFields = document.getElementById('dbToRatioFields');
+const sumFields = document.getElementById('sumFields');
+const errorEl = document.getElementById('error');
+const resultValueEl = document.getElementById('resultValue');
+const resultLabelEl = document.getElementById('resultLabel');
+
+const ratioInput = document.getElementById('ratioInput');
+const ratioType = document.getElementById('ratioType');
+const dbInput = document.getElementById('dbInput');
+const dbRatioType = document.getElementById('dbRatioType');
+const levelsInput = document.getElementById('levelsInput');
+
+function fmt(n, digits) {
+  if (!isFinite(n)) return '—';
+  return n.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+}
+
+function showFieldsFor(mode) {
+  ratioToDbFields.style.display = mode === 'ratioToDb' ? '' : 'none';
+  dbToRatioFields.style.display = mode === 'dbToRatio' ? '' : 'none';
+  sumFields.style.display = mode === 'sum' ? '' : 'none';
+}
+
+function calc() {
+  errorEl.textContent = '';
+  const mode = modeSelect.value;
+
+  if (mode === 'ratioToDb') {
+    const ratio = parseFloat(ratioInput.value);
+    if (isNaN(ratio) || ratio <= 0) {
+      errorEl.textContent = 'Enter a ratio greater than 0.';
+      resultValueEl.textContent = '—';
+      return;
+    }
+    const multiplier = ratioType.value === 'power' ? 10 : 20;
+    const db = multiplier * Math.log10(ratio);
+    resultLabelEl.textContent = 'Decibels (dB)';
+    resultValueEl.textContent = fmt(db, 2);
+  } else if (mode === 'dbToRatio') {
+    const db = parseFloat(dbInput.value);
+    if (isNaN(db)) {
+      errorEl.textContent = 'Enter a decibel value.';
+      resultValueEl.textContent = '—';
+      return;
+    }
+    const divisor = dbRatioType.value === 'power' ? 10 : 20;
+    const ratio = Math.pow(10, db / divisor);
+    resultLabelEl.textContent = 'Ratio';
+    resultValueEl.textContent = fmt(ratio, 4);
+  } else {
+    const raw = levelsInput.value.split(/[\n,]+/).map(s => s.trim()).filter(s => s !== '');
+    const levels = raw.map(Number);
+    if (levels.length === 0 || levels.some(isNaN)) {
+      errorEl.textContent = 'Enter one or more numeric dB levels, separated by commas or new lines.';
+      resultValueEl.textContent = '—';
+      return;
+    }
+    const totalIntensity = levels.reduce((sum, l) => sum + Math.pow(10, l / 10), 0);
+    const totalDb = 10 * Math.log10(totalIntensity);
+    resultLabelEl.textContent = `Combined level (${levels.length} source${levels.length === 1 ? '' : 's'})`;
+    resultValueEl.textContent = fmt(totalDb, 2) + ' dB';
+  }
+}
+
+modeSelect.addEventListener('change', () => { showFieldsFor(modeSelect.value); calc(); });
+[ratioInput, ratioType, dbInput, dbRatioType, levelsInput].forEach(el => el.addEventListener('input', calc));
+
+showFieldsFor(modeSelect.value);
+calc();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>
