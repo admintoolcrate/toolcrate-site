@@ -6,26 +6,26 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<title>Virtual Guitar | toolcrate</title>
-<meta name="description" content="A playable guitar fretboard right in your browser — click or tap any fret on any string. No signup, nothing uploaded to a server.">
-<link rel="canonical" href="https://toolcrate.cc/tools/virtual-guitar.html">
+<title>Virtual Bass Guitar | toolcrate</title>
+<meta name="description" content="A playable bass guitar fretboard right in your browser — click or tap any fret on any string. No signup, nothing uploaded to a server.">
+<link rel="canonical" href="https://toolcrate.cc/tools/virtual-bass.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="toolcrate">
-<meta property="og:url" content="https://toolcrate.cc/tools/virtual-guitar.html">
-<meta property="og:title" content="Virtual Guitar | toolcrate">
-<meta property="og:description" content="A playable guitar fretboard right in your browser — click or tap any fret on any string. No signup, nothing uploaded to a server.">
+<meta property="og:url" content="https://toolcrate.cc/tools/virtual-bass.html">
+<meta property="og:title" content="Virtual Bass Guitar | toolcrate">
+<meta property="og:description" content="A playable bass guitar fretboard right in your browser — click or tap any fret on any string. No signup, nothing uploaded to a server.">
 <meta property="og:image" content="https://toolcrate.cc/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Virtual Guitar | toolcrate">
-<meta name="twitter:description" content="A playable guitar fretboard right in your browser — click or tap any fret on any string. No signup, nothing uploaded to a server.">
+<meta name="twitter:title" content="Virtual Bass Guitar | toolcrate">
+<meta name="twitter:description" content="A playable bass guitar fretboard right in your browser — click or tap any fret on any string. No signup, nothing uploaded to a server.">
 <meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "Virtual Guitar",
-  "description": "A playable guitar fretboard right in your browser — click or tap any fret on any string. No signup, nothing uploaded to a server.",
-  "url": "https://toolcrate.cc/tools/virtual-guitar.html",
+  "name": "Virtual Bass Guitar",
+  "description": "A playable bass guitar fretboard right in your browser — click or tap any fret on any string. No signup, nothing uploaded to a server.",
+  "url": "https://toolcrate.cc/tools/virtual-bass.html",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "Any",
   "offers": {
@@ -45,7 +45,7 @@
   .string-row { display: flex; gap: 3px; }
   .fret-btn {
     flex: 0 0 56px;
-    height: 34px;
+    height: 36px;
     background: var(--paper);
     border: 1px solid var(--line);
     color: var(--ink-soft);
@@ -68,8 +68,8 @@
 
 <main>
   <div class="tool-header">
-    <h1>Virtual Guitar</h1>
-    <p>Click or tap any fret on any string. Standard tuning, 12 frets.</p>
+    <h1>Virtual Bass Guitar</h1>
+    <p>Click or tap any fret on any string. Standard 4-string tuning, 12 frets.</p>
     <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
   <span class="copy-feedback" id="shareFeedback">Copied</span>
   </div>
@@ -80,17 +80,17 @@
 
   <div class="explainer">
     <h2>About this tool</h2>
-    <p>Standard tuning (low to high: E A D G B E), 12 frets per string, synthesized with the Web Audio API using Karplus-Strong string synthesis — a feedback loop that physically approximates how a plucked string decays — rather than a sampled recording. It's an approximation of a guitar's timbre, not a modeled or sampled instrument.</p>
+    <p>Standard 4-string bass tuning (low to high: E A D G), 12 frets per string, synthesized with the same Karplus-Strong string synthesis as the virtual guitar — a feedback loop that physically approximates a plucked string's decay — but pitched an octave lower with a darker body filter to sit in a bass register. It's an approximation of a bass guitar's timbre, not a modeled or sampled instrument.</p>
     <p>Nothing here is recorded or uploaded — sound is generated and played entirely in your browser.</p>
   </div>
 
   <div class="related-tools">
     <h2>Related tools</h2>
     <ul class="tool-list">
-      <li><a href="/tools/virtual-bass.html"><span class="tool-name">Virtual Bass Guitar</span><span class="tool-desc">The same idea, an octave down</span></a></li>
+      <li><a href="/tools/virtual-guitar.html"><span class="tool-name">Virtual Guitar</span><span class="tool-desc">A plucked-string fretboard</span></a></li>
       <li><a href="/tools/virtual-piano.html"><span class="tool-name">Virtual Piano</span><span class="tool-desc">Play with keyboard, mouse, or touch</span></a></li>
-      <li><a href="/tools/virtual-violin.html"><span class="tool-name">Virtual Violin</span><span class="tool-desc">A bowed, sustained string instrument</span></a></li>
       <li><a href="/tools/virtual-drums.html"><span class="tool-name">Virtual Drums</span><span class="tool-desc">Clickable drum pad kit</span></a></li>
+      <li><a href="/tools/tuner.html"><span class="tool-name">Guitar / Instrument Tuner</span><span class="tool-desc">Tune by ear with a reference pitch</span></a></li>
     </ul>
   </div>
 
@@ -118,14 +118,12 @@
 <script>
 const fretboard = document.getElementById('fretboard');
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-// High E to low E, top to bottom (matches how a guitar neck is usually drawn).
+// High G to low E, top to bottom.
 const OPEN_STRINGS = [
-  { name: 'E4', midi: 64 },
-  { name: 'B3', midi: 59 },
-  { name: 'G3', midi: 55 },
-  { name: 'D3', midi: 50 },
-  { name: 'A2', midi: 45 },
-  { name: 'E2', midi: 40 },
+  { name: 'G2', midi: 43 },
+  { name: 'D2', midi: 38 },
+  { name: 'A1', midi: 33 },
+  { name: 'E1', midi: 28 },
 ];
 const FRET_COUNT = 12;
 
@@ -143,11 +141,6 @@ function midiToFreq(midi) {
   return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
-// Karplus-Strong plucked-string synthesis: a ring buffer of noise the size
-// of one wave period is repeatedly averaged and fed back on itself, which
-// is what a real string does physically (each reflection loses a little
-// energy and a little high end). This produces a genuinely string-like
-// pluck and decay rather than an oscillator with a filter sweep over it.
 function karplusStrongBuffer(freq, durationSec, decay) {
   const sr = audioCtx.sampleRate;
   const N = Math.max(2, Math.round(sr / freq));
@@ -172,28 +165,25 @@ function pluck(midi) {
   ensureAudio();
   const freq = midiToFreq(midi);
   const now = audioCtx.currentTime;
-  const duration = 2.4;
-  // Lower strings ring a touch longer than higher ones, like real strings.
-  const decay = Math.min(0.997, Math.max(0.985, 0.994 - (freq - 140) / 140000));
+  const duration = 2.8;
+  const decay = Math.min(0.998, Math.max(0.99, 0.996 - (freq - 60) / 60000));
 
   const src = audioCtx.createBufferSource();
   src.buffer = karplusStrongBuffer(freq, duration, decay);
 
-  // Body resonance: a warm low-mid bump plus a gentle top-end rolloff,
-  // roughly approximating a guitar body instead of a flat, synthetic tone.
   const body = audioCtx.createBiquadFilter();
   body.type = 'lowpass';
-  body.frequency.value = 5200;
+  body.frequency.value = 1800;
   body.Q.value = 0.6;
 
   const warmth = audioCtx.createBiquadFilter();
   warmth.type = 'peaking';
-  warmth.frequency.value = 200;
+  warmth.frequency.value = 110;
   warmth.Q.value = 1;
-  warmth.gain.value = 5;
+  warmth.gain.value = 6;
 
   const gain = audioCtx.createGain();
-  gain.gain.value = 0.9;
+  gain.gain.value = 1.1;
 
   src.connect(body);
   body.connect(warmth);

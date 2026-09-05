@@ -121,7 +121,6 @@
   <url><loc>https://toolcrate.cc/tools/noise-generator.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/tools/whitespace-remover.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://toolcrate.cc/tools/wifi-qr-generator.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://toolcrate.cc/tools/wifi-signal-strength.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/tools/word-counter.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://toolcrate.cc/tools/word-frequency-counter.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://toolcrate.cc/tools/workout-generator.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
@@ -132,6 +131,8 @@
   <url><loc>https://toolcrate.cc/tools/virtual-violin.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/tools/virtual-drums.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/tools/pizza-topping-combos.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/tools/virtual-bass.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/tools/virtual-xylophone.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 
   <url><loc>https://toolcrate.cc/games/memory-match.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/games/math-blitz.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
@@ -144,7 +145,10 @@
   <url><loc>https://toolcrate.cc/games/2048.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/games/minesweeper.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/games/hangman.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://toolcrate.cc/games/simon-says.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/games/rock-paper-scissors.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/games/whack-a-mole.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/checkers.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/sudoku.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/bubble-pop.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/shape-party.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>

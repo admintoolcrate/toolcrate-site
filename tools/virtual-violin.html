@@ -80,7 +80,7 @@
 
   <div class="explainer">
     <h2>About this tool</h2>
-    <p>Standard violin tuning (low to high: G D A E), synthesized as a sustained tone — two slightly detuned oscillators, body-resonance filtering, faint bow noise, and a light vibrato while held — rather than a plucked or percussive sound. A real violin has no frets, so this is a simplified 12-position layout for playability rather than a literal fingerboard.</p>
+    <p>Standard violin tuning (low to high: G D A E), synthesized as a sustained tone — three slightly detuned oscillators, body-resonance filtering, a bow-attack noise burst on note-on plus faint bow noise throughout, and vibrato that eases in a few hundred milliseconds after the note starts — rather than a plucked or percussive sound. A real violin has no frets, so this is a simplified 12-position layout for playability rather than a literal fingerboard.</p>
     <p>Nothing here is recorded or uploaded — sound is generated and played entirely in your browser.</p>
   </div>
 
@@ -195,15 +195,20 @@ function startNote(midi) {
   osc2.type = 'sawtooth';
   osc2.frequency.value = freq;
   osc2.detune.value = 7;
+  const osc3 = audioCtx.createOscillator();
+  osc3.type = 'sawtooth';
+  osc3.frequency.value = freq;
+  osc3.detune.value = -6;
 
   const oscMix = audioCtx.createGain();
-  oscMix.gain.value = 0.5;
+  oscMix.gain.value = 0.34;
   osc1.connect(oscMix);
   osc2.connect(oscMix);
+  osc3.connect(oscMix);
   oscMix.connect(formant1);
 
-  // Bow noise: quiet, bandpass-filtered noise under the tone, for the
-  // faint breathiness of a bow dragging across a string.
+  // Bow noise: quiet, bandpass-filtered noise under the tone for the whole
+  // note, for the faint breathiness of a bow dragging across a string.
   const noiseSrc = audioCtx.createBufferSource();
   noiseSrc.buffer = getNoiseBuffer();
   noiseSrc.loop = true;
@@ -217,21 +222,44 @@ function startNote(midi) {
   noiseFilter.connect(noiseGain);
   noiseGain.connect(formant1);
 
-  // Light vibrato: a slow LFO gently modulating pitch, like a held bow stroke.
+  // Bow attack: a louder, quickly-fading burst of the same filtered noise
+  // right at note-on, for the brief "catch" of a bow first gripping the
+  // string before the tone settles into its sustain.
+  const scratchSrc = audioCtx.createBufferSource();
+  scratchSrc.buffer = getNoiseBuffer();
+  const scratchFilter = audioCtx.createBiquadFilter();
+  scratchFilter.type = 'bandpass';
+  scratchFilter.frequency.value = freq * 2.5;
+  scratchFilter.Q.value = 0.6;
+  const scratchGain = audioCtx.createGain();
+  scratchGain.gain.setValueAtTime(0.09, now);
+  scratchGain.gain.exponentialRampToValueAtTime(0.0005, now + 0.09);
+  scratchSrc.connect(scratchFilter);
+  scratchFilter.connect(scratchGain);
+  scratchGain.connect(formant1);
+  scratchSrc.start(now);
+  scratchSrc.stop(now + 0.1);
+
+  // Vibrato: a slow LFO modulating pitch, its depth ramped in from zero
+  // over the first third of a second — real players start a note fairly
+  // straight and ease into vibrato rather than shaking pitch immediately.
   const vibrato = audioCtx.createOscillator();
   vibrato.frequency.value = 5.3;
   const vibratoGain = audioCtx.createGain();
-  vibratoGain.gain.value = freq * 0.006;
+  vibratoGain.gain.setValueAtTime(0, now);
+  vibratoGain.gain.linearRampToValueAtTime(freq * 0.006, now + 0.3);
   vibrato.connect(vibratoGain);
   vibratoGain.connect(osc1.frequency);
   vibratoGain.connect(osc2.frequency);
+  vibratoGain.connect(osc3.frequency);
   vibrato.start(now);
 
   osc1.start(now);
   osc2.start(now);
+  osc3.start(now);
   noiseSrc.start(now);
 
-  activeVoices[midi] = { osc1, osc2, vibrato, noiseSrc, gain };
+  activeVoices[midi] = { osc1, osc2, osc3, vibrato, noiseSrc, gain };
 }
 
 function stopNote(midi) {
@@ -243,6 +271,7 @@ function stopNote(midi) {
   active.gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
   active.osc1.stop(now + 0.3);
   active.osc2.stop(now + 0.3);
+  active.osc3.stop(now + 0.3);
   active.vibrato.stop(now + 0.3);
   active.noiseSrc.stop(now + 0.3);
   delete activeVoices[midi];

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Bubble Pop | toolcrate</title>
+<meta name="description" content="A simple, gentle tap-to-pop bubble game for babies and toddlers. No score pressure, no losing — just big colorful bubbles and cheerful sounds.">
+<link rel="canonical" href="https://toolcrate.cc/games/bubble-pop.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/bubble-pop.html">
+<meta property="og:title" content="Bubble Pop | toolcrate">
+<meta property="og:description" content="A simple, gentle tap-to-pop bubble game for babies and toddlers. No score pressure, no losing — just big colorful bubbles and cheerful sounds.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Bubble Pop | toolcrate">
+<meta name="twitter:description" content="A simple, gentle tap-to-pop bubble game for babies and toddlers. No score pressure, no losing — just big colorful bubbles and cheerful sounds.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .bubble-stage {
+    position: relative;
+    height: 440px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #BFE3F7 0%, #E8F6FF 100%);
+    touch-action: manipulation;
+  }
+  :root[data-theme="dark"] .bubble-stage { background: linear-gradient(180deg, #1c3a4d 0%, #16283a 100%); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .bubble-stage { background: linear-gradient(180deg, #1c3a4d 0%, #16283a 100%); }
+  }
+  .bubble {
+    position: absolute;
+    bottom: -100px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    box-shadow: inset -6px -6px 12px rgba(0,0,0,0.12), inset 6px 6px 10px rgba(255,255,255,0.5);
+    animation-name: bubbleRise;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+  @keyframes bubbleRise {
+    from { transform: translateY(0); }
+    to { transform: translateY(-560px); }
+  }
+  .bubble.popping { animation: none !important; transform: scale(1.5); opacity: 0; transition: transform 0.18s ease-out, opacity 0.18s ease-out; }
+  .ttt-status { text-align: center; font-weight: 600; margin: 1rem 0; min-height: 1.4em; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="brand-wrap"><a href="/" class="brand">tool<em>crate</em></a><a href="/games.html" class="brand-offshoot">games</a></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Bubble Pop</h1>
+    <p>Tap or click any bubble to pop it. No score to chase, no way to lose.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="poppedVal">0</span><span class="stat-label">Bubbles popped</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="ttt-status" id="statusText">Bubbles float up — tap one!</div>
+    <div class="bubble-stage" id="stage"></div>
+    <div class="btn-row" style="justify-content:center; margin-top: 1rem;">
+      <button type="button" id="resetBtn" class="secondary">Reset count</button>
+    </div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>Made for babies and toddlers (with a grown-up nearby): big bubbles, a gentle pop sound, and nothing to fail at. Bubbles keep coming on their own — there's no timer and nothing to win or lose.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const stage = document.getElementById('stage');
+const poppedVal = document.getElementById('poppedVal');
+const resetBtn = document.getElementById('resetBtn');
+
+const POPPED_KEY = 'toolcrate-game-bubblepop-count';
+const COLORS = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#FF922B', '#C77DFF', '#00C2D1'];
+
+let popped = 0;
+let spawnTimer = null;
+
+function loadPopped() {
+  try { return Number(localStorage.getItem(POPPED_KEY)) || 0; } catch (e) { return 0; }
+}
+function savePopped() {
+  try { localStorage.setItem(POPPED_KEY, String(popped)); } catch (e) { /* storage unavailable */ }
+}
+
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playPop() {
+  ensureAudio();
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  osc.type = 'sine';
+  const startFreq = 320 + Math.random() * 260;
+  osc.frequency.setValueAtTime(startFreq, now);
+  osc.frequency.exponentialRampToValueAtTime(startFreq * 2.6, now + 0.09);
+  const gain = audioCtx.createGain();
+  gain.gain.setValueAtTime(0.001, now);
+  gain.gain.exponentialRampToValueAtTime(0.28, now + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.0005, now + 0.16);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(now);
+  osc.stop(now + 0.17);
+}
+
+function spawnBubble() {
+  const stageWidth = stage.clientWidth || 320;
+  const size = 44 + Math.random() * 46;
+  const bubble = document.createElement('button');
+  bubble.type = 'button';
+  bubble.className = 'bubble';
+  bubble.style.width = size + 'px';
+  bubble.style.height = size + 'px';
+  bubble.style.left = Math.random() * Math.max(1, stageWidth - size) + 'px';
+  bubble.style.background = COLORS[Math.floor(Math.random() * COLORS.length)];
+  const duration = 4.5 + Math.random() * 3.5;
+  bubble.style.animationDuration = duration + 's';
+
+  bubble.addEventListener('animationend', () => bubble.remove());
+  bubble.addEventListener('pointerdown', () => popBubble(bubble));
+
+  stage.appendChild(bubble);
+}
+
+function popBubble(bubble) {
+  if (bubble.classList.contains('popping')) return;
+  bubble.classList.add('popping');
+  playPop();
+  popped++;
+  poppedVal.textContent = String(popped);
+  savePopped();
+  setTimeout(() => bubble.remove(), 200);
+}
+
+function startSpawning() {
+  clearInterval(spawnTimer);
+  spawnTimer = setInterval(spawnBubble, 650 + Math.random() * 500);
+  spawnBubble();
+}
+
+resetBtn.addEventListener('click', () => {
+  popped = 0;
+  poppedVal.textContent = '0';
+  savePopped();
+});
+
+popped = loadPopped();
+poppedVal.textContent = String(popped);
+startSpawning();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>

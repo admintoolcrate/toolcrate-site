@@ -139,7 +139,7 @@
 
   <div class="explainer">
     <h2>About this tool</h2>
-    <p>Notes are synthesized live with the Web Audio API, not audio file playback. The "Piano" tone approximates a real piano's timbre using a handful of layered harmonics plus a natural decay, rather than a true sampled/MIDI piano. The A S D F G H J K L ; keyboard row (with W E T Y U O P for the black keys) always maps to the same C4-E5 range regardless of how many keys are shown, since a QWERTY keyboard only has room for so many — extra octaves are mouse/touch only. Hold multiple keys down for chords.</p>
+    <p>Notes are synthesized live with the Web Audio API, not audio file playback. The "Piano" tone approximates a real piano's timbre with six slightly inharmonic layered harmonics (each decaying at its own rate, faster on top), a brief hammer-strike noise transient on the attack, and a slow fade toward silence rather than a true sampled/MIDI piano. The A S D F G H J K L ; keyboard row (with W E T Y U O P for the black keys) always maps to the same C4-E5 range regardless of how many keys are shown, since a QWERTY keyboard only has room for so many — extra octaves are mouse/touch only. Hold multiple keys down for chords.</p>
     <p>Nothing here is recorded or uploaded — sound is generated and played entirely in your browser.</p>
   </div>
 
@@ -147,10 +147,11 @@
     <h2>Related tools</h2>
     <ul class="tool-list">
       <li><a href="/tools/virtual-guitar.html"><span class="tool-name">Virtual Guitar</span><span class="tool-desc">A playable fretboard — click or tap any fret on any string</span></a></li>
+      <li><a href="/tools/virtual-bass.html"><span class="tool-name">Virtual Bass Guitar</span><span class="tool-desc">A playable 4-string fretboard, an octave down</span></a></li>
       <li><a href="/tools/virtual-violin.html"><span class="tool-name">Virtual Violin</span><span class="tool-desc">A playable fingerboard with a sustained, bowed tone</span></a></li>
       <li><a href="/tools/virtual-drums.html"><span class="tool-name">Virtual Drums</span><span class="tool-desc">A playable drum kit — click, tap, or use your keyboard</span></a></li>
+      <li><a href="/tools/virtual-xylophone.html"><span class="tool-name">Virtual Xylophone</span><span class="tool-desc">A playable two-octave bar set</span></a></li>
       <li><a href="/tools/chord-interval-calculator.html"><span class="tool-name">Chord &amp; Interval Calculator</span><span class="tool-desc">Build chords from a root note</span></a></li>
-      <li><a href="/tools/metronome.html"><span class="tool-name">Metronome</span><span class="tool-desc">Adjustable tempo and time signature</span></a></li>
     </ul>
   </div>
 
@@ -237,18 +238,49 @@ function playPianoNote(midi) {
   const now = audioCtx.currentTime;
   const master = audioCtx.createGain();
   master.gain.setValueAtTime(0.0001, now);
-  master.gain.exponentialRampToValueAtTime(0.3, now + 0.008);
-  master.gain.exponentialRampToValueAtTime(0.04, now + 1.6);
+  master.gain.exponentialRampToValueAtTime(0.27, now + 0.006);
   master.connect(audioCtx.destination);
 
-  const harmonics = [1, 2, 3, 4, 5];
-  const weights = [1, 0.5, 0.28, 0.15, 0.08];
+  // Hammer strike: a very brief filtered noise burst layered under the
+  // attack, like a felt hammer hitting the strings rather than a pure
+  // tone fading straight in.
+  const hammerLen = Math.max(1, Math.floor(audioCtx.sampleRate * 0.02));
+  const hammerBuf = audioCtx.createBuffer(1, hammerLen, audioCtx.sampleRate);
+  const hammerData = hammerBuf.getChannelData(0);
+  for (let i = 0; i < hammerLen; i++) hammerData[i] = Math.random() * 2 - 1;
+  const hammerSrc = audioCtx.createBufferSource();
+  hammerSrc.buffer = hammerBuf;
+  const hammerFilter = audioCtx.createBiquadFilter();
+  hammerFilter.type = 'bandpass';
+  hammerFilter.frequency.value = Math.min(freq * 3, 4200);
+  hammerFilter.Q.value = 0.8;
+  const hammerGain = audioCtx.createGain();
+  hammerGain.gain.setValueAtTime(0.07, now);
+  hammerGain.gain.exponentialRampToValueAtTime(0.0006, now + 0.02);
+  hammerSrc.connect(hammerFilter);
+  hammerFilter.connect(hammerGain);
+  hammerGain.connect(audioCtx.destination);
+  hammerSrc.start(now);
+  hammerSrc.stop(now + 0.03);
+
+  // Six harmonics rather than a pure tone. Each gets a slight inharmonicity
+  // (real piano strings run a touch sharp on higher partials because of
+  // string stiffness, not exact integer multiples) and its own decay —
+  // higher harmonics die out faster than the fundamental, then everything
+  // keeps fading slowly toward silence rather than holding a flat drone
+  // for as long as the key stays down, the way the original flat 1.6s
+  // ramp-then-plateau did.
+  const harmonics = [1, 2, 3, 4, 5, 6];
+  const weights = [1, 0.55, 0.3, 0.16, 0.09, 0.05];
+  const decayTimes = [2.6, 1.8, 1.3, 1.0, 0.8, 0.6];
   const oscs = harmonics.map((h, i) => {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'sine';
-    osc.frequency.value = freq * h;
-    gain.gain.value = weights[i];
+    osc.frequency.value = freq * h * (1 + 0.0003 * h * h);
+    gain.gain.setValueAtTime(weights[i], now);
+    gain.gain.exponentialRampToValueAtTime(weights[i] * 0.12, now + decayTimes[i]);
+    gain.gain.exponentialRampToValueAtTime(0.0005, now + decayTimes[i] + 4);
     osc.connect(gain);
     gain.connect(master);
     osc.start(now);

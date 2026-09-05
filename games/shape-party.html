@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Shape Party | toolcrate</title>
+<meta name="description" content="A gentle tap-the-shape game for babies and toddlers. Big colorful shapes, cheerful sounds, and no way to lose.">
+<link rel="canonical" href="https://toolcrate.cc/games/shape-party.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/shape-party.html">
+<meta property="og:title" content="Shape Party | toolcrate">
+<meta property="og:description" content="A gentle tap-the-shape game for babies and toddlers. Big colorful shapes, cheerful sounds, and no way to lose.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Shape Party | toolcrate">
+<meta name="twitter:description" content="A gentle tap-the-shape game for babies and toddlers. Big colorful shapes, cheerful sounds, and no way to lose.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .party-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.8rem;
+  }
+  @media (max-width: 480px) { .party-grid { grid-template-columns: repeat(2, 1fr); } }
+  .party-shape {
+    aspect-ratio: 1;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease;
+  }
+  .party-shape.bounce { animation: shapeBounce 0.4s ease; }
+  @keyframes shapeBounce { 0% { transform: scale(1); } 40% { transform: scale(1.15); } 100% { transform: scale(1); } }
+  .party-shape.circle { border-radius: 50%; }
+  .party-shape.square { border-radius: 10%; }
+  .party-shape.triangle {
+    background: none !important;
+    width: 0; height: 0;
+    border-left: 55px solid transparent;
+    border-right: 55px solid transparent;
+    border-bottom: 95px solid;
+  }
+  .party-shape.star, .party-shape.heart, .party-shape.diamond { font-size: 4.5rem; background: none !important; }
+  .party-callout { text-align: center; font-size: 1.6rem; font-weight: 700; margin: 1rem 0; min-height: 2.2em; color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="brand-wrap"><a href="/" class="brand">tool<em>crate</em></a><a href="/games.html" class="brand-offshoot">games</a></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Shape Party</h1>
+    <p>Tap any shape — it bounces, makes a sound, and names itself. Nothing to win or lose.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="panel">
+    <div class="party-callout" id="callout">Tap a shape!</div>
+    <div class="party-grid" id="grid"></div>
+    <div class="btn-row" style="justify-content:center; margin-top: 1rem;">
+      <button type="button" id="shuffleBtn" class="secondary">Shuffle colors</button>
+    </div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>Made for babies and toddlers (with a grown-up nearby): six big shapes in bright colors. Tapping one plays a cheerful note and names its color and shape out loud on screen — a gentle way to start recognizing shapes and colors, not a test of anything.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const grid = document.getElementById('grid');
+const callout = document.getElementById('callout');
+const shuffleBtn = document.getElementById('shuffleBtn');
+
+const SHAPES = [
+  { type: 'circle', label: 'Circle', glyph: '' },
+  { type: 'square', label: 'Square', glyph: '' },
+  { type: 'triangle', label: 'Triangle', glyph: '' },
+  { type: 'star', label: 'Star', glyph: '★' },
+  { type: 'heart', label: 'Heart', glyph: '♥' },
+  { type: 'diamond', label: 'Diamond', glyph: '♦' },
+];
+const COLOR_NAMES = [
+  { name: 'Red', hex: '#FF5C5C' },
+  { name: 'Orange', hex: '#FF9F40' },
+  { name: 'Yellow', hex: '#FFD93D' },
+  { name: 'Green', hex: '#6BCB77' },
+  { name: 'Blue', hex: '#4D96FF' },
+  { name: 'Purple', hex: '#C77DFF' },
+];
+const NOTE_FREQS = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25]; // C D E G A C major-ish, pleasant
+
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playNote(freq) {
+  ensureAudio();
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  const gain = audioCtx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.3, now + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0005, now + 0.5);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(now);
+  osc.stop(now + 0.52);
+}
+
+let currentColors = [];
+
+function assignColors() {
+  const shuffled = COLOR_NAMES.slice().sort(() => Math.random() - 0.5);
+  currentColors = SHAPES.map((_, i) => shuffled[i % shuffled.length]);
+}
+
+function buildGrid() {
+  grid.innerHTML = '';
+  SHAPES.forEach((shape, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'party-shape ' + shape.type;
+    btn.dataset.index = i;
+    if (shape.type === 'triangle') {
+      btn.style.borderBottomColor = currentColors[i].hex;
+    } else if (shape.glyph) {
+      btn.style.color = currentColors[i].hex;
+      btn.textContent = shape.glyph;
+    } else {
+      btn.style.background = currentColors[i].hex;
+    }
+    btn.addEventListener('pointerdown', () => tapShape(i, btn));
+    grid.appendChild(btn);
+  });
+}
+
+function tapShape(i, btn) {
+  playNote(NOTE_FREQS[i % NOTE_FREQS.length]);
+  btn.classList.remove('bounce');
+  void btn.offsetWidth;
+  btn.classList.add('bounce');
+  callout.textContent = currentColors[i].name + ' ' + SHAPES[i].label + '!';
+}
+
+shuffleBtn.addEventListener('click', () => {
+  assignColors();
+  buildGrid();
+  callout.textContent = 'Tap a shape!';
+});
+
+assignColors();
+buildGrid();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>

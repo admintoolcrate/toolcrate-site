@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Checkers | toolcrate</title>
+<meta name="description" content="Play Checkers (Draughts) against the computer or a friend. Mandatory captures, multi-jumps, and kings. Free browser game, scores saved on your device.">
+<link rel="canonical" href="https://toolcrate.cc/games/checkers.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/checkers.html">
+<meta property="og:title" content="Checkers | toolcrate">
+<meta property="og:description" content="Play Checkers (Draughts) against the computer or a friend. Mandatory captures, multi-jumps, and kings. Free browser game, scores saved on your device.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Checkers | toolcrate">
+<meta name="twitter:description" content="Play Checkers (Draughts) against the computer or a friend. Mandatory captures, multi-jumps, and kings. Free browser game, scores saved on your device.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .mode-toggle { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+  .mode-toggle button {
+    flex: 1;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+  .mode-toggle button.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .ck-wrap { overflow-x: auto; }
+  .ck-board {
+    display: grid;
+    grid-template-columns: repeat(8, 38px);
+    grid-template-rows: repeat(8, 38px);
+    margin: 0 auto;
+    width: max-content;
+    border: 2px solid var(--ink);
+  }
+  .ck-cell {
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    border: none;
+    padding: 0;
+    cursor: default;
+  }
+  .ck-cell.light { background: color-mix(in srgb, var(--ink) 6%, var(--paper)); }
+  .ck-cell.dark { background: color-mix(in srgb, var(--ink) 22%, var(--paper)); cursor: pointer; }
+  .ck-cell.selectable::after { content: ''; position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); opacity: 0.6; }
+  .ck-cell.selected { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .ck-piece {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    box-sizing: border-box;
+  }
+  .ck-piece.R { background: #C0392B; border: 2px solid #7a2318; }
+  .ck-piece.B { background: #2A2A2A; border: 2px solid #050505; }
+  .ck-piece.king::after { content: '♛'; display: block; text-align: center; line-height: 24px; color: #E1C24A; font-size: 0.9rem; }
+  .ttt-status { text-align: center; font-weight: 600; margin: 1rem 0; min-height: 1.4em; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="brand-wrap"><a href="/" class="brand">tool<em>crate</em></a><a href="/games.html" class="brand-offshoot">games</a></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Checkers</h1>
+    <p>Standard rules: captures are mandatory, chain-jump when you can, reach the far row to king.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="panel">
+    <div class="mode-toggle">
+      <button type="button" id="vsComputerBtn" class="active">Vs Computer</button>
+      <button type="button" id="vsHumanBtn">Vs Human (pass and play)</button>
+    </div>
+    <div class="row" id="difficultyRow">
+      <div class="field" style="margin-bottom: 0;">
+        <label for="difficultySelect">Computer difficulty</label>
+        <select id="difficultySelect">
+          <option value="hard">Hard</option>
+          <option value="easy">Easy</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="redWins">0</span><span class="stat-label" id="redLabel">Red wins</span></div>
+    <div class="stat"><span class="stat-value" id="draws">0</span><span class="stat-label">Draws</span></div>
+    <div class="stat"><span class="stat-value" id="blackWins">0</span><span class="stat-label" id="blackLabel">Black wins</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="ttt-status" id="statusText">Red's turn</div>
+    <div class="ck-wrap">
+      <div class="ck-board" id="board"></div>
+    </div>
+    <div class="btn-row" style="justify-content:center; margin-top: 1rem;">
+      <button type="button" id="newRoundBtn" class="secondary">New round</button>
+      <button type="button" id="resetScoreBtn" class="secondary">Reset score</button>
+    </div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>Red moves first. Click a piece, then click a highlighted square to move it. Captures are mandatory when available, and a piece that can jump again immediately must keep jumping. A man that reaches the far row becomes a king and can move diagonally in any direction. Whoever runs their opponent out of legal moves wins. Scores are saved on this device.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const vsComputerBtn = document.getElementById('vsComputerBtn');
+const vsHumanBtn = document.getElementById('vsHumanBtn');
+const difficultyRow = document.getElementById('difficultyRow');
+const difficultySelect = document.getElementById('difficultySelect');
+const boardEl = document.getElementById('board');
+const statusText = document.getElementById('statusText');
+const redWinsEl = document.getElementById('redWins');
+const blackWinsEl = document.getElementById('blackWins');
+const drawsEl = document.getElementById('draws');
+const redLabelEl = document.getElementById('redLabel');
+const blackLabelEl = document.getElementById('blackLabel');
+const newRoundBtn = document.getElementById('newRoundBtn');
+const resetScoreBtn = document.getElementById('resetScoreBtn');
+
+const SCORE_KEY = 'toolcrate-game-checkers-score';
+const SIZE = 8;
+
+let mode = 'computer';
+let board, currentColor, forcedFrom, selected, gameOver, scores;
+
+function loadScores() {
+  try {
+    const raw = localStorage.getItem(SCORE_KEY);
+    if (raw) scores = JSON.parse(raw);
+  } catch (e) { /* storage unavailable */ }
+  if (!scores) scores = { R: 0, B: 0, draw: 0 };
+}
+function saveScores() {
+  try { localStorage.setItem(SCORE_KEY, JSON.stringify(scores)); } catch (e) { /* storage unavailable */ }
+}
+function updateScoreDisplay() {
+  redWinsEl.textContent = scores.R;
+  blackWinsEl.textContent = scores.B;
+  drawsEl.textContent = scores.draw;
+  redLabelEl.textContent = mode === 'computer' ? 'You (Red)' : 'Red wins';
+  blackLabelEl.textContent = mode === 'computer' ? 'Computer (Black)' : 'Black wins';
+}
+
+function setMode(newMode) {
+  mode = newMode;
+  vsComputerBtn.classList.toggle('active', mode === 'computer');
+  vsHumanBtn.classList.toggle('active', mode === 'human');
+  difficultyRow.style.display = mode === 'computer' ? '' : 'none';
+  updateScoreDisplay();
+  newRound();
+}
+vsComputerBtn.addEventListener('click', () => setMode('computer'));
+vsHumanBtn.addEventListener('click', () => setMode('human'));
+
+function initBoard() {
+  const b = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
+  for (let r = 0; r < 3; r++) for (let c = 0; c < SIZE; c++) if ((r + c) % 2 === 1) b[r][c] = { color: 'R', king: false };
+  for (let r = 5; r < 8; r++) for (let c = 0; c < SIZE; c++) if ((r + c) % 2 === 1) b[r][c] = { color: 'B', king: false };
+  return b;
+}
+function cloneBoard(b) {
+  return b.map(row => row.map(cell => cell ? { color: cell.color, king: cell.king } : null));
+}
+function inBounds(r, c) { return r >= 0 && r < SIZE && c >= 0 && c < SIZE; }
+function pieceDirs(piece) {
+  if (piece.king) return [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+  return piece.color === 'R' ? [[1, 1], [1, -1]] : [[-1, 1], [-1, -1]];
+}
+function findJumpsFrom(b, r, c, piece) {
+  const jumps = [];
+  for (const [dr, dc] of pieceDirs(piece)) {
+    const midR = r + dr, midC = c + dc, toR = r + 2 * dr, toC = c + 2 * dc;
+    if (!inBounds(toR, toC)) continue;
+    const midPiece = b[midR][midC];
+    if (midPiece && midPiece.color !== piece.color && !b[toR][toC]) {
+      jumps.push({ from: [r, c], to: [toR, toC], captured: [midR, midC], type: 'jump' });
+    }
+  }
+  return jumps;
+}
+function findSimpleMovesFrom(b, r, c, piece) {
+  const moves = [];
+  for (const [dr, dc] of pieceDirs(piece)) {
+    const nr = r + dr, nc = c + dc;
+    if (inBounds(nr, nc) && !b[nr][nc]) moves.push({ from: [r, c], to: [nr, nc], type: 'move' });
+  }
+  return moves;
+}
+
+function legalMovesFor(b, color, forced) {
+  if (forced) {
+    const [r, c] = forced;
+    const piece = b[r][c];
+    return piece ? findJumpsFrom(b, r, c, piece) : [];
+  }
+  const allJumps = [];
+  const allMoves = [];
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      const piece = b[r][c];
+      if (!piece || piece.color !== color) continue;
+      allJumps.push(...findJumpsFrom(b, r, c, piece));
+      allMoves.push(...findSimpleMovesFrom(b, r, c, piece));
+    }
+  }
+  return allJumps.length > 0 ? allJumps : allMoves;
+}
+
+// Applies one ply (a single move or a single jump) to the board in place.
+// Returns true if the same piece must continue jumping (multi-jump chain).
+function applyPly(b, ply) {
+  const piece = b[ply.from[0]][ply.from[1]];
+  b[ply.from[0]][ply.from[1]] = null;
+  if (ply.type === 'jump') b[ply.captured[0]][ply.captured[1]] = null;
+  const promoRow = piece.color === 'R' ? SIZE - 1 : 0;
+  const newPiece = { color: piece.color, king: piece.king || ply.to[0] === promoRow };
+  b[ply.to[0]][ply.to[1]] = newPiece;
+  if (ply.type === 'jump') {
+    const further = findJumpsFrom(b, ply.to[0], ply.to[1], newPiece);
+    if (further.length > 0) return true;
+  }
+  return false;
+}
+
+function evaluate(b, aiColor) {
+  const opp = aiColor === 'R' ? 'B' : 'R';
+  let score = 0;
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      const p = b[r][c];
+      if (!p) continue;
+      let val = p.king ? 1.6 : 1;
+      if (!p.king) val += (p.color === 'R' ? r : SIZE - 1 - r) * 0.03;
+      score += p.color === aiColor ? val : -val;
+    }
+  }
+  return score;
+}
+
+function minimaxCheckers(b, color, forced, depth, alpha, beta, aiColor) {
+  const moves = legalMovesFor(b, color, forced);
+  if (moves.length === 0) {
+    return { score: color === aiColor ? -10000 - depth : 10000 + depth };
+  }
+  if (depth <= 0) return { score: evaluate(b, aiColor) };
+
+  const maximizing = color === aiColor;
+  let best = maximizing ? -Infinity : Infinity;
+  let bestMove = moves[0];
+  for (const m of moves) {
+    const nb = cloneBoard(b);
+    const continues = applyPly(nb, m);
+    const result = continues
+      ? minimaxCheckers(nb, color, m.to, depth, alpha, beta, aiColor)
+      : minimaxCheckers(nb, color === 'R' ? 'B' : 'R', null, depth - 1, alpha, beta, aiColor);
+    if (maximizing) {
+      if (result.score > best) { best = result.score; bestMove = m; }
+      alpha = Math.max(alpha, best);
+    } else {
+      if (result.score < best) { best = result.score; bestMove = m; }
+      beta = Math.min(beta, best);
+    }
+    if (alpha >= beta) break;
+  }
+  return { score: best, move: bestMove };
+}
+
+function newRound() {
+  board = initBoard();
+  currentColor = 'R';
+  forcedFrom = null;
+  selected = null;
+  gameOver = false;
+  statusText.textContent = mode === 'computer' ? 'Your turn (Red)' : "Red's turn";
+  render();
+}
+
+function pieceCounts(b) {
+  let r = 0, bl = 0;
+  for (const row of b) for (const cell of row) { if (cell) { if (cell.color === 'R') r++; else bl++; } }
+  return { R: r, B: bl };
+}
+
+function endGameIfOver() {
+  const moves = legalMovesFor(board, currentColor, forcedFrom);
+  if (moves.length > 0) return false;
+  gameOver = true;
+  const winner = currentColor === 'R' ? 'B' : 'R';
+  scores[winner]++;
+  saveScores();
+  updateScoreDisplay();
+  if (mode === 'computer') {
+    statusText.textContent = winner === 'R' ? 'You win!' : 'Computer wins!';
+  } else {
+    statusText.textContent = (winner === 'R' ? 'Red' : 'Black') + ' wins!';
+  }
+  return true;
+}
+
+function applyPlyAndAdvance(ply) {
+  const continues = applyPly(board, ply);
+  if (continues) {
+    forcedFrom = ply.to;
+    selected = ply.to;
+  } else {
+    forcedFrom = null;
+    selected = null;
+    currentColor = currentColor === 'R' ? 'B' : 'R';
+  }
+  render();
+  if (endGameIfOver()) return;
+  if (!continues) {
+    statusText.textContent = mode === 'computer'
+      ? (currentColor === 'R' ? 'Your turn (Red)' : "Computer's turn...")
+      : (currentColor === 'R' ? "Red's turn" : "Black's turn");
+  } else {
+    statusText.textContent = 'Jump again with the same piece';
+  }
+  if (mode === 'computer' && currentColor === 'B' && !gameOver) {
+    setTimeout(computerTurn, 400);
+  }
+}
+
+function computerTurn() {
+  if (gameOver || currentColor !== 'B') return;
+  const depth = difficultySelect.value === 'easy' ? 1 : 5;
+  let move;
+  if (difficultySelect.value === 'easy' && Math.random() < 0.6) {
+    const options = legalMovesFor(board, 'B', forcedFrom);
+    move = options[Math.floor(Math.random() * options.length)];
+  } else {
+    move = minimaxCheckers(cloneBoard(board), 'B', forcedFrom, depth, -Infinity, Infinity, 'B').move;
+  }
+  if (!move) return;
+  applyPlyAndAdvance(move);
+  if (!gameOver && currentColor === 'B') setTimeout(computerTurn, 350);
+}
+
+function render() {
+  boardEl.innerHTML = '';
+  const legalNow = !gameOver ? legalMovesFor(board, currentColor, forcedFrom) : [];
+  const selectableFroms = new Set(legalNow.map(m => m.from.join(',')));
+  const destinationsForSelected = selected
+    ? legalNow.filter(m => m.from.join(',') === selected.join(','))
+    : [];
+
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'ck-cell ' + ((r + c) % 2 === 1 ? 'dark' : 'light');
+      cell.dataset.r = r;
+      cell.dataset.c = c;
+
+      const piece = board[r][c];
+      if (piece) {
+        const pieceEl = document.createElement('div');
+        pieceEl.className = 'ck-piece ' + piece.color + (piece.king ? ' king' : '');
+        cell.appendChild(pieceEl);
+      }
+
+      if (selected && selected[0] === r && selected[1] === c) cell.classList.add('selected');
+      if (destinationsForSelected.some(m => m.to[0] === r && m.to[1] === c)) cell.classList.add('selectable');
+
+      const isHumanTurn = mode === 'human' || currentColor === 'R';
+      if ((r + c) % 2 === 1 && !gameOver && isHumanTurn) {
+        cell.addEventListener('click', () => handleCellClick(r, c, selectableFroms, destinationsForSelected));
+      }
+      boardEl.appendChild(cell);
+    }
+  }
+}
+
+function handleCellClick(r, c, selectableFroms, destinationsForSelected) {
+  const piece = board[r][c];
+  const dest = destinationsForSelected.find(m => m.to[0] === r && m.to[1] === c);
+  if (dest) {
+    applyPlyAndAdvance(dest);
+    return;
+  }
+  if (forcedFrom) return; // mid-multi-jump: must continue with the forced piece
+  if (piece && piece.color === currentColor && selectableFroms.has(r + ',' + c)) {
+    selected = [r, c];
+    render();
+  } else if (selected) {
+    selected = null;
+    render();
+  }
+}
+
+newRoundBtn.addEventListener('click', newRound);
+resetScoreBtn.addEventListener('click', () => {
+  scores = { R: 0, B: 0, draw: 0 };
+  saveScores();
+  updateScoreDisplay();
+});
+difficultySelect.addEventListener('change', newRound);
+
+loadScores();
+updateScoreDisplay();
+newRound();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>

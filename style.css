@@ -105,6 +105,17 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .brand:hover { color: var(--ink); }
 .brand em { font-style: normal; color: var(--muted); font-weight: 500; }
 
+.brand-wrap { display: flex; align-items: baseline; gap: 0.5rem; }
+.brand-offshoot {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding-left: 0.55rem;
+  border-left: 1px solid var(--line);
+}
+.brand-offshoot:hover { color: var(--ink); }
+
 .header-right { display: flex; align-items: center; gap: 1.5rem; }
 
 .site-nav a {

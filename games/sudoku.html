@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Sudoku | toolcrate</title>
+<meta name="description" content="Play Sudoku in your browser. Three difficulty levels, every puzzle has a unique solution. Free, best times saved on your device.">
+<link rel="canonical" href="https://toolcrate.cc/games/sudoku.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/sudoku.html">
+<meta property="og:title" content="Sudoku | toolcrate">
+<meta property="og:description" content="Play Sudoku in your browser. Three difficulty levels, every puzzle has a unique solution. Free, best times saved on your device.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sudoku | toolcrate">
+<meta name="twitter:description" content="Play Sudoku in your browser. Three difficulty levels, every puzzle has a unique solution. Free, best times saved on your device.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .sk-wrap { overflow-x: auto; }
+  .sk-board {
+    display: grid;
+    grid-template-columns: repeat(9, 36px);
+    grid-template-rows: repeat(9, 36px);
+    margin: 0 auto;
+    width: max-content;
+    border: 2px solid var(--ink);
+  }
+  .sk-cell {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--paper);
+    border: 1px solid var(--line-soft);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    padding: 0;
+  }
+  .sk-cell.given { color: var(--ink); cursor: default; background: color-mix(in srgb, var(--ink) 5%, var(--paper)); }
+  .sk-cell.selected { background: color-mix(in srgb, var(--accent) 20%, var(--paper)); }
+  .sk-cell.conflict { color: #C0392B; }
+  .sk-cell.box-right { border-right: 2px solid var(--ink); }
+  .sk-cell.box-bottom { border-bottom: 2px solid var(--ink); }
+  .sk-numpad { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; max-width: 320px; margin: 0.9rem auto 0; }
+  .sk-numpad button {
+    width: 36px; height: 38px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    color: var(--ink);
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .ttt-status { text-align: center; font-weight: 600; margin: 1rem 0; min-height: 1.4em; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="brand-wrap"><a href="/" class="brand">tool<em>crate</em></a><a href="/games.html" class="brand-offshoot">games</a></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Sudoku</h1>
+    <p>Click a square, then type a number or use the pad below. Conflicts are highlighted as you go.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field" style="margin-bottom: 0;">
+        <label for="diffSelect">Difficulty</label>
+        <select id="diffSelect">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="timerVal">0</span><span class="stat-label">Seconds</span></div>
+    <div class="stat"><span class="stat-value" id="bestVal">–</span><span class="stat-label">Best time</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="ttt-status" id="statusText">Fill the grid so every row, column, and 3×3 box has 1–9</div>
+    <div class="sk-wrap">
+      <div class="sk-board" id="board"></div>
+    </div>
+    <div class="sk-numpad" id="numpad"></div>
+    <div class="btn-row" style="justify-content:center; margin-top: 1rem;">
+      <button type="button" id="newGameBtn" class="secondary">New puzzle</button>
+    </div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>Every puzzle is generated fresh and checked to have exactly one solution before it's shown to you. Fixed clues are shown in a darker color; your entries are highlighted in red if they conflict with the same row, column, or box. Your best time per difficulty is saved on this device.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const boardEl = document.getElementById('board');
+const numpadEl = document.getElementById('numpad');
+const statusText = document.getElementById('statusText');
+const timerEl = document.getElementById('timerVal');
+const bestValEl = document.getElementById('bestVal');
+const diffSelect = document.getElementById('diffSelect');
+const newGameBtn = document.getElementById('newGameBtn');
+
+const BEST_KEY_PREFIX = 'toolcrate-game-sudoku-best-';
+const CLUE_COUNTS = { easy: 42, medium: 32, hard: 26 };
+
+let grid, givenMask, selected, seconds, timerInterval, gameOver;
+
+function loadBest(diff) {
+  try { return localStorage.getItem(BEST_KEY_PREFIX + diff); } catch (e) { return null; }
+}
+function saveBest(diff, secs) {
+  try { localStorage.setItem(BEST_KEY_PREFIX + diff, String(secs)); } catch (e) { /* storage unavailable */ }
+}
+function updateBestDisplay() {
+  const b = loadBest(diffSelect.value);
+  bestValEl.textContent = b ? b + 's' : '–';
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function isValid(g, r, c, val) {
+  for (let i = 0; i < 9; i++) {
+    if (i !== c && g[r][i] === val) return false;
+    if (i !== r && g[i][c] === val) return false;
+  }
+  const br = Math.floor(r / 3) * 3, bc = Math.floor(c / 3) * 3;
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      const rr = br + i, cc = bc + j;
+      if ((rr !== r || cc !== c) && g[rr][cc] === val) return false;
+    }
+  }
+  return true;
+}
+
+function fillGrid(g) {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (g[r][c] !== 0) continue;
+      for (const n of shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9])) {
+        if (isValid(g, r, c, n)) {
+          g[r][c] = n;
+          if (fillGrid(g)) return true;
+          g[r][c] = 0;
+        }
+      }
+      return false;
+    }
+  }
+  return true;
+}
+
+// Counts solutions up to `cap`, stopping early once that many are found —
+// used to confirm a puzzle has exactly one solution without solving the
+// whole remaining search space every time.
+function countSolutionsUpTo(g, cap) {
+  let er = -1, ec = -1;
+  for (let r = 0; r < 9 && er === -1; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (g[r][c] === 0) { er = r; ec = c; break; }
+    }
+  }
+  if (er === -1) return 1;
+  let total = 0;
+  for (let n = 1; n <= 9; n++) {
+    if (isValid(g, er, ec, n)) {
+      g[er][ec] = n;
+      total += countSolutionsUpTo(g, cap - total);
+      g[er][ec] = 0;
+      if (total >= cap) return total;
+    }
+  }
+  return total;
+}
+
+function generatePuzzle(clueCount) {
+  const solution = Array.from({ length: 9 }, () => Array(9).fill(0));
+  fillGrid(solution);
+  const puzzle = solution.map(row => row.slice());
+  const cells = [];
+  for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) cells.push([r, c]);
+  shuffle(cells);
+  let removed = 0;
+  const targetRemoved = 81 - clueCount;
+  for (const [r, c] of cells) {
+    if (removed >= targetRemoved) break;
+    const backup = puzzle[r][c];
+    puzzle[r][c] = 0;
+    const copy = puzzle.map(row => row.slice());
+    if (countSolutionsUpTo(copy, 2) !== 1) {
+      puzzle[r][c] = backup;
+    } else {
+      removed++;
+    }
+  }
+  return puzzle;
+}
+
+function hasConflict(g, r, c) {
+  const val = g[r][c];
+  if (!val) return false;
+  return !isValid(g, r, c, val);
+}
+
+function isSolved() {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (grid[r][c] === 0 || hasConflict(grid, r, c)) return false;
+    }
+  }
+  return true;
+}
+
+function newGame() {
+  const puzzle = generatePuzzle(CLUE_COUNTS[diffSelect.value] || 32);
+  grid = puzzle.map(row => row.slice());
+  givenMask = puzzle.map(row => row.map(v => v !== 0));
+  selected = null;
+  seconds = 0;
+  gameOver = false;
+  clearInterval(timerInterval);
+  timerEl.textContent = '0';
+  statusText.textContent = 'Fill the grid so every row, column, and 3×3 box has 1–9';
+  updateBestDisplay();
+  timerInterval = setInterval(() => {
+    seconds++;
+    timerEl.textContent = String(seconds);
+  }, 1000);
+  render();
+}
+
+function setCellValue(val) {
+  if (gameOver || !selected) return;
+  const [r, c] = selected;
+  if (givenMask[r][c]) return;
+  grid[r][c] = val;
+  render();
+  if (val !== 0 && isSolved()) {
+    gameOver = true;
+    clearInterval(timerInterval);
+    const best = loadBest(diffSelect.value);
+    if (!best || seconds < Number(best)) {
+      saveBest(diffSelect.value, seconds);
+      updateBestDisplay();
+    }
+    statusText.textContent = 'Solved in ' + seconds + 's!';
+  }
+}
+
+function render() {
+  boardEl.innerHTML = '';
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      let cls = 'sk-cell';
+      if (givenMask[r][c]) cls += ' given';
+      if (c % 3 === 2 && c !== 8) cls += ' box-right';
+      if (r % 3 === 2 && r !== 8) cls += ' box-bottom';
+      if (selected && selected[0] === r && selected[1] === c) cls += ' selected';
+      if (hasConflict(grid, r, c)) cls += ' conflict';
+      cell.className = cls;
+      cell.textContent = grid[r][c] === 0 ? '' : String(grid[r][c]);
+      cell.addEventListener('click', () => {
+        if (givenMask[r][c] || gameOver) return;
+        selected = [r, c];
+        render();
+      });
+      boardEl.appendChild(cell);
+    }
+  }
+}
+
+function buildNumpad() {
+  numpadEl.innerHTML = '';
+  for (let n = 1; n <= 9; n++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = String(n);
+    btn.addEventListener('click', () => setCellValue(n));
+    numpadEl.appendChild(btn);
+  }
+  const eraseBtn = document.createElement('button');
+  eraseBtn.type = 'button';
+  eraseBtn.textContent = '⌫';
+  eraseBtn.addEventListener('click', () => setCellValue(0));
+  numpadEl.appendChild(eraseBtn);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key >= '1' && e.key <= '9') setCellValue(Number(e.key));
+  else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') setCellValue(0);
+});
+
+diffSelect.addEventListener('change', newGame);
+newGameBtn.addEventListener('click', newGame);
+
+buildNumpad();
+newGame();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>
