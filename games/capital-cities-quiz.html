@@ -67,16 +67,18 @@
   <div class="panel">
     <div class="quiz-question" id="questionText">Loading…</div>
     <div class="quiz-options" id="optionsWrap"></div>
+    <div class="btn-row" style="margin-top: 1.1rem;">
+      <button id="nextBtn" style="display:none;">Next question</button>
+    </div>
   </div>
 
   <div class="btn-row">
-    <button id="nextBtn" style="display:none;">Next question</button>
     <button id="resetBtn" class="secondary">Reset score</button>
   </div>
 
   <div class="explainer">
     <h2>About this game</h2>
-    <p>A random country and three wrong-but-plausible capital options are picked each round from a pool of 40 well-known countries. Your score, current streak, and best streak are saved with <code>localStorage</code> on this device only — there's no account and no global leaderboard.</p>
+    <p>A random country and three wrong-but-plausible capital options are picked each round, drawn from every UN member state. Your best streak is saved on this device.</p>
   </div>
 
 <div class="ad-slot">
@@ -112,6 +114,45 @@ const COUNTRIES = [
   ['Thailand', 'Bangkok'], ['Vietnam', 'Hanoi'], ['Indonesia', 'Jakarta'], ['Australia', 'Canberra'],
   ['New Zealand', 'Wellington'], ['Canada', 'Ottawa'], ['United States', 'Washington, D.C.'], ['Mexico', 'Mexico City'],
   ['Brazil', 'Brasília'], ['Argentina', 'Buenos Aires'], ['Chile', 'Santiago'], ['Peru', 'Lima'],
+  ['Afghanistan', 'Kabul'], ['Albania', 'Tirana'], ['Algeria', 'Algiers'], ['Andorra', "Andorra la Vella"],
+  ['Angola', 'Luanda'], ['Antigua and Barbuda', "St. John's"], ['Armenia', 'Yerevan'], ['Azerbaijan', 'Baku'],
+  ['Bahamas', 'Nassau'], ['Bahrain', 'Manama'], ['Bangladesh', 'Dhaka'], ['Barbados', 'Bridgetown'],
+  ['Belarus', 'Minsk'], ['Belize', 'Belmopan'], ['Benin', 'Porto-Novo'], ['Bhutan', 'Thimphu'],
+  ['Bolivia', 'Sucre'], ['Bosnia and Herzegovina', 'Sarajevo'], ['Botswana', 'Gaborone'], ['Brunei', 'Bandar Seri Begawan'],
+  ['Bulgaria', 'Sofia'], ['Burkina Faso', 'Ouagadougou'], ['Burundi', 'Gitega'], ['Cabo Verde', 'Praia'],
+  ['Cambodia', 'Phnom Penh'], ['Cameroon', 'Yaoundé'], ['Central African Republic', 'Bangui'], ['Chad', "N'Djamena"],
+  ['Colombia', 'Bogotá'], ['Comoros', 'Moroni'], ['Republic of the Congo', 'Brazzaville'], ['DR Congo', 'Kinshasa'],
+  ['Costa Rica', 'San José'], ["Côte d'Ivoire", 'Yamoussoukro'], ['Croatia', 'Zagreb'], ['Cuba', 'Havana'],
+  ['Cyprus', 'Nicosia'], ['Czech Republic', 'Prague'], ['Djibouti', 'Djibouti'], ['Dominica', 'Roseau'],
+  ['Dominican Republic', 'Santo Domingo'], ['Ecuador', 'Quito'], ['El Salvador', 'San Salvador'], ['Equatorial Guinea', 'Malabo'],
+  ['Eritrea', 'Asmara'], ['Estonia', 'Tallinn'], ['Eswatini', 'Mbabane'], ['Ethiopia', 'Addis Ababa'],
+  ['Fiji', 'Suva'], ['Gabon', 'Libreville'], ['Gambia', 'Banjul'], ['Georgia', 'Tbilisi'],
+  ['Ghana', 'Accra'], ['Grenada', "St. George's"], ['Guatemala', 'Guatemala City'], ['Guinea', 'Conakry'],
+  ['Guinea-Bissau', 'Bissau'], ['Guyana', 'Georgetown'], ['Haiti', 'Port-au-Prince'], ['Honduras', 'Tegucigalpa'],
+  ['Hungary', 'Budapest'], ['Iceland', 'Reykjavik'], ['Iran', 'Tehran'], ['Iraq', 'Baghdad'],
+  ['Israel', 'Jerusalem'], ['Italy', 'Rome'], ['Jamaica', 'Kingston'], ['Jordan', 'Amman'],
+  ['Kazakhstan', 'Astana'], ['Kiribati', 'Tarawa'], ['Kuwait', 'Kuwait City'], ['Kyrgyzstan', 'Bishkek'],
+  ['Laos', 'Vientiane'], ['Latvia', 'Riga'], ['Lebanon', 'Beirut'], ['Lesotho', 'Maseru'],
+  ['Liberia', 'Monrovia'], ['Libya', 'Tripoli'], ['Liechtenstein', 'Vaduz'], ['Lithuania', 'Vilnius'],
+  ['Luxembourg', 'Luxembourg City'], ['Madagascar', 'Antananarivo'], ['Malawi', 'Lilongwe'], ['Malaysia', 'Kuala Lumpur'],
+  ['Maldives', 'Malé'], ['Mali', 'Bamako'], ['Malta', 'Valletta'], ['Marshall Islands', 'Majuro'],
+  ['Mauritania', 'Nouakchott'], ['Mauritius', 'Port Louis'], ['Micronesia', 'Palikir'], ['Moldova', 'Chișinău'],
+  ['Monaco', 'Monaco'], ['Mongolia', 'Ulaanbaatar'], ['Montenegro', 'Podgorica'], ['Mozambique', 'Maputo'],
+  ['Myanmar', 'Naypyidaw'], ['Namibia', 'Windhoek'], ['Nauru', 'Yaren'], ['Nepal', 'Kathmandu'],
+  ['Nicaragua', 'Managua'], ['Niger', 'Niamey'], ['North Korea', 'Pyongyang'], ['North Macedonia', 'Skopje'],
+  ['Oman', 'Muscat'], ['Pakistan', 'Islamabad'], ['Palau', 'Ngerulmud'], ['Panama', 'Panama City'],
+  ['Papua New Guinea', 'Port Moresby'], ['Paraguay', 'Asunción'], ['Philippines', 'Manila'], ['Qatar', 'Doha'],
+  ['Romania', 'Bucharest'], ['Rwanda', 'Kigali'], ['Saint Kitts and Nevis', 'Basseterre'], ['Saint Lucia', 'Castries'],
+  ['Saint Vincent and the Grenadines', 'Kingstown'], ['Samoa', 'Apia'], ['San Marino', 'San Marino'], ['Sao Tome and Principe', 'São Tomé'],
+  ['Saudi Arabia', 'Riyadh'], ['Senegal', 'Dakar'], ['Serbia', 'Belgrade'], ['Seychelles', 'Victoria'],
+  ['Sierra Leone', 'Freetown'], ['Singapore', 'Singapore'], ['Slovakia', 'Bratislava'], ['Slovenia', 'Ljubljana'],
+  ['Solomon Islands', 'Honiara'], ['Somalia', 'Mogadishu'], ['South Sudan', 'Juba'], ['Spain', 'Madrid'],
+  ['Sri Lanka', 'Sri Jayawardenepura Kotte'], ['Sudan', 'Khartoum'], ['Suriname', 'Paramaribo'], ['Syria', 'Damascus'],
+  ['Tajikistan', 'Dushanbe'], ['Tanzania', 'Dodoma'], ['Timor-Leste', 'Dili'], ['Togo', 'Lomé'],
+  ['Tonga', "Nuku'alofa"], ['Trinidad and Tobago', 'Port of Spain'], ['Tunisia', 'Tunis'], ['Turkmenistan', 'Ashgabat'],
+  ['Tuvalu', 'Funafuti'], ['Uganda', 'Kampala'], ['Ukraine', 'Kyiv'], ['United Arab Emirates', 'Abu Dhabi'],
+  ['Uruguay', 'Montevideo'], ['Uzbekistan', 'Tashkent'], ['Vanuatu', 'Port Vila'], ['Venezuela', 'Caracas'],
+  ['Yemen', 'Sanaa'], ['Zambia', 'Lusaka'], ['Zimbabwe', 'Harare'],
 ];
 
 const SCORE_KEY = 'toolcrate-game-capitals-score';

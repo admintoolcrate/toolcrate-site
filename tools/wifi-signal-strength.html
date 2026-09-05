@@ -63,12 +63,25 @@
 <main>
   <div class="tool-header">
     <h1>WiFi Signal Strength Checker</h1>
-    <p>Enter the dBm reading from your device's WiFi settings to see what it actually means.</p>
+    <p>Live connection quality where your browser supports it, plus a dBm-to-quality reference.</p>
     <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
   <span class="copy-feedback" id="shareFeedback">Copied</span>
   </div>
 
+  <div class="panel" id="livePanel">
+    <p style="font-size: 0.85rem; color: var(--ink-soft); margin-top: 0;">No browser on any device can read actual WiFi signal strength (RSSI/dBm) — that's blocked deliberately for privacy, not a gap in this tool. What's shown below is your browser's own live connection-quality estimate instead, which tracks signal strength loosely but isn't the same measurement.</p>
+    <div id="liveSupported">
+      <div class="stat-grid">
+        <div class="stat"><span class="stat-value" id="liveEffectiveType">—</span><span class="stat-label">Connection type</span></div>
+        <div class="stat"><span class="stat-value" id="liveDownlink">—</span><span class="stat-label">Estimated speed (Mbps)</span></div>
+        <div class="stat"><span class="stat-value" id="liveRtt">—</span><span class="stat-label">Round-trip time (ms)</span></div>
+      </div>
+    </div>
+    <p id="liveUnsupported" class="error-text" style="display:none;">Your browser doesn't expose live connection data (this API is Chrome/Android/Edge only, not supported in Firefox or Safari). Use the manual reference below instead.</p>
+  </div>
+
   <div class="panel">
+    <label for="dbmInput" style="font-weight: 600; display:block; margin-bottom: 0.5rem;">Or look up a dBm reading manually</label>
     <div class="field">
       <label for="dbmInput">Signal strength (dBm)</label>
       <input type="number" id="dbmInput" value="-55" step="1" placeholder="e.g. -55">
@@ -127,6 +140,31 @@
 </footer>
 
 <script>
+const liveEffectiveTypeEl = document.getElementById('liveEffectiveType');
+const liveDownlinkEl = document.getElementById('liveDownlink');
+const liveRttEl = document.getElementById('liveRtt');
+const liveSupportedEl = document.getElementById('liveSupported');
+const liveUnsupportedEl = document.getElementById('liveUnsupported');
+
+const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+
+function updateLiveConnection() {
+  if (!connection) return;
+  liveEffectiveTypeEl.textContent = connection.effectiveType || '—';
+  liveDownlinkEl.textContent = (connection.downlink !== undefined) ? connection.downlink : '—';
+  liveRttEl.textContent = (connection.rtt !== undefined) ? connection.rtt : '—';
+}
+
+if (connection) {
+  liveSupportedEl.style.display = '';
+  liveUnsupportedEl.style.display = 'none';
+  updateLiveConnection();
+  connection.addEventListener('change', updateLiveConnection);
+} else {
+  liveSupportedEl.style.display = 'none';
+  liveUnsupportedEl.style.display = '';
+}
+
 const dbmInput = document.getElementById('dbmInput');
 const dbmSlider = document.getElementById('dbmSlider');
 const errorEl = document.getElementById('error');

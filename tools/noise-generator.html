@@ -161,16 +161,18 @@ function makeNoiseBuffer(ctx, type) {
   return buffer;
 }
 
-function start() {
+async function start() {
   errorEl.textContent = '';
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (audioCtx.state === 'suspended') await audioCtx.resume();
 
     const buffer = makeNoiseBuffer(audioCtx, noiseType.value);
     noiseNode = audioCtx.createBufferSource();
     noiseNode.buffer = buffer;
     noiseNode.loop = true;
+    noiseNode.loopStart = 0;
+    noiseNode.loopEnd = buffer.duration;
 
     gainNode = audioCtx.createGain();
     gainNode.gain.value = volumeSlider.value / 100;

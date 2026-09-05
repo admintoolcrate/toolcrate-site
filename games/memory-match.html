@@ -85,7 +85,7 @@
 
   <div class="explainer">
     <h2>About this game</h2>
-    <p>8 pairs of emoji are shuffled and hidden face-down each round. Click two cards to flip them — matching pairs stay face-up, otherwise both flip back after a moment. Your best (lowest) move count is saved with <code>localStorage</code> on this device.</p>
+    <p>Click two cards to flip them — matching pairs stay face-up, otherwise both flip back after a moment. Your best (lowest) move count is saved on this device.</p>
   </div>
 
 <div class="ad-slot">
@@ -181,9 +181,9 @@ function flipCard(i) {
       if (matchedCount === SYMBOLS.length) finishGame();
     } else {
       setTimeout(() => {
+        flipped = [];
         updateCardVisual(a);
         updateCardVisual(b);
-        flipped = [];
         locked = false;
       }, 700);
     }

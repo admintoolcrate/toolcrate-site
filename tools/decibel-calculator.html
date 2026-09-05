@@ -6,25 +6,25 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<title>Decibel Calculator — dB, Power &amp; Amplitude Ratios | toolcrate</title>
-<meta name="description" content="Convert between decibels and power or amplitude ratios, or find the combined level of multiple sound sources. No signup, nothing uploaded to a server.">
+<title>Live Decibel / Sound Level Meter &amp; Calculator | toolcrate</title>
+<meta name="description" content="Live microphone level meter, plus decibel/ratio conversions and combining multiple sound sources. No signup, nothing uploaded to a server.">
 <link rel="canonical" href="https://toolcrate.cc/tools/decibel-calculator.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="toolcrate">
 <meta property="og:url" content="https://toolcrate.cc/tools/decibel-calculator.html">
-<meta property="og:title" content="Decibel Calculator — dB, Power &amp; Amplitude Ratios | toolcrate">
-<meta property="og:description" content="Convert between decibels and power or amplitude ratios, or find the combined level of multiple sound sources. No signup, nothing uploaded to a server.">
+<meta property="og:title" content="Live Decibel / Sound Level Meter &amp; Calculator | toolcrate">
+<meta property="og:description" content="Live microphone level meter, plus decibel/ratio conversions and combining multiple sound sources. No signup, nothing uploaded to a server.">
 <meta property="og:image" content="https://toolcrate.cc/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Decibel Calculator — dB, Power &amp; Amplitude Ratios | toolcrate">
-<meta name="twitter:description" content="Convert between decibels and power or amplitude ratios, or find the combined level of multiple sound sources. No signup, nothing uploaded to a server.">
+<meta name="twitter:title" content="Live Decibel / Sound Level Meter &amp; Calculator | toolcrate">
+<meta name="twitter:description" content="Live microphone level meter, plus decibel/ratio conversions and combining multiple sound sources. No signup, nothing uploaded to a server.">
 <meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "Decibel Calculator",
-  "description": "Convert between decibels and power or amplitude ratios, or find the combined level of multiple sound sources. No signup, nothing uploaded to a server.",
+  "description": "Live microphone level meter, plus decibel/ratio conversions and combining multiple sound sources. No signup, nothing uploaded to a server.",
   "url": "https://toolcrate.cc/tools/decibel-calculator.html",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "Any",
@@ -40,6 +40,31 @@
 </script>
 <link rel="stylesheet" href="../style.css">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .meter-wrap { margin-top: 1rem; }
+  .meter-bar {
+    position: relative;
+    height: 22px;
+    background: var(--line-soft);
+    border-radius: 6px;
+    overflow: visible;
+  }
+  .meter-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--ok);
+    border-radius: 6px;
+    transition: width 0.05s linear;
+  }
+  .meter-peak {
+    position: absolute;
+    top: -3px;
+    left: 0%;
+    width: 2px;
+    height: 28px;
+    background: var(--ink);
+  }
+</style>
 </head>
 <body>
 
@@ -62,6 +87,7 @@
     <div class="field">
       <label for="modeSelect">What do you want to calculate?</label>
       <select id="modeSelect">
+        <option value="live">Live microphone level</option>
         <option value="ratioToDb">Ratio → decibels</option>
         <option value="dbToRatio">Decibels → ratio</option>
         <option value="sum">Combine multiple sound levels (dB SPL)</option>
@@ -107,11 +133,27 @@
       </div>
     </div>
 
+    <div id="liveFields">
+      <p style="font-size: 0.85rem; color: var(--ink-soft); margin-top: 0;">Uses your microphone to show a live <strong>relative</strong> level — browsers have no way to read calibrated sound pressure (real dB SPL), so this isn't a substitute for a real SPL meter. Useful for watching level changes, not for an absolute reading.</p>
+      <div class="btn-row">
+        <button type="button" id="micStartBtn">Start listening</button>
+        <button type="button" id="micStopBtn" class="secondary" disabled>Stop</button>
+      </div>
+      <div class="meter-wrap">
+        <div class="meter-bar"><div class="meter-fill" id="meterFill"></div><div class="meter-peak" id="meterPeak"></div></div>
+      </div>
+    </div>
+
     <div id="error" class="error-text"></div>
   </div>
 
-  <div class="stat-grid">
+  <div class="stat-grid" id="staticStatGrid">
     <div class="stat"><span class="stat-value" id="resultValue">—</span><span class="stat-label" id="resultLabel">Result</span></div>
+  </div>
+
+  <div class="stat-grid" id="liveStatGrid" style="display:none;">
+    <div class="stat"><span class="stat-value" id="liveLevelValue">—</span><span class="stat-label">Current level (dB, relative)</span></div>
+    <div class="stat"><span class="stat-value" id="livePeakValue">—</span><span class="stat-label">Peak this session</span></div>
   </div>
 
   <div class="explainer">
@@ -171,15 +213,30 @@ function fmt(n, digits) {
   return n.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
+const liveFields = document.getElementById('liveFields');
+const staticStatGrid = document.getElementById('staticStatGrid');
+const liveStatGrid = document.getElementById('liveStatGrid');
+const micStartBtn = document.getElementById('micStartBtn');
+const micStopBtn = document.getElementById('micStopBtn');
+const meterFill = document.getElementById('meterFill');
+const meterPeak = document.getElementById('meterPeak');
+const liveLevelValueEl = document.getElementById('liveLevelValue');
+const livePeakValueEl = document.getElementById('livePeakValue');
+
 function showFieldsFor(mode) {
+  liveFields.style.display = mode === 'live' ? '' : 'none';
   ratioToDbFields.style.display = mode === 'ratioToDb' ? '' : 'none';
   dbToRatioFields.style.display = mode === 'dbToRatio' ? '' : 'none';
   sumFields.style.display = mode === 'sum' ? '' : 'none';
+  staticStatGrid.style.display = mode === 'live' ? 'none' : '';
+  liveStatGrid.style.display = mode === 'live' ? '' : 'none';
+  if (mode !== 'live') stopListening();
 }
 
 function calc() {
   errorEl.textContent = '';
   const mode = modeSelect.value;
+  if (mode === 'live') return;
 
   if (mode === 'ratioToDb') {
     const ratio = parseFloat(ratioInput.value);
@@ -217,6 +274,76 @@ function calc() {
     resultValueEl.textContent = fmt(totalDb, 2) + ' dB';
   }
 }
+
+let micStream = null;
+let micAudioCtx = null;
+let micAnalyser = null;
+let micRafId = null;
+let peakLevel = -Infinity;
+
+async function startListening() {
+  errorEl.textContent = '';
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    micAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const source = micAudioCtx.createMediaStreamSource(micStream);
+    micAnalyser = micAudioCtx.createAnalyser();
+    micAnalyser.fftSize = 2048;
+    source.connect(micAnalyser);
+
+    peakLevel = -Infinity;
+    micStartBtn.disabled = true;
+    micStopBtn.disabled = false;
+    modeSelect.disabled = true;
+    tickMeter();
+  } catch (e) {
+    errorEl.textContent = 'Could not access the microphone: ' + e.message;
+  }
+}
+
+function tickMeter() {
+  const data = new Float32Array(micAnalyser.fftSize);
+  micAnalyser.getFloatTimeDomainData(data);
+  let sumSquares = 0;
+  for (let i = 0; i < data.length; i++) sumSquares += data[i] * data[i];
+  const rms = Math.sqrt(sumSquares / data.length);
+  const db = rms > 0 ? 20 * Math.log10(rms) : -Infinity;
+  const clamped = Math.max(-60, db);
+
+  if (db > peakLevel) peakLevel = db;
+
+  liveLevelValueEl.textContent = isFinite(db) ? fmt(db, 1) : '−∞';
+  livePeakValueEl.textContent = isFinite(peakLevel) ? fmt(peakLevel, 1) : '—';
+
+  const pct = ((clamped + 60) / 60) * 100;
+  meterFill.style.width = pct + '%';
+  const peakPct = isFinite(peakLevel) ? ((Math.max(-60, peakLevel) + 60) / 60) * 100 : 0;
+  meterPeak.style.left = peakPct + '%';
+
+  micRafId = requestAnimationFrame(tickMeter);
+}
+
+function stopListening() {
+  if (micRafId) cancelAnimationFrame(micRafId);
+  micRafId = null;
+  if (micStream) {
+    micStream.getTracks().forEach(t => t.stop());
+    micStream = null;
+  }
+  if (micAudioCtx) {
+    micAudioCtx.close();
+    micAudioCtx = null;
+  }
+  micAnalyser = null;
+  micStartBtn.disabled = false;
+  micStopBtn.disabled = true;
+  modeSelect.disabled = false;
+  meterFill.style.width = '0%';
+}
+
+micStartBtn.addEventListener('click', startListening);
+micStopBtn.addEventListener('click', stopListening);
+window.addEventListener('beforeunload', stopListening);
 
 modeSelect.addEventListener('change', () => { showFieldsFor(modeSelect.value); calc(); });
 [ratioInput, ratioType, dbInput, dbRatioType, levelsInput].forEach(el => el.addEventListener('input', calc));
