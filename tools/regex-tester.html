@@ -107,6 +107,10 @@
   <div class="field">
     <label>Capture groups</label>
     <div id="groupOutput" class="output-panel empty">No capture groups in this pattern, or no matches yet.</div>
+    <div class="btn-row">
+      <button type="button" class="secondary copy-panel-btn" data-target="groupOutput">Copy</button>
+      <span class="copy-feedback" data-feedback-for="groupOutput">Copied</span>
+    </div>
   </div>
 
   <div class="explainer">
@@ -233,6 +237,21 @@ function run() {
 
 [patternEl, flagsEl, testInputEl].forEach(el => el.addEventListener('input', run));
 run();
+
+document.querySelectorAll('.copy-panel-btn').forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    const target = document.getElementById(btn.dataset.target);
+    if (!target || target.classList.contains('empty')) return;
+    try {
+      await navigator.clipboard.writeText(target.innerText);
+      const fb = document.querySelector(`[data-feedback-for="${btn.dataset.target}"]`);
+      if (fb) {
+        fb.classList.add('show');
+        setTimeout(() => fb.classList.remove('show'), 1500);
+      }
+    } catch (e) { /* clipboard unavailable */ }
+  });
+});
 </script>
 
 <script src="../theme.js"></script>

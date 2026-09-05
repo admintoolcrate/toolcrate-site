@@ -127,6 +127,10 @@ Some **bold** and *italic* text, plus `inline code`.
       <div class="field">
         <label for="preview">Preview</label>
         <div id="preview" class="preview-panel"></div>
+        <div class="btn-row">
+          <button type="button" id="copyHtmlBtn" class="secondary">Copy as HTML</button>
+          <span id="copyHtmlFeedback" class="copy-feedback">Copied</span>
+        </div>
       </div>
     </div>
   </div>
@@ -370,6 +374,16 @@ function update() {
 
 input.addEventListener('input', update);
 update();
+
+document.getElementById('copyHtmlBtn').addEventListener('click', async () => {
+  if (input.value.trim() === '') return;
+  try {
+    await navigator.clipboard.writeText(preview.innerHTML);
+    const fb = document.getElementById('copyHtmlFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
 </script>
 
 <script src="../theme.js"></script>

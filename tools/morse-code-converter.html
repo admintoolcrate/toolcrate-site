@@ -82,6 +82,7 @@
     <div class="btn-row">
       <button id="playBtn" class="secondary" disabled>▶ Play</button>
       <button id="copyBtn" class="secondary">Copy result</button>
+      <button id="useAsInputBtn" class="secondary">↕ Use as input</button>
       <span id="copyFeedback" class="copy-feedback">Copied</span>
     </div>
   </div>
@@ -202,6 +203,16 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
     fb.classList.add('show');
     setTimeout(() => fb.classList.remove('show'), 1500);
   } catch (e) { /* clipboard unavailable */ }
+});
+
+document.getElementById('useAsInputBtn').addEventListener('click', () => {
+  if (output.classList.contains('empty')) return;
+  input.value = output.textContent;
+  setOutput('', false);
+  output.textContent = 'Result will appear here.';
+  output.classList.add('empty');
+  showError('');
+  input.focus();
 });
 
 let audioCtx = null;

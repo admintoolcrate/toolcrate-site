@@ -78,16 +78,28 @@
   <div class="field">
     <label for="headerOutput">Header</label>
     <div id="headerOutput" class="output-panel empty">The decoded header will appear here.</div>
+    <div class="btn-row">
+      <button type="button" class="secondary copy-panel-btn" data-target="headerOutput">Copy</button>
+      <span class="copy-feedback" data-feedback-for="headerOutput">Copied</span>
+    </div>
   </div>
 
   <div class="field">
     <label for="payloadOutput">Payload</label>
     <div id="payloadOutput" class="output-panel empty">The decoded payload will appear here.</div>
+    <div class="btn-row">
+      <button type="button" class="secondary copy-panel-btn" data-target="payloadOutput">Copy</button>
+      <span class="copy-feedback" data-feedback-for="payloadOutput">Copied</span>
+    </div>
   </div>
 
   <div class="field">
     <label>Signature</label>
     <div id="signatureOutput" class="output-panel empty">—</div>
+    <div class="btn-row">
+      <button type="button" class="secondary copy-panel-btn" data-target="signatureOutput">Copy</button>
+      <span class="copy-feedback" data-feedback-for="signatureOutput">Copied</span>
+    </div>
   </div>
 
   <div class="explainer">
@@ -231,6 +243,21 @@ document.getElementById('clearBtn').addEventListener('click', () => {
   signatureOutput.classList.add('empty');
   clearError();
   input.focus();
+});
+
+document.querySelectorAll('.copy-panel-btn').forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    const target = document.getElementById(btn.dataset.target);
+    if (!target || target.classList.contains('empty')) return;
+    try {
+      await navigator.clipboard.writeText(target.innerText);
+      const fb = document.querySelector(`[data-feedback-for="${btn.dataset.target}"]`);
+      if (fb) {
+        fb.classList.add('show');
+        setTimeout(() => fb.classList.remove('show'), 1500);
+      }
+    } catch (e) { /* clipboard unavailable */ }
+  });
 });
 </script>
 

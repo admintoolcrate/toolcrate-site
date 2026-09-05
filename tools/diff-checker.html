@@ -131,6 +131,10 @@
   <div class="field">
     <label>Diff</label>
     <div id="diffOutput" class="diff-output"><div class="diff-empty">Paste text into both boxes above to see the difference.</div></div>
+    <div class="btn-row">
+      <button type="button" id="copyDiffBtn" class="secondary">Copy diff</button>
+      <span id="copyDiffFeedback" class="copy-feedback">Copied</span>
+    </div>
   </div>
 
   <div class="explainer">
@@ -175,6 +179,7 @@ const originalEl = document.getElementById('original');
 const changedEl = document.getElementById('changed');
 const ignoreWsEl = document.getElementById('ignoreWhitespace');
 const diffOutput = document.getElementById('diffOutput');
+let diffPlainText = '';
 const addedCountEl = document.getElementById('addedCount');
 const removedCountEl = document.getElementById('removedCount');
 const unchangedCountEl = document.getElementById('unchangedCount');
@@ -224,6 +229,7 @@ function run() {
     addedCountEl.textContent = '0';
     removedCountEl.textContent = '0';
     unchangedCountEl.textContent = '0';
+    diffPlainText = '';
     return;
   }
 
@@ -271,12 +277,27 @@ function run() {
     const text = row.text === '' ? '&nbsp;' : escapeHtml(row.text);
     return '<div class="diff-line ' + cls + '"><span class="diff-gutter">' + row.gutter + '</span><span class="diff-marker">' + marker + '</span><span class="diff-text">' + text + '</span></div>';
   }).join('');
+
+  diffPlainText = rows.map(row => {
+    const marker = row.type === 'same' ? '  ' : row.type === 'add' ? '+ ' : '- ';
+    return marker + row.text;
+  }).join('\n');
 }
 
 originalEl.addEventListener('input', run);
 changedEl.addEventListener('input', run);
 ignoreWsEl.addEventListener('change', run);
 run();
+
+document.getElementById('copyDiffBtn').addEventListener('click', async () => {
+  if (diffPlainText === '') return;
+  try {
+    await navigator.clipboard.writeText(diffPlainText);
+    const fb = document.getElementById('copyDiffFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
 </script>
 
 <script src="../theme.js"></script>

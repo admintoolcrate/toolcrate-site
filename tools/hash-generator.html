@@ -73,14 +73,26 @@
   <div class="field">
     <label>MD5</label>
     <div id="md5Output" class="output-panel empty">—</div>
+    <div class="btn-row">
+      <button type="button" class="secondary copy-panel-btn" data-target="md5Output">Copy</button>
+      <span class="copy-feedback" data-feedback-for="md5Output">Copied</span>
+    </div>
   </div>
   <div class="field">
     <label>SHA-1</label>
     <div id="sha1Output" class="output-panel empty">—</div>
+    <div class="btn-row">
+      <button type="button" class="secondary copy-panel-btn" data-target="sha1Output">Copy</button>
+      <span class="copy-feedback" data-feedback-for="sha1Output">Copied</span>
+    </div>
   </div>
   <div class="field">
     <label>SHA-256</label>
     <div id="sha256Output" class="output-panel empty">—</div>
+    <div class="btn-row">
+      <button type="button" class="secondary copy-panel-btn" data-target="sha256Output">Copy</button>
+      <span class="copy-feedback" data-feedback-for="sha256Output">Copied</span>
+    </div>
   </div>
 
   <div class="explainer">
@@ -197,6 +209,21 @@ async function update() {
 
 input.addEventListener('input', update);
 update();
+
+document.querySelectorAll('.copy-panel-btn').forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    const target = document.getElementById(btn.dataset.target);
+    if (!target || target.classList.contains('empty')) return;
+    try {
+      await navigator.clipboard.writeText(target.innerText);
+      const fb = document.querySelector(`[data-feedback-for="${btn.dataset.target}"]`);
+      if (fb) {
+        fb.classList.add('show');
+        setTimeout(() => fb.classList.remove('show'), 1500);
+      }
+    } catch (e) { /* clipboard unavailable */ }
+  });
+});
 </script>
 
 <script src="../theme.js"></script>
