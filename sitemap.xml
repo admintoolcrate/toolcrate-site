@@ -5,6 +5,7 @@
   <url><loc>https://toolcrate.cc/privacy.html</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
   <url><loc>https://toolcrate.cc/terms.html</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
   <url><loc>https://toolcrate.cc/contact.html</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://toolcrate.cc/donate.html</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
 
   <url><loc>https://toolcrate.cc/tools/json-formatter.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://toolcrate.cc/tools/uuid-generator.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>

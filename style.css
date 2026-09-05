@@ -283,7 +283,7 @@ main {
 
 .back-to-top {
   position: fixed;
-  right: 1.5rem;
+  left: 1.5rem;
   bottom: 1.5rem;
   width: 42px;
   height: 42px;
@@ -307,6 +307,14 @@ main {
 }
 .back-to-top.show { opacity: 1; visibility: visible; transform: translateY(0); }
 .back-to-top:hover { opacity: 0.85; }
+
+/* Ko-fi's floating widget is fixed-position by design (docked bottom-right,
+   persists through scroll); this just guarantees it regardless of any page
+   CSS, and keeps it above the back-to-top button's stacking order. */
+#kofi-widget-overlay {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
 
 .tool-list {
   list-style: none;
