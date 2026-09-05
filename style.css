@@ -429,6 +429,7 @@ main {
   cursor: pointer;
 }
 .share-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
+.last-updated { margin-top: 0.6rem; font-size: 0.78rem; color: var(--ink-soft); opacity: 0.75; }
 
 .panel {
   background: var(--panel);
