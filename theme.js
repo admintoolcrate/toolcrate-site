@@ -38,15 +38,79 @@
     }
   });
 
-  // "Add to Home Screen" hint: a native install prompt on Android/Chrome
-  // (via beforeinstallprompt — there's no equivalent way to trigger it
-  // programmatically), and manual instructions on iOS Safari, which has no
-  // install API at all. Each page's own <meta name="apple-mobile-web-app-title">
-  // is set to that page's own tool name, so pinning a specific tool on iOS
-  // gets a distinct home-screen icon and label rather than a generic one.
+  // A registered service worker is one of Chrome/Edge's hard requirements
+  // for a page to be considered installable at all — without one,
+  // beforeinstallprompt simply never fires, on any page, no matter how
+  // long you wait. Register unconditionally (not just when we're about to
+  // show install UI) so it's in place well before it's needed, and so
+  // installed pages get real offline caching, not just a shortcut that
+  // fails to load without a connection.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js').catch(function () { /* not fatal */ });
+    });
+  }
+
+  // "Add to Home Screen": a native install prompt on Android/Chrome/Edge
+  // (via beforeinstallprompt — there's no way to trigger that
+  // programmatically, the browser decides when it's eligible to fire),
+  // manual instructions on iOS Safari, which has no install API at all,
+  // and a persistent button next to the share button on both — the
+  // banner alone is easy to miss or dismiss once and never see again,
+  // which isn't what a page-specific "install just this tool" feature
+  // should do. Each page's own <meta name="apple-mobile-web-app-title">
+  // is set to that page's own tool name, so pinning a specific tool gets
+  // a distinct home-screen icon and label rather than a generic one.
   (function () {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     if (isStandalone) return;
+
+    const titleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+    const appTitle = (titleMeta && titleMeta.content) || 'toolcrate';
+
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+    const iosSupported = isIOS && isSafari;
+
+    let deferredPrompt = null;
+    let installBtn = null;
+
+    function doInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.finally(function () { deferredPrompt = null; updateInstallButton(); });
+      } else if (iosSupported) {
+        showBanner('Add ' + appTitle + ' to your Home Screen: tap Share, then "Add to Home Screen".', null, null);
+      }
+    }
+
+    function ensureInstallButton() {
+      if (installBtn || !document.body) return installBtn;
+      const shareBtn = document.getElementById('shareBtn');
+      if (!shareBtn) return null;
+      installBtn = document.createElement('button');
+      installBtn.type = 'button';
+      installBtn.className = 'share-btn install-btn';
+      installBtn.hidden = true;
+      installBtn.addEventListener('click', doInstall);
+      shareBtn.insertAdjacentElement('afterend', installBtn);
+      return installBtn;
+    }
+
+    function updateInstallButton() {
+      const btn = ensureInstallButton();
+      if (!btn) return;
+      if (deferredPrompt) {
+        btn.hidden = false;
+        btn.textContent = 'Install ' + appTitle;
+      } else if (iosSupported) {
+        btn.hidden = false;
+        btn.textContent = 'Add to Home Screen';
+      } else {
+        btn.hidden = true;
+      }
+    }
 
     const DISMISS_KEY = 'toolcrate-install-hint-dismissed';
     function isDismissed() {
@@ -93,29 +157,24 @@
       if (banner) { banner.remove(); banner = null; }
     }
 
-    // Each page links its own manifest (its own start_url/scope), so
-    // installing from here installs just this tool or game as its own
-    // home-screen app — not a shortcut to the toolcrate homepage. Name the
-    // banner after the current page for that reason.
-    const titleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
-    const appTitle = (titleMeta && titleMeta.content) || 'toolcrate';
-
     // Android / Chrome / Edge: the browser offers a real install prompt.
+    // Dismissing the passive banner below only stops that one-time nudge
+    // — the button stays put and clickable regardless, since it's a
+    // deliberate action someone can come back for any time.
     window.addEventListener('beforeinstallprompt', function (e) {
       e.preventDefault();
-      const deferredPrompt = e;
+      deferredPrompt = e;
+      updateInstallButton();
       showBanner('Install ' + appTitle + ' for quick access from your home screen.', 'Install', function () {
         deferredPrompt.prompt();
       });
     });
 
-    // iOS Safari has no install API — "Add to Home Screen" is a manual
-    // step from the Share sheet, so just point people at it.
-    const ua = navigator.userAgent || '';
-    const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    const isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
-    if (isIOS && isSafari) {
+    if (iosSupported) {
+      updateInstallButton();
       showBanner('Add ' + appTitle + ' to your Home Screen: tap Share, then "Add to Home Screen".', null, null);
     }
+
+    document.addEventListener('DOMContentLoaded', updateInstallButton);
   })();
 })();

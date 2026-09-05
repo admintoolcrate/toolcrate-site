@@ -473,6 +473,7 @@ main {
   cursor: pointer;
 }
 .share-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
+.install-btn { margin-left: 0.5rem; }
 .last-updated { margin-top: 0.5rem; font-size: 0.68rem; color: var(--muted); }
 
 .panel {
