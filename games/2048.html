@@ -32,8 +32,8 @@
   .g2048-wrap { display: flex; justify-content: center; touch-action: none; }
   .g2048-board {
     position: relative;
-    width: 328px;
-    height: 328px;
+    width: min(328px, 100%);
+    aspect-ratio: 1 / 1;
     background: var(--line);
     border-radius: 10px;
     box-sizing: border-box;
@@ -42,16 +42,14 @@
     position: absolute;
     inset: 8px;
     display: grid;
-    grid-template-columns: repeat(4, 72px);
-    grid-template-rows: repeat(4, 72px);
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
     gap: 8px;
   }
   .g2048-bg-cell { background: var(--paper); border-radius: 6px; }
   .g2048-tiles { position: absolute; inset: 8px; }
   .g2048-tile {
     position: absolute;
-    width: 72px;
-    height: 72px;
     border-radius: 6px;
     display: flex;
     align-items: center;
@@ -153,10 +151,29 @@ const newGameBtn = document.getElementById('newGameBtn');
 
 const BEST_KEY = 'toolcrate-game-2048-best';
 const SIZE = 4;
-const CELL = 72, GAP = 8, PITCH = CELL + GAP;
+const GAP = 8;
 const ANIM_MS = 110;
 
 let tiles, nextId, score, best, wonAnnounced, gameOver, animating;
+// Cell/pitch are computed from the board's actual rendered size rather
+// than hardcoded, since the board now shrinks to fit narrow viewports
+// (fixed 72px cells previously overflowed the page on most phones).
+let CELL = 72, PITCH = CELL + GAP;
+
+function updateMetrics() {
+  const width = tilesEl.getBoundingClientRect().width;
+  if (width > 0) {
+    CELL = (width - GAP * (SIZE - 1)) / SIZE;
+    PITCH = CELL + GAP;
+  }
+}
+
+function positionTile(el, r, c) {
+  el.style.width = CELL + 'px';
+  el.style.height = CELL + 'px';
+  el.style.left = (c * PITCH) + 'px';
+  el.style.top = (r * PITCH) + 'px';
+}
 
 function loadBest() {
   try { return Number(localStorage.getItem(BEST_KEY)) || 0; } catch (e) { return 0; }
@@ -177,8 +194,7 @@ function makeTileEl(tile) {
   el.className = 'g2048-tile spawning';
   el.dataset.v = String(tile.value);
   el.textContent = String(tile.value);
-  el.style.left = (tile.c * PITCH) + 'px';
-  el.style.top = (tile.r * PITCH) + 'px';
+  positionTile(el, tile.r, tile.c);
   tilesEl.appendChild(el);
   tile.el = el;
   el.addEventListener('animationend', () => el.classList.remove('spawning'), { once: true });
@@ -195,6 +211,7 @@ function spawnTile() {
 }
 
 function newGame() {
+  updateMetrics();
   tilesEl.innerHTML = '';
   tiles = [];
   nextId = 1;
@@ -340,6 +357,15 @@ tilesEl.addEventListener('touchend', (e) => {
 }, { passive: true });
 
 newGameBtn.addEventListener('click', newGame);
+
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    updateMetrics();
+    tiles.forEach(t => { if (t.el) positionTile(t.el, t.r, t.c); });
+  }, 100);
+});
 
 best = loadBest();
 bestVal.textContent = String(best);
