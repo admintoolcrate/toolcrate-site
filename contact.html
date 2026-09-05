@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact &amp; Suggestions | Toolcrate</title>
+<meta name="description" content="Report a bug, suggest a new tool, or send general feedback to Toolcrate.">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Contact &amp; Suggestions</h1>
+    <p>Found a bug, want a new tool, or just have feedback? This goes straight to a real person.</p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="typeSelect">What's this about</label>
+        <select id="typeSelect">
+          <option value="Tool suggestion">Suggest a new tool</option>
+          <option value="Bug report">Report a bug</option>
+          <option value="General feedback">General feedback</option>
+          <option value="Other">Something else</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="nameInput">Your name (optional)</label>
+        <input type="text" id="nameInput" placeholder="Optional" autocomplete="name">
+      </div>
+    </div>
+    <div class="field">
+      <label for="messageInput">Message</label>
+      <textarea id="messageInput" rows="6" placeholder="For a tool suggestion, the more detail the better — what should it calculate or convert, and why?"></textarea>
+    </div>
+    <div class="btn-row">
+      <button id="sendBtn">Open in email app</button>
+      <button id="copyEmailBtn" class="secondary">Copy email address</button>
+      <span id="copyFeedback" class="copy-feedback">Copied</span>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="explainer">
+    <h2>How this works</h2>
+    <p>Toolcrate has no server or database, so there's no contact form to submit to — "Open in email app" simply builds a pre-filled email (to <a href="mailto:admin.toolcrate@gmail.com">admin.toolcrate@gmail.com</a>) and hands it to whatever email app your browser or device has set up, the same as clicking a normal <code>mailto:</code> link. If that doesn't open anything (common if you don't have a default email app configured on this device), use "Copy email address" and send it from wherever you do check mail.</p>
+    <p>Nothing you type here is sent anywhere by this page itself — it only ever leaves your device once you actually send the email.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a></span>
+  </div>
+</footer>
+
+<script>
+const CONTACT_EMAIL = 'admin.toolcrate@gmail.com';
+
+const typeSelect = document.getElementById('typeSelect');
+const nameInput = document.getElementById('nameInput');
+const messageInput = document.getElementById('messageInput');
+const sendBtn = document.getElementById('sendBtn');
+const copyEmailBtn = document.getElementById('copyEmailBtn');
+const copyFeedback = document.getElementById('copyFeedback');
+const errorEl = document.getElementById('error');
+
+function showError(msg) { errorEl.textContent = msg; }
+
+sendBtn.addEventListener('click', () => {
+  showError('');
+  const message = messageInput.value.trim();
+  if (!message) {
+    showError('Enter a message first.');
+    return;
+  }
+
+  const subject = `[Toolcrate] ${typeSelect.value}`;
+  const name = nameInput.value.trim();
+  const body = name ? `${message}\n\n— ${name}` : message;
+
+  const mailtoUrl = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailtoUrl;
+});
+
+copyEmailBtn.addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(CONTACT_EMAIL);
+    copyFeedback.classList.add('show');
+    setTimeout(() => copyFeedback.classList.remove('show'), 1500);
+  } catch (e) { /* clipboard unavailable */ }
+});
+</script>
+
+<script src="theme.js"></script>
+</body>
+</html>
