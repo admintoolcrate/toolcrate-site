@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Combinations &amp; Permutations Calculator | toolcrate</title>
+<meta name="description" content="Calculate combinations (nCr) and permutations (nPr) for any n and r, with factorial breakdowns. No signup, nothing uploaded to a server.">
+<link rel="canonical" href="https://toolcrate.cc/tools/combinations-permutations.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/tools/combinations-permutations.html">
+<meta property="og:title" content="Combinations &amp; Permutations Calculator | toolcrate">
+<meta property="og:description" content="Calculate combinations (nCr) and permutations (nPr) for any n and r, with factorial breakdowns. No signup, nothing uploaded to a server.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Combinations &amp; Permutations Calculator | toolcrate">
+<meta name="twitter:description" content="Calculate combinations (nCr) and permutations (nPr) for any n and r, with factorial breakdowns. No signup, nothing uploaded to a server.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Combinations & Permutations Calculator",
+  "description": "Calculate combinations (nCr) and permutations (nPr) for any n and r, with factorial breakdowns. No signup, nothing uploaded to a server.",
+  "url": "https://toolcrate.cc/tools/combinations-permutations.html",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Combinations &amp; Permutations Calculator</h1>
+    <p>Work out nCr and nPr for any n and r, with the working shown.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="nInput">n (total items)</label>
+        <input type="number" id="nInput" value="10" min="0" step="1">
+      </div>
+      <div class="field">
+        <label for="rInput">r (chosen items)</label>
+        <input type="number" id="rInput" value="3" min="0" step="1">
+      </div>
+    </div>
+    <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="combinationsValue">—</span><span class="stat-label">Combinations (nCr) — order doesn't matter</span></div>
+    <div class="stat"><span class="stat-value" id="permutationsValue">—</span><span class="stat-label">Permutations (nPr) — order matters</span></div>
+  </div>
+
+  <div class="field">
+    <label>Working</label>
+    <div id="working" class="output-panel empty">Enter n and r above.</div>
+  </div>
+
+  <div class="explainer">
+    <h2>Combinations vs. permutations</h2>
+    <p><strong>Combinations</strong> (nCr) count how many ways to choose r items from n when order doesn't matter — picking {A, B} is the same as picking {B, A}. The formula is n! / (r! × (n − r)!). <strong>Permutations</strong> (nPr) count the same choice but treat different orderings as distinct — {A, B} and {B, A} count separately. The formula is n! / (n − r)!, which is always ≥ the combination count for the same n and r since it doesn't collapse the reorderings.</p>
+    <p>Factorials grow extremely fast, so very large n (roughly above 170) will overflow standard floating-point precision — results beyond that point may show as <code>Infinity</code> rather than a precise number. Nothing entered here is sent to a server; the calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const nInput = document.getElementById('nInput');
+const rInput = document.getElementById('rInput');
+const errorEl = document.getElementById('error');
+const combinationsValueEl = document.getElementById('combinationsValue');
+const permutationsValueEl = document.getElementById('permutationsValue');
+const workingEl = document.getElementById('working');
+
+function fmt(n) {
+  if (!isFinite(n)) return '∞';
+  return n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+}
+
+// Factorial ratio n! / (n-k)!, computed as a product to avoid overflowing
+// on huge intermediate factorials before the ratio would otherwise cancel out.
+function fallingFactorial(n, k) {
+  let result = 1;
+  for (let i = 0; i < k; i++) result *= (n - i);
+  return result;
+}
+
+function factorial(n) {
+  let result = 1;
+  for (let i = 2; i <= n; i++) result *= i;
+  return result;
+}
+
+function calc() {
+  errorEl.textContent = '';
+  const n = parseInt(nInput.value, 10);
+  const r = parseInt(rInput.value, 10);
+
+  if (isNaN(n) || isNaN(r) || n < 0 || r < 0 || !Number.isInteger(n) || !Number.isInteger(r)) {
+    errorEl.textContent = 'Enter non-negative whole numbers for n and r.';
+    combinationsValueEl.textContent = '—';
+    permutationsValueEl.textContent = '—';
+    workingEl.textContent = 'Enter n and r above.';
+    workingEl.classList.add('empty');
+    return;
+  }
+
+  if (r > n) {
+    errorEl.textContent = 'r cannot be greater than n — you cannot choose more items than exist.';
+    combinationsValueEl.textContent = '0';
+    permutationsValueEl.textContent = '0';
+    workingEl.textContent = 'r > n, so there are no valid arrangements.';
+    workingEl.classList.remove('empty');
+    return;
+  }
+
+  const nPr = fallingFactorial(n, r);
+  const nCr = nPr / factorial(r);
+
+  combinationsValueEl.textContent = fmt(nCr);
+  permutationsValueEl.textContent = fmt(nPr);
+
+  workingEl.classList.remove('empty');
+  workingEl.textContent =
+    `nPr = n! / (n − r)! = ${n}! / ${n - r}! = ${fmt(nPr)}\n` +
+    `nCr = nPr / r! = ${fmt(nPr)} / ${r}! = ${fmt(nCr)}`;
+}
+
+nInput.addEventListener('input', calc);
+rInput.addEventListener('input', calc);
+calc();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>
