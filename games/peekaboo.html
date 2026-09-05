@@ -56,7 +56,7 @@
 <header class="site-header">
   <div class="site-header-inner">
     <div class="brand-wrap"><a href="/" class="brand">tool<em>crate</em></a><a href="/games.html" class="brand-offshoot">games</a></div>
-    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="soundToggle" class="theme-toggle" aria-label="Toggle sound" title="Mute sound" style="margin-right:0.5rem;">🔊</button><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
   </div>
 </header>
 
@@ -120,6 +120,7 @@ function ensureAudio() {
   if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 function playChime() {
+  if (window.ToolcrateSound && ToolcrateSound.isMuted()) return;
   ensureAudio();
   const now = audioCtx.currentTime;
   [523.25, 659.25, 783.99].forEach((freq, i) => {
@@ -176,6 +177,7 @@ buildGrid();
 </script>
 
 <script src="../theme.js"></script>
+<script src="../sound.js"></script>
 <script>
 (function() {
   var shareBtn = document.getElementById('shareBtn');

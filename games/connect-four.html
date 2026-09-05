@@ -37,21 +37,23 @@
     color: var(--ink-soft);
   }
   .mode-toggle button.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-  .c4-wrap { overflow-x: auto; }
+  .c4-wrap { width: min(360px, 100%); margin: 0 auto; }
   .c4-board {
     display: grid;
-    grid-template-columns: repeat(7, 44px);
-    grid-template-rows: repeat(6, 44px);
-    gap: 5px;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 4px;
     background: var(--line);
     padding: 6px;
     border-radius: 10px;
-    margin: 0 auto;
-    width: max-content;
+    width: 100%;
+    aspect-ratio: 7 / 6;
+    box-sizing: border-box;
   }
   .c4-cell {
-    width: 44px;
-    height: 44px;
+    width: 100%;
+    min-width: 0;
+    height: 100%;
     border-radius: 50%;
     background: var(--paper);
     border: none;
@@ -69,10 +71,20 @@
   .c4-cell.red::after { background: #C0392B; }
   .c4-cell.yellow::after { background: #E1A82D; }
   .c4-cell.win::after { outline: 3px solid var(--ok); outline-offset: -3px; }
-  .c4-cols { display: flex; gap: 5px; justify-content: center; margin: 0 auto 0.6rem; width: max-content; padding: 0 6px; }
+  .c4-cols {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 6px;
+    margin: 0 0 0.6rem;
+  }
   .c4-col-btn {
-    width: 44px;
+    width: 100%;
+    min-width: 0;
     height: 32px;
+    padding: 0;
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 6px;

@@ -11,17 +11,17 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Counting Balloons">
 <title>Counting Balloons | toolcrate</title>
-<meta name="description" content="A gentle counting game for toddlers. Pop the balloons in order from 1 to 5. No score, no losing.">
+<meta name="description" content="A gentle counting game for toddlers. Pop the balloons in order, up to 10. No score, no losing.">
 <link rel="canonical" href="https://toolcrate.cc/games/counting-balloons.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="toolcrate">
 <meta property="og:url" content="https://toolcrate.cc/games/counting-balloons.html">
 <meta property="og:title" content="Counting Balloons | toolcrate">
-<meta property="og:description" content="A gentle counting game for toddlers. Pop the balloons in order from 1 to 5. No score, no losing.">
+<meta property="og:description" content="A gentle counting game for toddlers. Pop the balloons in order, up to 10. No score, no losing.">
 <meta property="og:image" content="https://toolcrate.cc/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Counting Balloons | toolcrate">
-<meta name="twitter:description" content="A gentle counting game for toddlers. Pop the balloons in order from 1 to 5. No score, no losing.">
+<meta name="twitter:description" content="A gentle counting game for toddlers. Pop the balloons in order, up to 10. No score, no losing.">
 <meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -49,7 +49,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: clamp(3rem, 10vw, 4.5rem);
+    font-size: var(--balloon-size, clamp(3rem, 10vw, 4.5rem));
     line-height: 1;
   }
   .cb-num {
@@ -57,7 +57,7 @@
     top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 1.4rem;
+    font-size: calc(var(--balloon-size, 3.5rem) * 0.3);
     font-weight: 800;
     color: #fff;
     text-shadow: 0 1px 3px rgba(0,0,0,0.4);
@@ -74,17 +74,37 @@
 <header class="site-header">
   <div class="site-header-inner">
     <div class="brand-wrap"><a href="/" class="brand">tool<em>crate</em></a><a href="/games.html" class="brand-offshoot">games</a></div>
-    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="soundToggle" class="theme-toggle" aria-label="Toggle sound" title="Mute sound" style="margin-right:0.5rem;">🔊</button><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
   </div>
 </header>
 
 <main>
   <div class="tool-header">
     <h1>Counting Balloons</h1>
-    <p>Pop the balloons in order, 1 through 5. No score, no losing — just counting.</p>
+    <p>Pop the balloons in order, starting from 1. No score, no losing — just counting.</p>
     <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
   <span class="copy-feedback" id="shareFeedback">Copied</span>
   <p class="last-updated">Last updated <time datetime="2026-09-05">Sep 5, 2026</time></p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field" style="margin-bottom: 0;">
+        <label for="countSelect">Number of balloons</label>
+        <select id="countSelect">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5" selected>5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+    </div>
   </div>
 
   <div class="panel">
@@ -94,7 +114,7 @@
 
   <div class="explainer">
     <h2>About this game</h2>
-    <p>Made for toddlers (with a grown-up nearby): five numbered balloons are scattered around the screen in a new arrangement each round. Tapping the next number in sequence pops it with a cheerful chime and says the number out loud; tapping out of order just gives the balloon a gentle wobble, no penalty, no losing. Popping all five starts a fresh round with the balloons shuffled to new spots. Uses your browser's built-in speech synthesis to say each number.</p>
+    <p>Made for toddlers (with a grown-up nearby): numbered balloons — however many you choose, up to 10 — are scattered around the screen in a new arrangement each round. Tapping the next number in sequence pops it with a cheerful chime and says the number out loud; tapping out of order just gives the balloon a gentle wobble, no penalty, no losing. Popping them all starts a fresh round with the balloons shuffled to new spots. Uses your browser's built-in speech synthesis to say each number.</p>
   </div>
 
 <div class="ad-slot">
@@ -121,19 +141,45 @@
 <script>
 const callout = document.getElementById('callout');
 const stage = document.getElementById('stage');
-
-const COUNT = 5;
-const SLOTS = [
-  { left: '15%', top: '68%' },
-  { left: '32%', top: '28%' },
-  { left: '52%', top: '62%' },
-  { left: '70%', top: '25%' },
-  { left: '87%', top: '65%' },
-];
+const countSelect = document.getElementById('countSelect');
 
 let nextExpected = 1;
 
+// Lays out `count` balloons on a grid sized to the stage's actual current
+// pixels (not just viewport width), so balloon size and spacing both shrink
+// together on narrow screens or high counts — a fixed set of percentage
+// slots couldn't scale below its cell size and caused balloons to overlap
+// once more than a handful were packed into a narrow stage.
+function computeLayout(count, stageWidth, stageHeight) {
+  const cols = Math.min(count, 5);
+  const rows = Math.ceil(count / cols);
+  const cellW = stageWidth / cols;
+  const cellH = stageHeight / rows;
+  const size = Math.min(90, Math.max(30, Math.min(cellW, cellH) * 0.62));
+  const jitterX = cellW * 0.14;
+  const jitterY = cellH * 0.14;
+  const positions = [];
+  for (let i = 0; i < count; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const x = cellW * (col + 0.5) + (Math.random() * 2 - 1) * jitterX;
+    const y = cellH * (row + 0.5) + (Math.random() * 2 - 1) * jitterY;
+    positions.push({ x, y });
+  }
+  return { positions: shuffle(positions), size };
+}
+let currentCount = 5;
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 function speak(text) {
+  if (window.ToolcrateSound && ToolcrateSound.isMuted()) return;
   if (typeof speechSynthesis === 'undefined') return;
   try {
     speechSynthesis.cancel();
@@ -150,6 +196,7 @@ function ensureAudio() {
   if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 function playChime(rising) {
+  if (window.ToolcrateSound && ToolcrateSound.isMuted()) return;
   ensureAudio();
   const now = audioCtx.currentTime;
   const notes = rising ? [523.25, 659.25, 783.99] : [392, 329.63];
@@ -172,18 +219,18 @@ function playChime(rising) {
 function spawnBalloons() {
   stage.innerHTML = '';
   nextExpected = 1;
-  const numbers = Array.from({ length: COUNT }, (_, i) => i + 1);
-  for (let i = numbers.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
-  }
-  SLOTS.forEach((slot, i) => {
+  currentCount = Number(countSelect.value) || 5;
+  const numbers = shuffle(Array.from({ length: currentCount }, (_, i) => i + 1));
+  const stageRect = stage.getBoundingClientRect();
+  const { positions, size } = computeLayout(currentCount, stageRect.width || 320, stageRect.height || 420);
+  stage.style.setProperty('--balloon-size', size + 'px');
+  positions.forEach((pos, i) => {
     const num = numbers[i];
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'cb-balloon';
-    btn.style.left = slot.left;
-    btn.style.top = slot.top;
+    btn.style.left = pos.x + 'px';
+    btn.style.top = pos.y + 'px';
     btn.innerHTML = '🎈<span class="cb-num">' + num + '</span>';
     btn.dataset.num = num;
     btn.addEventListener('pointerdown', () => tapBalloon(num, btn));
@@ -201,9 +248,9 @@ function tapBalloon(num, btn) {
     btn.disabled = true;
     setTimeout(() => btn.remove(), 350);
     nextExpected++;
-    if (nextExpected > COUNT) {
-      callout.textContent = 'You counted to 5! 🎉';
-      speak('You counted to 5!');
+    if (nextExpected > currentCount) {
+      callout.textContent = 'You counted to ' + currentCount + '! 🎉';
+      speak('You counted to ' + currentCount + '!');
       setTimeout(spawnBalloons, 1800);
     } else {
       callout.textContent = 'Find balloon ' + nextExpected + '!';
@@ -217,10 +264,13 @@ function tapBalloon(num, btn) {
   }
 }
 
+countSelect.addEventListener('change', spawnBalloons);
+
 spawnBalloons();
 </script>
 
 <script src="../theme.js"></script>
+<script src="../sound.js"></script>
 <script>
 (function() {
   var shareBtn = document.getElementById('shareBtn');

@@ -31,18 +31,23 @@
 <style>
   .wam-board {
     display: grid;
-    grid-template-columns: repeat(3, 90px);
-    grid-template-rows: repeat(3, 90px);
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
     gap: 10px;
     margin: 0 auto;
-    width: max-content;
+    width: min(300px, 100%);
+    aspect-ratio: 1 / 1;
   }
   .wam-hole {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    padding: 0;
     background: color-mix(in srgb, var(--ink) 8%, var(--paper));
     border: 1px solid var(--line);
     border-radius: 50%;
     cursor: pointer;
-    font-size: 2.4rem;
+    font-size: clamp(1.6rem, 9vw, 2.4rem);
     display: flex;
     align-items: center;
     justify-content: center;
