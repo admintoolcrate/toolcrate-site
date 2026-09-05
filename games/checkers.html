@@ -6,6 +6,10 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Checkers">
 <title>Checkers | toolcrate</title>
 <meta name="description" content="Play Checkers (Draughts) against the computer or a friend. Mandatory captures, multi-jumps, and kings. Free browser game, scores saved on your device.">
 <link rel="canonical" href="https://toolcrate.cc/games/checkers.html">
@@ -80,6 +84,7 @@
     <p>Standard rules: captures are mandatory, chain-jump when you can, reach the far row to king.</p>
     <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
   <span class="copy-feedback" id="shareFeedback">Copied</span>
+  <p class="last-updated">Last updated <time datetime="2026-09-05">Sep 5, 2026</time></p>
   </div>
 
   <div class="panel">
@@ -416,7 +421,14 @@ function render() {
     ? legalNow.filter(m => m.from.join(',') === selected.join(','))
     : [];
 
-  for (let r = 0; r < SIZE; r++) {
+  // Red's home rows are 0-2, Black's are 5-7; rendering row 0 first (as the
+  // loop below does when unflipped) puts Red at the visual top. Flip the
+  // row order so whichever color the human is playing always sits at the
+  // bottom of the board, the way a real checkers board is set up for you.
+  const flipped = mode === 'computer' && humanColor === 'R';
+
+  for (let vr = 0; vr < SIZE; vr++) {
+    const r = flipped ? SIZE - 1 - vr : vr;
     for (let c = 0; c < SIZE; c++) {
       const cell = document.createElement('button');
       cell.type = 'button';

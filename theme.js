@@ -37,4 +37,78 @@
       btn.click();
     }
   });
+
+  // "Add to Home Screen" hint: a native install prompt on Android/Chrome
+  // (via beforeinstallprompt — there's no equivalent way to trigger it
+  // programmatically), and manual instructions on iOS Safari, which has no
+  // install API at all. Each page's own <meta name="apple-mobile-web-app-title">
+  // is set to that page's own tool name, so pinning a specific tool on iOS
+  // gets a distinct home-screen icon and label rather than a generic one.
+  (function () {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (isStandalone) return;
+
+    const DISMISS_KEY = 'toolcrate-install-hint-dismissed';
+    function isDismissed() {
+      try { return localStorage.getItem(DISMISS_KEY) === '1'; } catch (e) { return false; }
+    }
+    function dismiss() {
+      try { localStorage.setItem(DISMISS_KEY, '1'); } catch (e) { /* storage unavailable */ }
+      hideBanner();
+    }
+
+    let banner = null;
+    function showBanner(text, actionLabel, onAction) {
+      if (isDismissed() || banner || !document.body) return;
+      banner = document.createElement('div');
+      banner.className = 'install-hint';
+
+      const textEl = document.createElement('span');
+      textEl.textContent = text;
+      banner.appendChild(textEl);
+
+      if (actionLabel) {
+        const actionBtn = document.createElement('button');
+        actionBtn.type = 'button';
+        actionBtn.className = 'install-hint-action';
+        actionBtn.textContent = actionLabel;
+        actionBtn.addEventListener('click', function () {
+          if (onAction) onAction();
+          dismiss();
+        });
+        banner.appendChild(actionBtn);
+      }
+
+      const dismissBtn = document.createElement('button');
+      dismissBtn.type = 'button';
+      dismissBtn.className = 'install-hint-dismiss';
+      dismissBtn.setAttribute('aria-label', 'Dismiss');
+      dismissBtn.textContent = '✕';
+      dismissBtn.addEventListener('click', dismiss);
+      banner.appendChild(dismissBtn);
+
+      document.body.appendChild(banner);
+    }
+    function hideBanner() {
+      if (banner) { banner.remove(); banner = null; }
+    }
+
+    // Android / Chrome / Edge: the browser offers a real install prompt.
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      const deferredPrompt = e;
+      showBanner('Install toolcrate for quick access from your home screen.', 'Install', function () {
+        deferredPrompt.prompt();
+      });
+    });
+
+    // iOS Safari has no install API — "Add to Home Screen" is a manual
+    // step from the Share sheet, so just point people at it.
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+    if (isIOS && isSafari) {
+      showBanner('Add this to your Home Screen: tap Share, then "Add to Home Screen".', null, null);
+    }
+  })();
 })();
