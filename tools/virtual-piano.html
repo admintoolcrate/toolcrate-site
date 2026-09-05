@@ -94,7 +94,7 @@
 <main>
   <div class="tool-header">
     <h1>Virtual Piano</h1>
-    <p>Play with your mouse, touch, or computer keyboard (A–L row, with W/E/T/Y/U/O/P for the black keys).</p>
+    <p>Play with your mouse, touch, or computer keyboard (A–L row, with W/E/T/Y/U/O/P for the black keys). Extend the range or switch to a piano-like tone below.</p>
     <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
   <span class="copy-feedback" id="shareFeedback">Copied</span>
   </div>
@@ -108,10 +108,19 @@
       <div class="field" style="margin-bottom: 0; min-width: 160px;">
         <label for="waveSelect" style="margin-bottom: 0.2rem;">Tone</label>
         <select id="waveSelect">
+          <option value="piano">Piano (approximation)</option>
           <option value="triangle">Soft (triangle)</option>
           <option value="sine">Sine</option>
           <option value="sawtooth">Bright (sawtooth)</option>
           <option value="square">Square</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom: 0; min-width: 160px;">
+        <label for="octaveSelect" style="margin-bottom: 0.2rem;">Keys shown</label>
+        <select id="octaveSelect">
+          <option value="60-76">1.5 octaves (C4-E5)</option>
+          <option value="48-76">2.5 octaves (C3-E5)</option>
+          <option value="48-84">3.5 octaves (C3-C6)</option>
         </select>
       </div>
     </div>
@@ -120,7 +129,7 @@
 
   <div class="explainer">
     <h2>About this tool</h2>
-    <p>Notes are generated with the Web Audio API — real oscillators, not audio file playback — spanning C4 to E5. Click or tap a key, or use the mapped computer keys (A S D F G H J K L ; for the white keys, W E T Y U O P for the black keys in between) to play, including holding multiple keys down for chords.</p>
+    <p>Notes are synthesized live with the Web Audio API, not audio file playback. The "Piano" tone approximates a real piano's timbre using a handful of layered harmonics plus a natural decay, rather than a true sampled/MIDI piano. The A S D F G H J K L ; keyboard row (with W E T Y U O P for the black keys) always maps to the same C4-E5 range regardless of how many keys are shown, since a QWERTY keyboard only has room for so many — extra octaves are mouse/touch only. Hold multiple keys down for chords.</p>
     <p>Nothing here is recorded or uploaded — sound is generated and played entirely in your browser.</p>
   </div>
 
@@ -159,34 +168,46 @@
 const piano = document.getElementById('piano');
 const labelsToggle = document.getElementById('labelsToggle');
 const waveSelect = document.getElementById('waveSelect');
+const octaveSelect = document.getElementById('octaveSelect');
 
-// Each entry: note name, MIDI number, optional keyboard key.
-const WHITE_NOTES = [
-  { name: 'C4', midi: 60, key: 'a' },
-  { name: 'D4', midi: 62, key: 's' },
-  { name: 'E4', midi: 64, key: 'd' },
-  { name: 'F4', midi: 65, key: 'f' },
-  { name: 'G4', midi: 67, key: 'g' },
-  { name: 'A4', midi: 69, key: 'h' },
-  { name: 'B4', midi: 71, key: 'j' },
-  { name: 'C5', midi: 72, key: 'k' },
-  { name: 'D5', midi: 74, key: 'l' },
-  { name: 'E5', midi: 76, key: ';' },
-];
-// Black key sits after the white key at this index (0-based into WHITE_NOTES),
-// except after E and B (indices 2 and 6), matching a real keyboard.
-const BLACK_NOTES = [
-  { name: 'C#4', midi: 61, key: 'w', afterIndex: 0 },
-  { name: 'D#4', midi: 63, key: 'e', afterIndex: 1 },
-  { name: 'F#4', midi: 66, key: 't', afterIndex: 3 },
-  { name: 'G#4', midi: 68, key: 'y', afterIndex: 4 },
-  { name: 'A#4', midi: 70, key: 'u', afterIndex: 5 },
-  { name: 'C#5', midi: 73, key: 'o', afterIndex: 7 },
-  { name: 'D#5', midi: 75, key: 'p', afterIndex: 8 },
-];
+const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const IS_WHITE = { C: true, D: true, E: true, F: true, G: true, A: true, B: true };
+
+// Keyboard keys are only assigned within this original C4-E5 range, matching
+// a real keyboard layout; notes outside it (from wider octave ranges) are
+// mouse/touch only since a QWERTY keyboard has no sensible room for more.
+const KEYBOARD_MAP = {
+  60: 'a', 62: 's', 64: 'd', 65: 'f', 67: 'g', 69: 'h', 71: 'j', 72: 'k', 74: 'l', 76: ';',
+  61: 'w', 63: 'e', 66: 't', 68: 'y', 70: 'u', 73: 'o', 75: 'p',
+};
+
+function midiName(midi) {
+  const name = NOTE_NAMES[midi % 12];
+  const octave = Math.floor(midi / 12) - 1;
+  return name + octave;
+}
+
+let WHITE_NOTES = [];
+let BLACK_NOTES = [];
+
+function buildNoteRange(startMidi, endMidi) {
+  WHITE_NOTES = [];
+  BLACK_NOTES = [];
+  let whiteIndex = -1;
+  for (let midi = startMidi; midi <= endMidi; midi++) {
+    const name = NOTE_NAMES[midi % 12];
+    const key = KEYBOARD_MAP[midi] || null;
+    if (IS_WHITE[name]) {
+      whiteIndex++;
+      WHITE_NOTES.push({ name: midiName(midi), midi, key });
+    } else {
+      BLACK_NOTES.push({ name: midiName(midi), midi, key, afterIndex: whiteIndex });
+    }
+  }
+}
 
 let audioCtx = null;
-const activeOscillators = {};
+const activeVoices = {};
 
 function midiToFreq(midi) {
   return 440 * Math.pow(2, (midi - 69) / 12);
@@ -197,9 +218,44 @@ function ensureAudio() {
   if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
+// A rough piano-like timbre: a few harmonics at decreasing amplitude, and a
+// percussive envelope that decays even while the key is held (a real piano
+// string always loses energy, unlike a sustained organ/synth tone).
+function playPianoNote(midi) {
+  const freq = midiToFreq(midi);
+  const now = audioCtx.currentTime;
+  const master = audioCtx.createGain();
+  master.gain.setValueAtTime(0.0001, now);
+  master.gain.exponentialRampToValueAtTime(0.3, now + 0.008);
+  master.gain.exponentialRampToValueAtTime(0.04, now + 1.6);
+  master.connect(audioCtx.destination);
+
+  const harmonics = [1, 2, 3, 4, 5];
+  const weights = [1, 0.5, 0.28, 0.15, 0.08];
+  const oscs = harmonics.map((h, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq * h;
+    gain.gain.value = weights[i];
+    osc.connect(gain);
+    gain.connect(master);
+    osc.start(now);
+    return osc;
+  });
+
+  activeVoices[midi] = { oscs, gain: master, isPiano: true };
+}
+
 function playNote(midi) {
   ensureAudio();
-  if (activeOscillators[midi]) return;
+  if (activeVoices[midi]) return;
+
+  if (waveSelect.value === 'piano') {
+    playPianoNote(midi);
+    return;
+  }
+
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   osc.type = waveSelect.value;
@@ -209,19 +265,20 @@ function playNote(midi) {
   osc.connect(gain);
   gain.connect(audioCtx.destination);
   osc.start();
-  activeOscillators[midi] = { osc, gain };
+  activeVoices[midi] = { oscs: [osc], gain, isPiano: false };
 }
 
 function stopNote(midi) {
-  const active = activeOscillators[midi];
+  const active = activeVoices[midi];
   if (!active) return;
-  const { osc, gain } = active;
+  const { oscs, gain, isPiano } = active;
   const now = audioCtx.currentTime;
+  const releaseTime = isPiano ? 0.3 : 0.15;
   gain.gain.cancelScheduledValues(now);
   gain.gain.setValueAtTime(gain.gain.value, now);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
-  osc.stop(now + 0.16);
-  delete activeOscillators[midi];
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + releaseTime);
+  oscs.forEach(osc => osc.stop(now + releaseTime + 0.01));
+  delete activeVoices[midi];
 }
 
 function keyElFor(midi) {
@@ -233,17 +290,26 @@ function setActive(midi, active) {
   if (el) el.classList.toggle('active', active);
 }
 
+const keyToMidi = {};
+
+function rebuildKeyMap() {
+  for (const k in keyToMidi) delete keyToMidi[k];
+  WHITE_NOTES.concat(BLACK_NOTES).forEach(n => { if (n.key) keyToMidi[n.key] = n.midi; });
+}
+
 function buildPiano() {
   piano.innerHTML = '';
   const whiteWidth = 100 / WHITE_NOTES.length;
+  const showLabels = labelsToggle.checked;
 
-  WHITE_NOTES.forEach((note, i) => {
+  WHITE_NOTES.forEach((note) => {
     const el = document.createElement('div');
     el.className = 'white-key';
     el.dataset.midi = note.midi;
     const label = document.createElement('span');
     label.className = 'key-label';
-    label.textContent = note.key.toUpperCase();
+    label.textContent = note.key ? note.key.toUpperCase() : '';
+    label.style.visibility = showLabels ? 'visible' : 'hidden';
     el.appendChild(label);
     piano.appendChild(el);
   });
@@ -255,13 +321,23 @@ function buildPiano() {
     el.style.left = ((note.afterIndex + 1) * whiteWidth - 3.25) + '%';
     const label = document.createElement('span');
     label.className = 'key-label';
-    label.textContent = note.key.toUpperCase();
+    label.textContent = note.key ? note.key.toUpperCase() : '';
+    label.style.visibility = showLabels ? 'visible' : 'hidden';
     el.appendChild(label);
     piano.appendChild(el);
   });
+
+  rebuildKeyMap();
 }
 
-buildPiano();
+function setOctaveRange(rangeValue) {
+  const [start, end] = rangeValue.split('-').map(Number);
+  buildNoteRange(start, end);
+  buildPiano();
+}
+
+setOctaveRange(octaveSelect.value);
+octaveSelect.addEventListener('change', () => setOctaveRange(octaveSelect.value));
 
 function pointerDownHandler(e) {
   const keyEl = e.target.closest('[data-midi]');
@@ -272,7 +348,7 @@ function pointerDownHandler(e) {
   setActive(midi, true);
 }
 function pointerUpAll() {
-  Object.keys(activeOscillators).map(Number).forEach(midi => {
+  Object.keys(activeVoices).map(Number).forEach(midi => {
     stopNote(midi);
     setActive(midi, false);
   });
@@ -296,8 +372,6 @@ labelsToggle.addEventListener('change', () => {
   });
 });
 
-const keyToMidi = {};
-WHITE_NOTES.concat(BLACK_NOTES).forEach(n => { keyToMidi[n.key] = n.midi; });
 const heldKeys = new Set();
 
 document.addEventListener('keydown', (e) => {
