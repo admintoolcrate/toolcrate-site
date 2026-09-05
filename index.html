@@ -40,6 +40,18 @@
     </div>
   </div>
 
+  <div class="search-panel">
+    <label for="toolSearch">Search tools</label>
+    <div class="search-input-wrap">
+      <input type="text" id="toolSearch" placeholder="Search by name or what it does… (e.g. json, password, bmi)" autocomplete="off">
+      <button type="button" id="searchClear" class="search-clear" aria-label="Clear search" hidden>✕</button>
+    </div>
+    <div class="search-meta">
+      <span id="resultsSummary"></span>
+      <span class="search-hint">Press <kbd>/</kbd> to search</span>
+    </div>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -52,7 +64,10 @@
 </script>
 </div>
 
-  <p class="category-label" id="dev">01 — Developer</p>
+  <p id="noResults" class="no-results" hidden></p>
+
+  <section class="category-group" id="dev">
+  <p class="category-label">01 — Developer <span class="category-count">22 tools</span></p>
   <ul class="tool-list">
     <li><a href="/tools/json-formatter.html"><span class="tool-name">JSON Formatter &amp; Validator</span><span class="tool-desc">Pretty-print, minify, validate</span></a></li>
     <li><a href="/tools/uuid-generator.html"><span class="tool-name">UUID Generator</span><span class="tool-desc">Generate v4 UUIDs in bulk</span></a></li>
@@ -77,8 +92,10 @@
     <li><a href="/tools/box-shadow-generator.html"><span class="tool-name">Box Shadow Generator</span><span class="tool-desc">Layered shadows with live preview</span></a></li>
     <li><a href="/tools/css-clamp-calculator.html"><span class="tool-name">CSS Clamp() Calculator</span><span class="tool-desc">Fluid font-size and spacing values</span></a></li>
   </ul>
+  </section>
 
-  <p class="category-label" id="text">02 — Text</p>
+  <section class="category-group" id="text">
+  <p class="category-label">02 — Text <span class="category-count">19 tools</span></p>
   <ul class="tool-list">
     <li><a href="/tools/word-counter.html"><span class="tool-name">Word &amp; Character Counter</span><span class="tool-desc">Live stats, reading time</span></a></li>
     <li><a href="/tools/case-converter.html"><span class="tool-name">Case Converter</span><span class="tool-desc">UPPER, lower, Title, camelCase</span></a></li>
@@ -100,8 +117,10 @@
     <li><a href="/tools/syllable-counter.html"><span class="tool-name">Syllable Counter</span><span class="tool-desc">Estimate syllables per word</span></a></li>
     <li><a href="/tools/readability-checker.html"><span class="tool-name">Readability Score Checker</span><span class="tool-desc">Flesch-Kincaid and similar scores</span></a></li>
   </ul>
+  </section>
 
-  <p class="category-label" id="convert">03 — Convert</p>
+  <section class="category-group" id="convert">
+  <p class="category-label">03 — Convert <span class="category-count">10 tools</span></p>
   <ul class="tool-list">
     <li><a href="/tools/cooking-converter.html"><span class="tool-name">Cooking Measurement Converter</span><span class="tool-desc">By ingredient, not a flat rate</span></a></li>
     <li><a href="/tools/unit-converter.html"><span class="tool-name">Unit Converter</span><span class="tool-desc">Length, weight, temperature, speed, data, area</span></a></li>
@@ -114,8 +133,10 @@
     <li><a href="/tools/clothing-size-converter.html"><span class="tool-name">Clothing Size Converter</span><span class="tool-desc">US, UK, EU sizing</span></a></li>
     <li><a href="/tools/ring-size-converter.html"><span class="tool-name">Ring Size Converter</span><span class="tool-desc">US, UK, EU, and diameter</span></a></li>
   </ul>
+  </section>
 
-  <p class="category-label" id="math">04 — Math &amp; Percentages</p>
+  <section class="category-group" id="math">
+  <p class="category-label">04 — Math &amp; Percentages <span class="category-count">15 tools</span></p>
   <ul class="tool-list">
     <li><a href="/tools/percentage-of-number.html"><span class="tool-name">Percentage of a Number</span><span class="tool-desc">What is X% of Y</span></a></li>
     <li><a href="/tools/percent-of-x-is-y.html"><span class="tool-name">What Percent Is X of Y?</span><span class="tool-desc">Find the percentage share</span></a></li>
@@ -133,8 +154,10 @@
     <li><a href="/tools/markup-margin.html"><span class="tool-name">Markup vs. Margin</span><span class="tool-desc">Two different percentages, explained</span></a></li>
     <li><a href="/tools/interest-calculator.html"><span class="tool-name">Simple &amp; Compound Interest</span><span class="tool-desc">Educational, not financial advice</span></a></li>
   </ul>
+  </section>
 
-  <p class="category-label" id="generators">05 — Generators</p>
+  <section class="category-group" id="generators">
+  <p class="category-label">05 — Generators <span class="category-count">11 tools</span></p>
   <ul class="tool-list">
     <li><a href="/tools/password-generator.html"><span class="tool-name">Password Generator</span><span class="tool-desc">Length, character sets, entropy indicator</span></a></li>
     <li><a href="/tools/qr-code-generator.html"><span class="tool-name">QR Code Generator</span><span class="tool-desc">Text or URL, downloadable</span></a></li>
@@ -148,8 +171,10 @@
     <li><a href="/tools/wifi-qr-generator.html"><span class="tool-name">Wi-Fi QR Code Generator</span><span class="tool-desc">Scan-to-connect network codes</span></a></li>
     <li><a href="/tools/passphrase-generator.html"><span class="tool-name">Passphrase Generator</span><span class="tool-desc">Memorable word-based passphrases</span></a></li>
   </ul>
+  </section>
 
-  <p class="category-label" id="everyday">06 — Everyday Calculators</p>
+  <section class="category-group" id="everyday">
+  <p class="category-label">06 — Everyday Calculators <span class="category-count">5 tools</span></p>
   <ul class="tool-list">
     <li><a href="/tools/tip-calculator.html"><span class="tool-name">Tip Calculator</span><span class="tool-desc">Bill splitting included</span></a></li>
     <li><a href="/tools/discount-calculator.html"><span class="tool-name">Discount Calculator</span><span class="tool-desc">Sale price and amount saved</span></a></li>
@@ -157,8 +182,10 @@
     <li><a href="/tools/gpa-calculator.html"><span class="tool-name">GPA Calculator</span><span class="tool-desc">4.0 scale, add as many courses as needed</span></a></li>
     <li><a href="/tools/time-card-calculator.html"><span class="tool-name">Time Card Calculator</span><span class="tool-desc">Work hours, overtime, pay</span></a></li>
   </ul>
+  </section>
 
-  <p class="category-label" id="datetime">07 — Date &amp; Time</p>
+  <section class="category-group" id="datetime">
+  <p class="category-label">07 — Date &amp; Time <span class="category-count">9 tools</span></p>
   <ul class="tool-list">
     <li><a href="/tools/days-between-dates.html"><span class="tool-name">Days Between Two Dates</span><span class="tool-desc">Exact day count between any two dates</span></a></li>
     <li><a href="/tools/date-add-subtract.html"><span class="tool-name">Add / Subtract Days from a Date</span><span class="tool-desc">Find a date N days out</span></a></li>
@@ -170,8 +197,10 @@
     <li><a href="/tools/leap-year-checker.html"><span class="tool-name">Leap Year Checker</span><span class="tool-desc">Check any year, see the rule applied</span></a></li>
     <li><a href="/tools/age-in-units.html"><span class="tool-name">Age in Days / Hours / Minutes</span><span class="tool-desc">Your exact age in smaller units</span></a></li>
   </ul>
+  </section>
 
-  <p class="category-label" id="health">08 — Health &amp; Fitness</p>
+  <section class="category-group" id="health">
+  <p class="category-label">08 — Health &amp; Fitness <span class="category-count">7 tools</span></p>
   <ul class="tool-list">
     <li><a href="/tools/bmi-calculator.html"><span class="tool-name">BMI Calculator</span><span class="tool-desc">Metric/imperial, WHO ranges, educational</span></a></li>
     <li><a href="/tools/tdee-calculator.html"><span class="tool-name">Calorie / TDEE Calculator</span><span class="tool-desc">Mifflin-St Jeor equation</span></a></li>
@@ -181,8 +210,10 @@
     <li><a href="/tools/pace-calculator.html"><span class="tool-name">Pace / Split Calculator</span><span class="tool-desc">Running pace and splits</span></a></li>
     <li><a href="/tools/heart-rate-zones.html"><span class="tool-name">Heart Rate Zone Calculator</span><span class="tool-desc">Training zones from max HR</span></a></li>
   </ul>
+  </section>
 
-  <p class="category-label" id="music">09 — Music</p>
+  <section class="category-group" id="music">
+  <p class="category-label">09 — Music <span class="category-count">5 tools</span></p>
   <ul class="tool-list">
     <li><a href="/tools/bpm-tap-tempo.html"><span class="tool-name">BPM Tap Tempo</span><span class="tool-desc">Tap along to find a song's tempo</span></a></li>
     <li><a href="/tools/metronome.html"><span class="tool-name">Metronome</span><span class="tool-desc">Adjustable tempo and time signature</span></a></li>
@@ -190,8 +221,10 @@
     <li><a href="/tools/chord-interval-calculator.html"><span class="tool-name">Chord &amp; Interval Calculator</span><span class="tool-desc">Build chords from a root note</span></a></li>
     <li><a href="/tools/note-frequency-reference.html"><span class="tool-name">Note Frequency Reference</span><span class="tool-desc">Hz for every note and octave</span></a></li>
   </ul>
+  </section>
 
-  <p class="category-label" id="utility">10 — Utility</p>
+  <section class="category-group" id="utility">
+  <p class="category-label">10 — Utility <span class="category-count">7 tools</span></p>
   <ul class="tool-list">
     <li><a href="/tools/countdown-timer.html"><span class="tool-name">Countdown Timer</span><span class="tool-desc">Set a timer, get notified</span></a></li>
     <li><a href="/tools/stopwatch.html"><span class="tool-name">Stopwatch</span><span class="tool-desc">With lap tracking</span></a></li>
@@ -201,6 +234,7 @@
     <li><a href="/tools/color-blindness-simulator.html"><span class="tool-name">Color Blindness Simulator</span><span class="tool-desc">Preview a color under common deficiencies</span></a></li>
     <li><a href="/tools/emoji-picker.html"><span class="tool-name">Emoji Picker / Search</span><span class="tool-desc">Find and copy any emoji</span></a></li>
   </ul>
+  </section>
 
   <div class="explainer">
     <h2>Why use these instead of a search snippet</h2>
@@ -216,5 +250,70 @@
 </footer>
 
 <script src="theme.js"></script>
+<script>
+(function() {
+  const searchInput = document.getElementById('toolSearch');
+  const clearBtn = document.getElementById('searchClear');
+  const resultsSummary = document.getElementById('resultsSummary');
+  const noResults = document.getElementById('noResults');
+  const groups = Array.from(document.querySelectorAll('.category-group'));
+
+  const items = [];
+  groups.forEach(group => {
+    const categoryText = group.querySelector('.category-label').textContent.toLowerCase();
+    group.querySelectorAll('.tool-list li').forEach(li => {
+      items.push({ li, group, text: li.textContent.toLowerCase() + ' ' + categoryText });
+    });
+  });
+  const totalCount = items.length;
+
+  function applyFilter() {
+    const query = searchInput.value.trim().toLowerCase();
+    clearBtn.hidden = query.length === 0;
+
+    const visibleByGroup = new Map(groups.map(g => [g, 0]));
+    let visibleTotal = 0;
+
+    items.forEach(item => {
+      const matches = query === '' || item.text.includes(query);
+      item.li.hidden = !matches;
+      if (matches) {
+        visibleTotal++;
+        visibleByGroup.set(item.group, visibleByGroup.get(item.group) + 1);
+      }
+    });
+
+    groups.forEach(group => { group.hidden = visibleByGroup.get(group) === 0; });
+
+    resultsSummary.textContent = query === '' ? '' : `${visibleTotal} of ${totalCount} tools`;
+    noResults.hidden = visibleTotal !== 0;
+    if (!noResults.hidden) {
+      noResults.textContent = `No tools match "${searchInput.value.trim()}".`;
+    }
+  }
+
+  searchInput.addEventListener('input', applyFilter);
+
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    applyFilter();
+    searchInput.focus();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const tag = document.activeElement.tagName;
+    if (e.key === '/' && tag !== 'INPUT' && tag !== 'TEXTAREA') {
+      e.preventDefault();
+      searchInput.focus();
+    } else if (e.key === 'Escape' && document.activeElement === searchInput) {
+      searchInput.value = '';
+      applyFilter();
+      searchInput.blur();
+    }
+  });
+
+  applyFilter();
+})();
+</script>
 </body>
 </html>
