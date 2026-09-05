@@ -386,6 +386,15 @@ main {
   margin-bottom: 1.65rem;
 }
 
+.donate-embed {
+  max-width: 420px;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  line-height: 0;
+}
+
 label {
   display: block;
   font-size: 0.78rem;

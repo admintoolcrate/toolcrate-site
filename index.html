@@ -16,7 +16,7 @@
 <header class="site-header">
   <div class="site-header-inner">
     <a href="/" class="brand">tool<em>crate</em></a>
-    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
   </div>
 </header>
 
@@ -49,7 +49,6 @@
       <button type="button" id="searchClear" class="search-clear" aria-label="Clear search" hidden>✕</button>
     </div>
     <div class="search-meta">
-      <span id="resultsSummary"></span>
       <label class="sort-control">Sort
         <select id="sortSelect">
           <option value="default">Category order</option>
@@ -57,6 +56,7 @@
           <option value="name-desc">Name (Z–A)</option>
         </select>
       </label>
+      <span id="resultsSummary"></span>
       <span class="search-hint">Press <kbd>/</kbd> to search</span>
     </div>
   </div>
@@ -288,7 +288,7 @@
 
   const FAVORITES_KEY = 'toolcrate-favorites';
   const RECENT_KEY = 'toolcrate-recent';
-  const RECENT_MAX = 6;
+  const RECENT_MAX = 2;
   const SORT_KEY = 'toolcrate-sort';
 
   function loadJSON(key, fallback) {
@@ -421,7 +421,8 @@
     const recentTools = recent
       .filter(href => !favorites.has(href))
       .map(href => allTools.find(t => t.href === href))
-      .filter(Boolean);
+      .filter(Boolean)
+      .slice(0, RECENT_MAX);
     recentTools.forEach(t => recentList.appendChild(buildPinnedRow(t)));
     recentSection.hidden = active || recentTools.length === 0;
   }
