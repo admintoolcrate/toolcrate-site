@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Reaction Time Test | toolcrate</title>
+<meta name="description" content="Click the instant the screen changes color and see your reaction time in milliseconds. Free browser game, best time saved on your device.">
+<link rel="canonical" href="https://toolcrate.cc/games/reaction-time.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/reaction-time.html">
+<meta property="og:title" content="Reaction Time Test | toolcrate">
+<meta property="og:description" content="Click the instant the screen changes color and see your reaction time in milliseconds. Free browser game, best time saved on your device.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Reaction Time Test | toolcrate">
+<meta name="twitter:description" content="Click the instant the screen changes color and see your reaction time in milliseconds. Free browser game, best time saved on your device.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .reaction-box {
+    height: 260px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    text-align: center;
+    padding: 1rem;
+    user-select: none;
+  }
+  .reaction-box.waiting { background: #4A4844; }
+  .reaction-box.ready { background: var(--danger); }
+  .reaction-box.go { background: var(--ok); }
+  .reaction-box.result { background: var(--ink); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Reaction Time Test</h1>
+    <p>Click as soon as the box turns green. Clicking too early restarts the round.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="lastValue">—</span><span class="stat-label">Last time (ms)</span></div>
+    <div class="stat"><span class="stat-value" id="bestValue">—</span><span class="stat-label">Best time (ms)</span></div>
+    <div class="stat"><span class="stat-value" id="avgValue">—</span><span class="stat-label">Average (last 5)</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="reaction-box waiting" id="reactionBox">Click to start</div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>After clicking to start, the box turns red for a random delay (1–4 seconds), then green — click the instant it turns green. Clicking during the red phase counts as a false start and restarts the round without recording a time. Your best time and the average of your last 5 valid attempts are saved with <code>localStorage</code> on this device. Typical human visual reaction time is roughly 200–300ms; much faster than that usually means you anticipated the change rather than reacted to it.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const BEST_KEY = 'toolcrate-game-reaction-best';
+const HISTORY_KEY = 'toolcrate-game-reaction-history';
+
+const reactionBox = document.getElementById('reactionBox');
+const lastValueEl = document.getElementById('lastValue');
+const bestValueEl = document.getElementById('bestValue');
+const avgValueEl = document.getElementById('avgValue');
+
+let state = 'idle'; // idle -> waiting -> ready -> go -> result
+let timeoutId = null;
+let goTime = 0;
+
+let best = parseInt(localStorage.getItem(BEST_KEY) || '0', 10) || null;
+let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+function updateStats() {
+  bestValueEl.textContent = best ? best : '—';
+  if (history.length > 0) {
+    const avg = Math.round(history.reduce((a, b) => a + b, 0) / history.length);
+    avgValueEl.textContent = avg;
+  }
+}
+
+function setBox(cls, text) {
+  reactionBox.className = 'reaction-box ' + cls;
+  reactionBox.textContent = text;
+}
+
+function startRound() {
+  state = 'ready';
+  setBox('ready', 'Wait for green…');
+  const delay = 1000 + Math.random() * 3000;
+  timeoutId = setTimeout(() => {
+    state = 'go';
+    goTime = performance.now();
+    setBox('go', 'Click now!');
+  }, delay);
+}
+
+reactionBox.addEventListener('click', () => {
+  if (state === 'idle' || state === 'result') {
+    startRound();
+  } else if (state === 'ready') {
+    clearTimeout(timeoutId);
+    state = 'idle';
+    setBox('waiting', 'Too soon! Click to try again.');
+  } else if (state === 'go') {
+    const reaction = Math.round(performance.now() - goTime);
+    state = 'result';
+    lastValueEl.textContent = reaction;
+    history.push(reaction);
+    if (history.length > 5) history.shift();
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    if (!best || reaction < best) {
+      best = reaction;
+      localStorage.setItem(BEST_KEY, String(best));
+    }
+    updateStats();
+    setBox('result', `${reaction} ms — click to try again`);
+  }
+});
+
+updateStats();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>

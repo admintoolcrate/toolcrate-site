@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Capital Cities Quiz | toolcrate</title>
+<meta name="description" content="Multiple-choice flashcards for world capitals. Free browser game, high score saved on your device.">
+<link rel="canonical" href="https://toolcrate.cc/games/capital-cities-quiz.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/capital-cities-quiz.html">
+<meta property="og:title" content="Capital Cities Quiz | toolcrate">
+<meta property="og:description" content="Multiple-choice flashcards for world capitals. Free browser game, high score saved on your device.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Capital Cities Quiz | toolcrate">
+<meta name="twitter:description" content="Multiple-choice flashcards for world capitals. Free browser game, high score saved on your device.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .quiz-question { font-size: 1.3rem; font-weight: 600; margin-bottom: 1.25rem; text-align: center; }
+  .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  @media (max-width: 500px) { .quiz-options { grid-template-columns: 1fr; } }
+  .quiz-options button {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 0.85rem;
+    font-size: 0.95rem;
+  }
+  .quiz-options button:hover { border-color: var(--ink-soft); }
+  .quiz-options button.correct { background: color-mix(in srgb, var(--ok) 22%, var(--paper)); border-color: var(--ok); }
+  .quiz-options button.wrong { background: color-mix(in srgb, var(--danger) 18%, var(--paper)); border-color: var(--danger); }
+  .quiz-options button:disabled { cursor: default; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Capital Cities Quiz</h1>
+    <p>Pick the correct capital for each country. Your best streak is saved on this device.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="scoreValue">0</span><span class="stat-label">Correct</span></div>
+    <div class="stat"><span class="stat-value" id="streakValue">0</span><span class="stat-label">Current streak</span></div>
+    <div class="stat"><span class="stat-value" id="bestStreakValue">0</span><span class="stat-label">Best streak</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="quiz-question" id="questionText">Loading…</div>
+    <div class="quiz-options" id="optionsWrap"></div>
+  </div>
+
+  <div class="btn-row">
+    <button id="nextBtn" style="display:none;">Next question</button>
+    <button id="resetBtn" class="secondary">Reset score</button>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>A random country and three wrong-but-plausible capital options are picked each round from a pool of 40 well-known countries. Your score, current streak, and best streak are saved with <code>localStorage</code> on this device only — there's no account and no global leaderboard.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const COUNTRIES = [
+  ['France', 'Paris'], ['Germany', 'Berlin'], ['Italy', 'Rome'], ['Spain', 'Madrid'],
+  ['Portugal', 'Lisbon'], ['United Kingdom', 'London'], ['Ireland', 'Dublin'], ['Netherlands', 'Amsterdam'],
+  ['Belgium', 'Brussels'], ['Switzerland', 'Bern'], ['Austria', 'Vienna'], ['Poland', 'Warsaw'],
+  ['Sweden', 'Stockholm'], ['Norway', 'Oslo'], ['Denmark', 'Copenhagen'], ['Finland', 'Helsinki'],
+  ['Greece', 'Athens'], ['Russia', 'Moscow'], ['Turkey', 'Ankara'], ['Egypt', 'Cairo'],
+  ['Nigeria', 'Abuja'], ['South Africa', 'Pretoria'], ['Kenya', 'Nairobi'], ['Morocco', 'Rabat'],
+  ['China', 'Beijing'], ['Japan', 'Tokyo'], ['South Korea', 'Seoul'], ['India', 'New Delhi'],
+  ['Thailand', 'Bangkok'], ['Vietnam', 'Hanoi'], ['Indonesia', 'Jakarta'], ['Australia', 'Canberra'],
+  ['New Zealand', 'Wellington'], ['Canada', 'Ottawa'], ['United States', 'Washington, D.C.'], ['Mexico', 'Mexico City'],
+  ['Brazil', 'Brasília'], ['Argentina', 'Buenos Aires'], ['Chile', 'Santiago'], ['Peru', 'Lima'],
+];
+
+const SCORE_KEY = 'toolcrate-game-capitals-score';
+const BEST_KEY = 'toolcrate-game-capitals-best';
+
+const questionText = document.getElementById('questionText');
+const optionsWrap = document.getElementById('optionsWrap');
+const scoreValueEl = document.getElementById('scoreValue');
+const streakValueEl = document.getElementById('streakValue');
+const bestStreakValueEl = document.getElementById('bestStreakValue');
+const nextBtn = document.getElementById('nextBtn');
+const resetBtn = document.getElementById('resetBtn');
+
+let score = parseInt(localStorage.getItem(SCORE_KEY) || '0', 10);
+let streak = 0;
+let bestStreak = parseInt(localStorage.getItem(BEST_KEY) || '0', 10);
+let current = null;
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function updateStats() {
+  scoreValueEl.textContent = score;
+  streakValueEl.textContent = streak;
+  bestStreakValueEl.textContent = bestStreak;
+  localStorage.setItem(SCORE_KEY, String(score));
+  localStorage.setItem(BEST_KEY, String(bestStreak));
+}
+
+function nextQuestion() {
+  const [country, capital] = COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
+  const wrongPool = shuffle(COUNTRIES.filter(c => c[1] !== capital)).slice(0, 3).map(c => c[1]);
+  const options = shuffle([capital, ...wrongPool]);
+
+  current = { country, capital };
+  questionText.textContent = `What is the capital of ${country}?`;
+  optionsWrap.innerHTML = '';
+  nextBtn.style.display = 'none';
+
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => answer(opt, btn));
+    optionsWrap.appendChild(btn);
+  });
+}
+
+function answer(selected, btn) {
+  const buttons = Array.from(optionsWrap.children);
+  buttons.forEach(b => b.disabled = true);
+
+  if (selected === current.capital) {
+    btn.classList.add('correct');
+    score++;
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+  } else {
+    btn.classList.add('wrong');
+    buttons.find(b => b.textContent === current.capital).classList.add('correct');
+    streak = 0;
+  }
+  updateStats();
+  nextBtn.style.display = '';
+}
+
+nextBtn.addEventListener('click', nextQuestion);
+resetBtn.addEventListener('click', () => {
+  score = 0;
+  streak = 0;
+  updateStats();
+  nextQuestion();
+});
+
+updateStats();
+nextQuestion();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>

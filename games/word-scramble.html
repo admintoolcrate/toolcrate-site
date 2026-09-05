@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Word Scramble | toolcrate</title>
+<meta name="description" content="Unscramble as many words as you can before time runs out. Free browser game, high score saved on your device.">
+<link rel="canonical" href="https://toolcrate.cc/games/word-scramble.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/word-scramble.html">
+<meta property="og:title" content="Word Scramble | toolcrate">
+<meta property="og:description" content="Unscramble as many words as you can before time runs out. Free browser game, high score saved on your device.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Word Scramble | toolcrate">
+<meta name="twitter:description" content="Unscramble as many words as you can before time runs out. Free browser game, high score saved on your device.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .scramble-display { font-size: 2.2rem; font-weight: 700; letter-spacing: 0.15em; text-align: center; margin: 1rem 0; }
+  #wordInput { font-size: 1.3rem; text-align: center; text-transform: lowercase; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Word Scramble</h1>
+    <p>Unscramble each word before the 90-second timer runs out.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="timeValue">90</span><span class="stat-label">Seconds left</span></div>
+    <div class="stat"><span class="stat-value" id="scoreValue">0</span><span class="stat-label">Solved</span></div>
+    <div class="stat"><span class="stat-value" id="bestValue">0</span><span class="stat-label">Best score</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="scramble-display" id="scrambleDisplay">Press Start</div>
+    <div class="field">
+      <label for="wordInput" style="text-align:center; display:block;">Your answer</label>
+      <input type="text" id="wordInput" disabled autocomplete="off" spellcheck="false">
+    </div>
+    <div class="btn-row" style="justify-content:center;">
+      <button id="startBtn">Start</button>
+      <button id="skipBtn" class="secondary" style="display:none;">Skip word</button>
+    </div>
+    <div id="error" class="error-text" style="text-align:center;"></div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>Each round shuffles the letters of a random word from a list of about 40 common words. Type the unscrambled word and press Enter; a wrong guess doesn't end the round, so keep trying, or use Skip to move on. Your best score is saved with <code>localStorage</code> on this device.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const BEST_KEY = 'toolcrate-game-scramble-best';
+const GAME_SECONDS = 90;
+const WORDS = [
+  'planet', 'garden', 'window', 'pencil', 'castle', 'jungle', 'winter', 'summer',
+  'bridge', 'candle', 'dragon', 'forest', 'guitar', 'island', 'kitten', 'ladder',
+  'magnet', 'napkin', 'orange', 'pillow', 'puzzle', 'rocket', 'saddle', 'temple',
+  'umbrella', 'volcano', 'whistle', 'yellow', 'zombie', 'balloon', 'cabinet', 'diamond',
+  'elephant', 'fountain', 'giraffe', 'harvest', 'iceberg', 'journey', 'kingdom', 'lantern',
+];
+
+const timeValueEl = document.getElementById('timeValue');
+const scoreValueEl = document.getElementById('scoreValue');
+const bestValueEl = document.getElementById('bestValue');
+const scrambleDisplay = document.getElementById('scrambleDisplay');
+const wordInput = document.getElementById('wordInput');
+const startBtn = document.getElementById('startBtn');
+const skipBtn = document.getElementById('skipBtn');
+const errorEl = document.getElementById('error');
+
+let best = parseInt(localStorage.getItem(BEST_KEY) || '0', 10);
+let score = 0;
+let timeLeft = GAME_SECONDS;
+let timerId = null;
+let currentWord = null;
+let playing = false;
+let usedWords = [];
+
+bestValueEl.textContent = best;
+
+function scramble(word) {
+  let letters = word.split('');
+  let scrambled;
+  do {
+    for (let i = letters.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [letters[i], letters[j]] = [letters[j], letters[i]];
+    }
+    scrambled = letters.join('');
+  } while (scrambled === word && word.length > 1);
+  return scrambled;
+}
+
+function newWord() {
+  if (usedWords.length === WORDS.length) usedWords = [];
+  let word;
+  do {
+    word = WORDS[Math.floor(Math.random() * WORDS.length)];
+  } while (usedWords.includes(word));
+  usedWords.push(word);
+  currentWord = word;
+  scrambleDisplay.textContent = scramble(word).toUpperCase();
+  wordInput.value = '';
+}
+
+function endGame() {
+  playing = false;
+  clearInterval(timerId);
+  wordInput.disabled = true;
+  skipBtn.style.display = 'none';
+  scrambleDisplay.textContent = `Time's up! You solved ${score}.`;
+  startBtn.textContent = 'Play again';
+  startBtn.disabled = false;
+  if (score > best) {
+    best = score;
+    localStorage.setItem(BEST_KEY, String(best));
+    bestValueEl.textContent = best;
+    errorEl.textContent = 'New best score!';
+  }
+}
+
+function startGame() {
+  score = 0;
+  timeLeft = GAME_SECONDS;
+  playing = true;
+  usedWords = [];
+  errorEl.textContent = '';
+  scoreValueEl.textContent = '0';
+  timeValueEl.textContent = String(timeLeft);
+  wordInput.disabled = false;
+  wordInput.focus();
+  startBtn.disabled = true;
+  skipBtn.style.display = '';
+  newWord();
+
+  clearInterval(timerId);
+  timerId = setInterval(() => {
+    timeLeft--;
+    timeValueEl.textContent = String(timeLeft);
+    if (timeLeft <= 0) endGame();
+  }, 1000);
+}
+
+wordInput.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || !playing) return;
+  if (wordInput.value.trim().toLowerCase() === currentWord) {
+    score++;
+    scoreValueEl.textContent = String(score);
+    newWord();
+  }
+});
+
+skipBtn.addEventListener('click', () => { if (playing) newWord(); });
+startBtn.addEventListener('click', startGame);
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>
