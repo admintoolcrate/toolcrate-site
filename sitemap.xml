@@ -128,10 +128,15 @@
   <url><loc>https://toolcrate.cc/tools/world-clock.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/tools/xml-formatter.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://toolcrate.cc/tools/yaml-json-converter.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolcrate.cc/tools/virtual-guitar.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/tools/virtual-violin.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/tools/virtual-drums.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/tools/pizza-topping-combos.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 
   <url><loc>https://toolcrate.cc/games/memory-match.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/games/math-blitz.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/games/capital-cities-quiz.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/games/reaction-time.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/games/word-scramble.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/tic-tac-toe.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>

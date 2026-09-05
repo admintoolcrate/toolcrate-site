@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Tic-Tac-Toe | toolcrate</title>
+<meta name="description" content="Play Tic-Tac-Toe against the computer or a friend on the same device. Free browser game, scores saved on your device.">
+<link rel="canonical" href="https://toolcrate.cc/games/tic-tac-toe.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/tic-tac-toe.html">
+<meta property="og:title" content="Tic-Tac-Toe | toolcrate">
+<meta property="og:description" content="Play Tic-Tac-Toe against the computer or a friend on the same device. Free browser game, scores saved on your device.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tic-Tac-Toe | toolcrate">
+<meta name="twitter:description" content="Play Tic-Tac-Toe against the computer or a friend on the same device. Free browser game, scores saved on your device.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .mode-toggle { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+  .mode-toggle button {
+    flex: 1;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+  .mode-toggle button.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .ttt-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  .ttt-cell {
+    aspect-ratio: 1;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 2.2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .ttt-cell:disabled { cursor: default; }
+  .ttt-cell.win { background: color-mix(in srgb, var(--ok) 20%, var(--paper)); border-color: var(--ok); }
+  .ttt-status { text-align: center; font-weight: 600; margin: 1rem 0; min-height: 1.4em; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Tic-Tac-Toe</h1>
+    <p>Play against the computer or pass-and-play with a friend.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="panel">
+    <div class="mode-toggle">
+      <button type="button" id="vsComputerBtn" class="active">Vs Computer</button>
+      <button type="button" id="vsHumanBtn">Vs Human (pass and play)</button>
+    </div>
+    <div class="row" id="difficultyRow">
+      <div class="field" style="margin-bottom: 0;">
+        <label for="difficultySelect">Computer difficulty</label>
+        <select id="difficultySelect">
+          <option value="unbeatable">Unbeatable</option>
+          <option value="easy">Easy (random)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="xWins">0</span><span class="stat-label" id="xLabel">X wins</span></div>
+    <div class="stat"><span class="stat-value" id="draws">0</span><span class="stat-label">Draws</span></div>
+    <div class="stat"><span class="stat-value" id="oWins">0</span><span class="stat-label" id="oLabel">O wins</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="ttt-status" id="statusText">X's turn</div>
+    <div class="ttt-board" id="board"></div>
+    <div class="btn-row" style="justify-content:center; margin-top: 1rem;">
+      <button type="button" id="newRoundBtn" class="secondary">New round</button>
+      <button type="button" id="resetScoreBtn" class="secondary">Reset score</button>
+    </div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>"Unbeatable" plays a perfect game via minimax — the best you can do against it is force a draw. "Easy" just picks a random open square. Scores are saved on this device.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const vsComputerBtn = document.getElementById('vsComputerBtn');
+const vsHumanBtn = document.getElementById('vsHumanBtn');
+const difficultyRow = document.getElementById('difficultyRow');
+const difficultySelect = document.getElementById('difficultySelect');
+const boardEl = document.getElementById('board');
+const statusText = document.getElementById('statusText');
+const xWinsEl = document.getElementById('xWins');
+const oWinsEl = document.getElementById('oWins');
+const drawsEl = document.getElementById('draws');
+const xLabelEl = document.getElementById('xLabel');
+const oLabelEl = document.getElementById('oLabel');
+const newRoundBtn = document.getElementById('newRoundBtn');
+const resetScoreBtn = document.getElementById('resetScoreBtn');
+
+const SCORE_KEY = 'toolcrate-game-tictactoe-score';
+
+const WIN_LINES = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6],
+];
+
+let mode = 'computer'; // 'computer' | 'human'
+let board = Array(9).fill(null);
+let currentPlayer = 'X';
+let gameOver = false;
+let scores = { X: 0, O: 0, draw: 0 };
+
+function loadScores() {
+  try {
+    const raw = localStorage.getItem(SCORE_KEY);
+    if (raw) scores = JSON.parse(raw);
+  } catch (e) { /* storage unavailable */ }
+}
+function saveScores() {
+  try { localStorage.setItem(SCORE_KEY, JSON.stringify(scores)); } catch (e) { /* storage unavailable */ }
+}
+function updateScoreDisplay() {
+  xWinsEl.textContent = scores.X;
+  oWinsEl.textContent = scores.O;
+  drawsEl.textContent = scores.draw;
+  xLabelEl.textContent = mode === 'computer' ? 'You (X)' : 'X wins';
+  oLabelEl.textContent = mode === 'computer' ? 'Computer (O)' : 'O wins';
+}
+
+function setMode(newMode) {
+  mode = newMode;
+  vsComputerBtn.classList.toggle('active', mode === 'computer');
+  vsHumanBtn.classList.toggle('active', mode === 'human');
+  difficultyRow.style.display = mode === 'computer' ? '' : 'none';
+  updateScoreDisplay();
+  newRound();
+}
+vsComputerBtn.addEventListener('click', () => setMode('computer'));
+vsHumanBtn.addEventListener('click', () => setMode('human'));
+
+function checkWinner(b) {
+  for (const line of WIN_LINES) {
+    const [a, c, d] = line;
+    if (b[a] && b[a] === b[c] && b[a] === b[d]) return { winner: b[a], line };
+  }
+  if (b.every(cell => cell)) return { winner: 'draw', line: null };
+  return null;
+}
+
+function minimax(b, player) {
+  const result = checkWinner(b);
+  if (result) {
+    if (result.winner === 'O') return { score: 1 };
+    if (result.winner === 'X') return { score: -1 };
+    return { score: 0 };
+  }
+  const moves = [];
+  for (let i = 0; i < 9; i++) {
+    if (b[i]) continue;
+    b[i] = player;
+    const { score } = minimax(b, player === 'O' ? 'X' : 'O');
+    moves.push({ index: i, score });
+    b[i] = null;
+  }
+  if (player === 'O') {
+    return moves.reduce((best, m) => (m.score > best.score ? m : best));
+  } else {
+    return moves.reduce((best, m) => (m.score < best.score ? m : best));
+  }
+}
+
+function computerMove() {
+  const empty = board.map((v, i) => v ? -1 : i).filter(i => i !== -1);
+  if (empty.length === 0) return;
+  let index;
+  if (difficultySelect.value === 'easy') {
+    index = empty[Math.floor(Math.random() * empty.length)];
+  } else {
+    index = minimax(board.slice(), 'O').index;
+  }
+  place(index);
+}
+
+function place(index) {
+  if (gameOver || board[index]) return;
+  board[index] = currentPlayer;
+  render();
+  const result = checkWinner(board);
+  if (result) {
+    endRound(result);
+    return;
+  }
+  currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+  updateStatus();
+  if (mode === 'computer' && currentPlayer === 'O' && !gameOver) {
+    setTimeout(computerMove, 300);
+  }
+}
+
+function endRound(result) {
+  gameOver = true;
+  if (result.winner === 'draw') {
+    scores.draw++;
+    statusText.textContent = "It's a draw!";
+  } else {
+    scores[result.winner]++;
+    if (mode === 'computer') {
+      statusText.textContent = result.winner === 'X' ? 'You win!' : 'Computer wins!';
+    } else {
+      statusText.textContent = result.winner + ' wins!';
+    }
+    result.line.forEach(i => boardEl.children[i].classList.add('win'));
+  }
+  saveScores();
+  updateScoreDisplay();
+  Array.from(boardEl.children).forEach(btn => btn.disabled = true);
+}
+
+function updateStatus() {
+  if (gameOver) return;
+  if (mode === 'computer') {
+    statusText.textContent = currentPlayer === 'X' ? 'Your turn (X)' : "Computer's turn...";
+  } else {
+    statusText.textContent = currentPlayer + "'s turn";
+  }
+}
+
+function render() {
+  Array.from(boardEl.children).forEach((btn, i) => {
+    btn.textContent = board[i] || '';
+    btn.disabled = !!board[i] || gameOver;
+  });
+}
+
+function buildBoard() {
+  boardEl.innerHTML = '';
+  for (let i = 0; i < 9; i++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ttt-cell';
+    btn.dataset.index = i;
+    btn.addEventListener('click', () => {
+      if (mode === 'computer' && currentPlayer !== 'X') return;
+      place(i);
+    });
+    boardEl.appendChild(btn);
+  }
+}
+
+function newRound() {
+  board = Array(9).fill(null);
+  currentPlayer = 'X';
+  gameOver = false;
+  buildBoard();
+  render();
+  updateStatus();
+}
+
+newRoundBtn.addEventListener('click', newRound);
+resetScoreBtn.addEventListener('click', () => {
+  scores = { X: 0, O: 0, draw: 0 };
+  saveScores();
+  updateScoreDisplay();
+});
+difficultySelect.addEventListener('change', newRound);
+
+loadScores();
+updateScoreDisplay();
+newRound();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>
