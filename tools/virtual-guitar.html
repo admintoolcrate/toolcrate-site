@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Virtual Guitar | toolcrate</title>
+<meta name="description" content="A playable guitar fretboard right in your browser — click or tap any fret on any string. No signup, nothing uploaded to a server.">
+<link rel="canonical" href="https://toolcrate.cc/tools/virtual-guitar.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/tools/virtual-guitar.html">
+<meta property="og:title" content="Virtual Guitar | toolcrate">
+<meta property="og:description" content="A playable guitar fretboard right in your browser — click or tap any fret on any string. No signup, nothing uploaded to a server.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Virtual Guitar | toolcrate">
+<meta name="twitter:description" content="A playable guitar fretboard right in your browser — click or tap any fret on any string. No signup, nothing uploaded to a server.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Virtual Guitar",
+  "description": "A playable guitar fretboard right in your browser — click or tap any fret on any string. No signup, nothing uploaded to a server.",
+  "url": "https://toolcrate.cc/tools/virtual-guitar.html",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .fretboard { display: flex; flex-direction: column; gap: 4px; overflow-x: auto; }
+  .string-row { display: flex; gap: 3px; }
+  .fret-btn {
+    flex: 0 0 56px;
+    height: 34px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-size: 0.72rem;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .fret-btn:first-child { flex-basis: 46px; background: var(--panel); font-weight: 600; }
+  .fret-btn:hover, .fret-btn.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Virtual Guitar</h1>
+    <p>Click or tap any fret on any string. Standard tuning, 12 frets.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="panel">
+    <div class="fretboard" id="fretboard"></div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Standard tuning (low to high: E A D G B E), 12 frets per string, synthesized with the Web Audio API using a short, decaying plucked-string envelope rather than a sampled recording. It's an approximation of a guitar's timbre, not a modeled or sampled instrument.</p>
+    <p>Nothing here is recorded or uploaded — sound is generated and played entirely in your browser.</p>
+  </div>
+
+  <div class="related-tools">
+    <h2>Related tools</h2>
+    <ul class="tool-list">
+      <li><a href="/tools/virtual-piano.html"><span class="tool-name">Virtual Piano</span><span class="tool-desc">Play with keyboard, mouse, or touch</span></a></li>
+      <li><a href="/tools/virtual-violin.html"><span class="tool-name">Virtual Violin</span><span class="tool-desc">A bowed, sustained string instrument</span></a></li>
+      <li><a href="/tools/virtual-drums.html"><span class="tool-name">Virtual Drums</span><span class="tool-desc">Clickable drum pad kit</span></a></li>
+      <li><a href="/tools/tuner.html"><span class="tool-name">Guitar / Instrument Tuner</span><span class="tool-desc">Tune by ear with a reference pitch</span></a></li>
+    </ul>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const fretboard = document.getElementById('fretboard');
+const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+// High E to low E, top to bottom (matches how a guitar neck is usually drawn).
+const OPEN_STRINGS = [
+  { name: 'E4', midi: 64 },
+  { name: 'B3', midi: 59 },
+  { name: 'G3', midi: 55 },
+  { name: 'D3', midi: 50 },
+  { name: 'A2', midi: 45 },
+  { name: 'E2', midi: 40 },
+];
+const FRET_COUNT = 12;
+
+function midiName(midi) {
+  return NOTE_NAMES[midi % 12] + (Math.floor(midi / 12) - 1);
+}
+
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function midiToFreq(midi) {
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+// A short, decaying plucked-string approximation: a couple of detuned
+// sawtooth oscillators through a lowpass filter that sweeps down quickly,
+// mimicking a pluck's bright attack fading to a duller sustain.
+function pluck(midi) {
+  ensureAudio();
+  const freq = midiToFreq(midi);
+  const now = audioCtx.currentTime;
+
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(4500, now);
+  filter.frequency.exponentialRampToValueAtTime(700, now + 0.9);
+  filter.connect(audioCtx.destination);
+
+  const gain = audioCtx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.35, now + 0.006);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.1);
+  gain.connect(filter);
+
+  [0, -6, 12].forEach((detuneCents, i) => {
+    const osc = audioCtx.createOscillator();
+    osc.type = i === 2 ? 'triangle' : 'sawtooth';
+    osc.frequency.value = freq;
+    osc.detune.value = detuneCents;
+    const oscGain = audioCtx.createGain();
+    oscGain.gain.value = i === 2 ? 0.5 : 0.35;
+    osc.connect(oscGain);
+    oscGain.connect(gain);
+    osc.start(now);
+    osc.stop(now + 1.15);
+  });
+}
+
+function buildFretboard() {
+  fretboard.innerHTML = '';
+  OPEN_STRINGS.forEach(str => {
+    const row = document.createElement('div');
+    row.className = 'string-row';
+    for (let fret = 0; fret <= FRET_COUNT; fret++) {
+      const midi = str.midi + fret;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'fret-btn';
+      btn.dataset.midi = midi;
+      btn.textContent = fret === 0 ? str.name : midiName(midi);
+      row.appendChild(btn);
+    }
+    fretboard.appendChild(row);
+  });
+}
+
+buildFretboard();
+
+fretboard.addEventListener('pointerdown', (e) => {
+  const btn = e.target.closest('.fret-btn');
+  if (!btn) return;
+  pluck(Number(btn.dataset.midi));
+  btn.classList.add('active');
+  setTimeout(() => btn.classList.remove('active'), 200);
+});
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>

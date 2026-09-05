@@ -41,16 +41,22 @@
 <link rel="stylesheet" href="../style.css">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
 <style>
+  .piano-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin-top: 0.5rem;
+  }
   .piano {
     position: relative;
     display: flex;
     height: 200px;
+    width: max-content;
     user-select: none;
     touch-action: none;
-    margin-top: 0.5rem;
   }
   .white-key {
-    flex: 1;
+    flex: 0 0 var(--key-width, 46px);
+    width: var(--key-width, 46px);
     background: #fdfdfc;
     border: 1px solid #cfccc6;
     border-radius: 0 0 6px 6px;
@@ -60,12 +66,13 @@
     justify-content: center;
     padding-bottom: 0.5rem;
     cursor: pointer;
+    box-sizing: border-box;
   }
   .white-key.active { background: #e4e1da; }
   .black-key {
     position: absolute;
     top: 0;
-    width: 6.5%;
+    width: calc(var(--key-width, 46px) * 0.62);
     height: 60%;
     background: #1c1c1c;
     border-radius: 0 0 4px 4px;
@@ -75,6 +82,7 @@
     justify-content: center;
     padding-bottom: 0.4rem;
     cursor: pointer;
+    box-sizing: border-box;
   }
   .black-key.active { background: #3d3d3d; }
   .key-label { font-size: 0.7rem; color: var(--muted); pointer-events: none; }
@@ -124,7 +132,9 @@
         </select>
       </div>
     </div>
-    <div class="piano" id="piano"></div>
+    <div class="piano-scroll">
+      <div class="piano" id="piano"></div>
+    </div>
   </div>
 
   <div class="explainer">
@@ -297,9 +307,10 @@ function rebuildKeyMap() {
   WHITE_NOTES.concat(BLACK_NOTES).forEach(n => { if (n.key) keyToMidi[n.key] = n.midi; });
 }
 
+const KEY_WIDTH_PX = 46;
+
 function buildPiano() {
   piano.innerHTML = '';
-  const whiteWidth = 100 / WHITE_NOTES.length;
   const showLabels = labelsToggle.checked;
 
   WHITE_NOTES.forEach((note) => {
@@ -318,7 +329,7 @@ function buildPiano() {
     const el = document.createElement('div');
     el.className = 'black-key';
     el.dataset.midi = note.midi;
-    el.style.left = ((note.afterIndex + 1) * whiteWidth - 3.25) + '%';
+    el.style.left = ((note.afterIndex + 1) * KEY_WIDTH_PX - KEY_WIDTH_PX * 0.31) + 'px';
     const label = document.createElement('span');
     label.className = 'key-label';
     label.textContent = note.key ? note.key.toUpperCase() : '';

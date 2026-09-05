@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Pizza Topping Combinations | toolcrate</title>
+<meta name="description" content="25 classic pizza topping combinations with ingredients and simple notes on building each one. No signup, nothing uploaded to a server.">
+<link rel="canonical" href="https://toolcrate.cc/tools/pizza-topping-combos.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/tools/pizza-topping-combos.html">
+<meta property="og:title" content="Pizza Topping Combinations | toolcrate">
+<meta property="og:description" content="25 classic pizza topping combinations with ingredients and simple notes on building each one. No signup, nothing uploaded to a server.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Pizza Topping Combinations | toolcrate">
+<meta name="twitter:description" content="25 classic pizza topping combinations with ingredients and simple notes on building each one. No signup, nothing uploaded to a server.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Pizza Topping Combinations",
+  "description": "25 classic pizza topping combinations with ingredients and simple notes on building each one. No signup, nothing uploaded to a server.",
+  "url": "https://toolcrate.cc/tools/pizza-topping-combos.html",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .combo-card {
+    border-bottom: 1px solid var(--line-soft);
+    padding: 1rem 0;
+  }
+  .combo-card:last-child { border-bottom: none; }
+  .combo-name { font-weight: 600; font-size: 1.02rem; }
+  .combo-toppings { color: var(--ink-soft); font-size: 0.9rem; margin: 0.3rem 0; }
+  .combo-note { color: var(--muted); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Pizza Topping Combinations</h1>
+    <p>25 classic combinations, with what goes on each and a note on building it.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="search-panel">
+    <label for="comboSearch">Search by name or topping</label>
+    <div class="search-input-wrap">
+      <input type="text" id="comboSearch" placeholder="e.g. mushroom, spicy, hawaiian" autocomplete="off">
+      <button type="button" id="searchClear" class="search-clear" aria-label="Clear search" hidden>✕</button>
+    </div>
+    <div class="search-meta">
+      <span id="resultsSummary"></span>
+      <button type="button" id="randomBtn" class="tag-clear" style="padding:0;">Pick one at random</button>
+    </div>
+  </div>
+
+  <p id="noResults" class="no-results" hidden></p>
+
+  <div class="panel" id="comboList"></div>
+
+  <div class="explainer">
+    <h2>A note on quantities</h2>
+    <p>These are ingredient lists and build order, not precise measurements — toppings scale with pizza size and how heavy-handed you like them. As a rough starting point for a 12-inch pizza: a thin, even layer of sauce (about 1/3 cup), 6-8 oz of cheese, and 3-4 oz total of other toppings, added in the order listed so anything that needs direct heat (like raw meat) sits closer to the crust and anything delicate (fresh herbs, arugula) goes on after baking.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const COMBOS = [
+  { name: 'Margherita', toppings: 'Tomato sauce, fresh mozzarella, basil, olive oil', note: 'The benchmark — keep the mozzarella well-drained so the base doesn\'t go soggy. Add basil after baking to keep it bright green.' },
+  { name: 'Pepperoni', toppings: 'Tomato sauce, mozzarella, pepperoni', note: 'Classic layering: sauce, cheese, then pepperoni on top so the edges crisp and cup slightly in the oven.' },
+  { name: 'Hawaiian', toppings: 'Tomato sauce, mozzarella, ham, pineapple', note: 'Pat pineapple dry with a paper towel first — excess juice is the main cause of a soggy crust here.' },
+  { name: 'BBQ Chicken', toppings: 'BBQ sauce, mozzarella, grilled chicken, red onion, cilantro', note: 'Swap the tomato sauce for BBQ sauce as the base. Add cilantro after baking.' },
+  { name: 'Meat Lovers', toppings: 'Tomato sauce, mozzarella, pepperoni, sausage, bacon, ham', note: 'Pre-cook the sausage and bacon partway so they finish (not just heat through) in the oven.' },
+  { name: 'Veggie Supreme', toppings: 'Tomato sauce, mozzarella, bell peppers, onions, mushrooms, black olives', note: 'Slice vegetables thin so they cook through in the same time as the crust.' },
+  { name: 'Four Cheese (Quattro Formaggi)', toppings: 'Mozzarella, gorgonzola, parmesan, fontina', note: 'No sauce needed — the cheeses carry it. Go easy on the gorgonzola, it\'s strong.' },
+  { name: 'White Pizza (Bianca)', toppings: 'Olive oil, ricotta, mozzarella, garlic', note: 'Dollop ricotta rather than spreading it evenly, for pockets of creaminess.' },
+  { name: 'Prosciutto e Rucola', toppings: 'Tomato sauce, mozzarella, prosciutto, arugula, shaved parmesan', note: 'Prosciutto and arugula both go on after baking — they\'re meant to stay fresh, not cook.' },
+  { name: 'Diavola (Spicy Salami)', toppings: 'Tomato sauce, mozzarella, spicy salami, chili flakes', note: 'A drizzle of chili oil after baking adds heat without drying out the salami further.' },
+  { name: 'Mushroom & Truffle', toppings: 'Mozzarella, mushrooms, truffle oil, parmesan', note: 'Truffle oil goes on after baking — heat destroys its aroma quickly.' },
+  { name: 'Buffalo Chicken', toppings: 'Buffalo sauce, mozzarella, chicken, red onion, blue cheese drizzle', note: 'Toss the cooked chicken in buffalo sauce before topping, then drizzle more after baking.' },
+  { name: 'Greek', toppings: 'Olive oil, mozzarella, feta, olives, red onion, tomato, oregano', note: 'Feta doesn\'t melt like mozzarella — it softens and browns slightly, which is the point.' },
+  { name: 'Taco', toppings: 'Tomato sauce, mozzarella, seasoned beef, jalapeños, red onion, lettuce, salsa', note: 'Lettuce and salsa go on cold, after baking, like a taco topping bar.' },
+  { name: 'Margherita with Buffalo Mozzarella', toppings: 'San Marzano tomato, buffalo mozzarella, basil', note: 'Buffalo mozzarella holds more water than regular — tear it and let it drain briefly first.' },
+  { name: 'Capricciosa', toppings: 'Tomato sauce, mozzarella, ham, mushrooms, artichokes, olives', note: 'Traditionally arranged in separate sections rather than mixed together.' },
+  { name: 'Marinara', toppings: 'Tomato sauce, garlic, oregano, olive oil', note: 'No cheese at all — the oldest style of pizza. Good test of your sauce and crust on their own.' },
+  { name: 'Spinach & Feta', toppings: 'Olive oil, mozzarella, spinach, feta, garlic', note: 'Wilt the spinach first, or squeeze raw spinach dry — it releases a lot of water otherwise.' },
+  { name: 'Sausage & Peppers', toppings: 'Tomato sauce, mozzarella, Italian sausage, bell peppers, onions', note: 'Crumble the sausage rather than slicing for even coverage and faster cooking.' },
+  { name: 'Pesto Chicken', toppings: 'Pesto, mozzarella, chicken, cherry tomatoes, pine nuts', note: 'Pesto as the base instead of tomato sauce; halve the cherry tomatoes so they don\'t roll off.' },
+  { name: 'Puttanesca (Anchovy & Olive)', toppings: 'Tomato sauce, mozzarella, anchovies, olives, capers', note: 'Salty by design — go light on any added salt elsewhere.' },
+  { name: 'Breakfast Pizza', toppings: 'Tomato or white base, mozzarella, bacon, egg, scallions', note: 'Crack the egg on top partway through baking so the white sets but the yolk stays soft.' },
+  { name: 'Fig & Prosciutto', toppings: 'White base, mozzarella or gorgonzola, fig jam, prosciutto, arugula', note: 'Dot the fig jam rather than spreading evenly, so you get pockets of sweetness against the salty prosciutto.' },
+  { name: 'Spicy Hawaiian', toppings: 'Tomato sauce, mozzarella, ham, pineapple, jalapeños', note: 'Same soggy-crust caution as regular Hawaiian — pat the pineapple dry first.' },
+  { name: 'New Haven-Style White Clam', toppings: 'Olive oil, garlic, clams, parmesan, oregano', note: 'No mozzarella in the traditional version — the clams and parmesan are the point. Use canned or fresh-shucked clams, added just before baking.' },
+];
+
+const comboList = document.getElementById('comboList');
+const searchInput = document.getElementById('comboSearch');
+const clearBtn = document.getElementById('searchClear');
+const resultsSummary = document.getElementById('resultsSummary');
+const noResults = document.getElementById('noResults');
+const randomBtn = document.getElementById('randomBtn');
+
+function render(list) {
+  comboList.innerHTML = list.map(c => `
+    <div class="combo-card">
+      <div class="combo-name">${c.name}</div>
+      <div class="combo-toppings">${c.toppings}</div>
+      <div class="combo-note">${c.note}</div>
+    </div>
+  `).join('');
+}
+
+function applyFilter() {
+  const query = searchInput.value.trim().toLowerCase();
+  clearBtn.hidden = query.length === 0;
+  const filtered = query === '' ? COMBOS : COMBOS.filter(c =>
+    (c.name + ' ' + c.toppings + ' ' + c.note).toLowerCase().includes(query)
+  );
+  render(filtered);
+  resultsSummary.textContent = query === '' ? `${COMBOS.length} combinations` : `${filtered.length} of ${COMBOS.length} combinations`;
+  noResults.hidden = filtered.length !== 0;
+  if (!noResults.hidden) noResults.textContent = `No combinations match "${searchInput.value.trim()}".`;
+}
+
+searchInput.addEventListener('input', applyFilter);
+clearBtn.addEventListener('click', () => { searchInput.value = ''; applyFilter(); searchInput.focus(); });
+
+randomBtn.addEventListener('click', () => {
+  searchInput.value = '';
+  const pick = COMBOS[Math.floor(Math.random() * COMBOS.length)];
+  render([pick]);
+  resultsSummary.textContent = 'Random pick';
+  noResults.hidden = true;
+  clearBtn.hidden = true;
+});
+
+applyFilter();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>

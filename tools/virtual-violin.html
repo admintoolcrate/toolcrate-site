@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Virtual Violin | toolcrate</title>
+<meta name="description" content="A playable violin fingerboard right in your browser — hold any position on any string for a sustained, bowed tone. No signup, nothing uploaded to a server.">
+<link rel="canonical" href="https://toolcrate.cc/tools/virtual-violin.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/tools/virtual-violin.html">
+<meta property="og:title" content="Virtual Violin | toolcrate">
+<meta property="og:description" content="A playable violin fingerboard right in your browser — hold any position on any string for a sustained, bowed tone. No signup, nothing uploaded to a server.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Virtual Violin | toolcrate">
+<meta name="twitter:description" content="A playable violin fingerboard right in your browser — hold any position on any string for a sustained, bowed tone. No signup, nothing uploaded to a server.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Virtual Violin",
+  "description": "A playable violin fingerboard right in your browser — hold any position on any string for a sustained, bowed tone. No signup, nothing uploaded to a server.",
+  "url": "https://toolcrate.cc/tools/virtual-violin.html",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .fretboard { display: flex; flex-direction: column; gap: 4px; overflow-x: auto; }
+  .string-row { display: flex; gap: 3px; }
+  .fret-btn {
+    flex: 0 0 56px;
+    height: 34px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-size: 0.72rem;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .fret-btn:first-child { flex-basis: 46px; background: var(--panel); font-weight: 600; }
+  .fret-btn:hover, .fret-btn.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Virtual Violin</h1>
+    <p>Hold any position on any string for a sustained note. Standard tuning, 12 positions.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="panel">
+    <div class="fretboard" id="fretboard"></div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Standard violin tuning (low to high: G D A E), synthesized as a sustained tone with a light vibrato while held, rather than a plucked or percussive sound — a real violin has no frets, so this is a simplified 12-position layout for playability rather than a literal fingerboard.</p>
+    <p>Nothing here is recorded or uploaded — sound is generated and played entirely in your browser.</p>
+  </div>
+
+  <div class="related-tools">
+    <h2>Related tools</h2>
+    <ul class="tool-list">
+      <li><a href="/tools/virtual-piano.html"><span class="tool-name">Virtual Piano</span><span class="tool-desc">Play with keyboard, mouse, or touch</span></a></li>
+      <li><a href="/tools/virtual-guitar.html"><span class="tool-name">Virtual Guitar</span><span class="tool-desc">A plucked-string fretboard</span></a></li>
+      <li><a href="/tools/virtual-drums.html"><span class="tool-name">Virtual Drums</span><span class="tool-desc">Clickable drum pad kit</span></a></li>
+      <li><a href="/tools/tuner.html"><span class="tool-name">Guitar / Instrument Tuner</span><span class="tool-desc">Tune by ear with a reference pitch</span></a></li>
+    </ul>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const fretboard = document.getElementById('fretboard');
+const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+// High E to low G, top to bottom.
+const OPEN_STRINGS = [
+  { name: 'E5', midi: 76 },
+  { name: 'A4', midi: 69 },
+  { name: 'D4', midi: 62 },
+  { name: 'G3', midi: 55 },
+];
+const POSITION_COUNT = 12;
+
+function midiName(midi) {
+  return NOTE_NAMES[midi % 12] + (Math.floor(midi / 12) - 1);
+}
+
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function midiToFreq(midi) {
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+const activeVoices = {};
+
+function startNote(midi) {
+  ensureAudio();
+  if (activeVoices[midi]) return;
+  const freq = midiToFreq(midi);
+  const now = audioCtx.currentTime;
+
+  const gain = audioCtx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.22, now + 0.18);
+  gain.connect(audioCtx.destination);
+
+  const osc = audioCtx.createOscillator();
+  osc.type = 'sawtooth';
+  osc.frequency.value = freq;
+
+  // Light vibrato: a slow LFO gently modulating pitch, like a held bow stroke.
+  const vibrato = audioCtx.createOscillator();
+  vibrato.frequency.value = 5.5;
+  const vibratoGain = audioCtx.createGain();
+  vibratoGain.gain.value = freq * 0.006;
+  vibrato.connect(vibratoGain);
+  vibratoGain.connect(osc.frequency);
+  vibrato.start(now);
+
+  osc.connect(gain);
+  osc.start(now);
+
+  activeVoices[midi] = { osc, vibrato, gain };
+}
+
+function stopNote(midi) {
+  const active = activeVoices[midi];
+  if (!active) return;
+  const now = audioCtx.currentTime;
+  active.gain.gain.cancelScheduledValues(now);
+  active.gain.gain.setValueAtTime(active.gain.gain.value, now);
+  active.gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+  active.osc.stop(now + 0.26);
+  active.vibrato.stop(now + 0.26);
+  delete activeVoices[midi];
+}
+
+function buildFretboard() {
+  fretboard.innerHTML = '';
+  OPEN_STRINGS.forEach(str => {
+    const row = document.createElement('div');
+    row.className = 'string-row';
+    for (let pos = 0; pos <= POSITION_COUNT; pos++) {
+      const midi = str.midi + pos;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'fret-btn';
+      btn.dataset.midi = midi;
+      btn.textContent = pos === 0 ? str.name : midiName(midi);
+      row.appendChild(btn);
+    }
+    fretboard.appendChild(row);
+  });
+}
+
+buildFretboard();
+
+function findBtn(e) { return e.target.closest('.fret-btn'); }
+
+fretboard.addEventListener('pointerdown', (e) => {
+  const btn = findBtn(e);
+  if (!btn) return;
+  const midi = Number(btn.dataset.midi);
+  startNote(midi);
+  btn.classList.add('active');
+});
+fretboard.addEventListener('pointerup', (e) => {
+  const btn = findBtn(e);
+  if (!btn) return;
+  stopNote(Number(btn.dataset.midi));
+  btn.classList.remove('active');
+});
+fretboard.addEventListener('pointerleave', (e) => {
+  const btn = findBtn(e);
+  if (!btn) return;
+  stopNote(Number(btn.dataset.midi));
+  btn.classList.remove('active');
+}, true);
+window.addEventListener('blur', () => {
+  Object.keys(activeVoices).map(Number).forEach(midi => {
+    stopNote(midi);
+    const el = fretboard.querySelector('[data-midi="' + midi + '"]');
+    if (el) el.classList.remove('active');
+  });
+});
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>
