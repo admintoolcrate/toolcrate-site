@@ -69,10 +69,24 @@
   .exercise-detail { color: var(--muted); font-size: 0.85rem; text-align: right; }
   @media print {
     .site-header, .site-footer, .back-to-top, .ad-slot, #kofi-widget-overlay,
-    .panel, .explainer, .share-btn, .copy-feedback { display: none !important; }
+    .panel, .explainer, .share-btn, .copy-feedback, #livePanel { display: none !important; }
     .workout-print-only { display: block !important; }
   }
   .workout-print-only { display: none; }
+  .live-progress { text-align: center; color: var(--muted); font-size: 0.85rem; }
+  .live-exercise-name { text-align: center; font-size: 1.4rem; font-weight: 700; margin-top: 0.15rem; }
+  .live-phase-label { text-align: center; color: var(--ink-soft); margin-top: 0.15rem; min-height: 1.4em; }
+  .live-timer-display {
+    text-align: center;
+    font-size: 4rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0.5rem 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .live-timer-display.rest { color: var(--ok); }
+  .live-timer-display.work { color: var(--accent); }
+  .live-complete { text-align: center; font-size: 2.5rem; margin: 0.5rem 0; }
 </style>
 </head>
 <body>
@@ -152,10 +166,24 @@
 
     <div class="btn-row">
       <button id="generateBtn">Generate workout</button>
+      <button id="startWorkoutBtn" class="secondary">Start workout</button>
       <button id="printBtn" class="secondary">Print</button>
       <button id="shareWorkoutBtn" class="secondary">Share workout</button>
     </div>
     <div id="error" class="error-text"></div>
+  </div>
+
+  <div class="panel" id="livePanel" style="display: none;">
+    <div class="live-progress" id="liveProgress">Exercise 1 of 6</div>
+    <div class="live-exercise-name" id="liveExerciseName">Push-ups</div>
+    <div class="live-phase-label" id="livePhaseLabel">Work</div>
+    <div class="live-timer-display" id="liveTimerDisplay">00:00</div>
+    <div class="btn-row" style="justify-content:center;">
+      <button type="button" id="liveDoneBtn" style="display:none;">Done with set</button>
+      <button type="button" id="livePauseBtn" class="secondary">Pause</button>
+      <button type="button" id="liveSkipBtn" class="secondary">Skip</button>
+      <button type="button" id="liveStopBtn" class="secondary">Stop</button>
+    </div>
   </div>
 
   <div class="field">
@@ -168,7 +196,8 @@
 
   <div class="explainer">
     <h2>How this works</h2>
-    <p>Exercises are drawn from a curated pool tagged by goal and equipment, then picked at random each time you generate — so two workouts with the same settings won't always match. Sets, reps, and durations scale with the difficulty you choose (or a sensible intermediate default in simple mode). Rest between sets is a suggestion, not a strict timer built into this tool.</p>
+    <p>Exercises are drawn from a curated pool tagged by goal and equipment, then picked at random each time you generate — so two workouts with the same settings won't always match. Sets, reps, and durations scale with the difficulty you choose (or a sensible intermediate default in simple mode).</p>
+    <p><strong>Start workout</strong> runs the whole thing on this page: it counts down timed exercises and rest periods automatically (with a tick in the last 3 seconds and a beep at each change), and for rep-based exercises it stopwatches your set until you tap "Done with set," then counts down your rest. It also asks the browser to keep the screen awake while a workout is running, on browsers that support it, so it won't lock mid-set. Pause, skip, or stop at any point.</p>
     <p>This isn't personalized training advice — it's a randomizer to take the "what should I do today" decision off your plate. Adjust anything that doesn't suit your fitness level or any injuries, and stop any exercise that causes pain. Your last-used settings are saved in your browser (nothing is sent to a server) so they're remembered next time.</p>
   </div>
 
@@ -255,12 +284,23 @@ const difficultySelect = document.getElementById('difficultySelect');
 const exerciseCountInput = document.getElementById('exerciseCountInput');
 const restInput = document.getElementById('restInput');
 const generateBtn = document.getElementById('generateBtn');
+const startWorkoutBtn = document.getElementById('startWorkoutBtn');
 const printBtn = document.getElementById('printBtn');
 const shareWorkoutBtn = document.getElementById('shareWorkoutBtn');
 const errorEl = document.getElementById('error');
 const exerciseListEl = document.getElementById('exerciseList');
 const workoutTitleEl = document.getElementById('workoutTitle');
 const copyFeedback = document.getElementById('shareFeedback');
+
+const livePanel = document.getElementById('livePanel');
+const liveProgress = document.getElementById('liveProgress');
+const liveExerciseName = document.getElementById('liveExerciseName');
+const livePhaseLabel = document.getElementById('livePhaseLabel');
+const liveTimerDisplay = document.getElementById('liveTimerDisplay');
+const liveDoneBtn = document.getElementById('liveDoneBtn');
+const livePauseBtn = document.getElementById('livePauseBtn');
+const liveSkipBtn = document.getElementById('liveSkipBtn');
+const liveStopBtn = document.getElementById('liveStopBtn');
 
 let mode = 'simple';
 let currentWorkout = [];
@@ -350,15 +390,15 @@ function generate() {
   currentWorkout = chosen.map(ex => {
     if (ex.type === 'cardio') {
       const seconds = Math.round(45 * scale.secondsMultiplier / 5) * 5;
-      return { name: ex.name, detail: `${seconds}s`, rest: restSeconds };
+      return { name: ex.name, type: 'cardio', sets: 1, seconds, rest: restSeconds, detail: `${seconds}s` };
     } else if (ex.type === 'hold') {
       const seconds = Math.round(30 * scale.secondsMultiplier / 5) * 5;
       const sets = Math.max(1, Math.round(3 * scale.setsMultiplier));
-      return { name: ex.name, detail: `${sets} × ${seconds}s`, rest: restSeconds };
+      return { name: ex.name, type: 'hold', sets, seconds, rest: restSeconds, detail: `${sets} × ${seconds}s` };
     } else {
       const sets = Math.max(1, Math.round(3 * scale.setsMultiplier));
       const reps = Math.max(4, Math.round(12 * scale.repsMultiplier));
-      return { name: ex.name, detail: `${sets} × ${reps} reps`, rest: restSeconds };
+      return { name: ex.name, type: 'strength', sets, reps, rest: restSeconds, detail: `${sets} × ${reps} reps` };
     }
   });
 
@@ -377,6 +417,233 @@ function workoutAsText() {
   currentWorkout.forEach(ex => lines.push(`• ${ex.name} — ${ex.detail} (rest ${ex.rest}s)`));
   return lines.join('\n');
 }
+
+// ---- Live "follow along" workout timer ----
+// Flattens the workout into a sequence of work/rest steps (one work step
+// per set, with a rest step after each except the very last), then plays
+// through them: a fixed countdown for timed exercises and rest, or a
+// stopwatch the user stops themselves for rep-based sets since there's no
+// fixed duration for those.
+
+let liveSteps = [];
+let liveStepIndex = -1;
+let livePhaseKind = null; // 'countdown' | 'stopwatch'
+let livePhaseEndAt = 0;
+let livePhaseStartAt = 0;
+let livePausedAt = null;
+let liveTimerInterval = null;
+let liveOnPhaseComplete = null;
+let liveLastBeepMark = null;
+let wakeLock = null;
+
+function buildLiveSteps(workout) {
+  const steps = [];
+  workout.forEach((ex, exIdx) => {
+    for (let setIdx = 0; setIdx < ex.sets; setIdx++) {
+      steps.push({ kind: 'work', ex, exIdx, setIdx });
+      const isLastSetOfLastExercise = exIdx === workout.length - 1 && setIdx === ex.sets - 1;
+      if (!isLastSetOfLastExercise) {
+        steps.push({ kind: 'rest', ex, exIdx, setIdx });
+      }
+    }
+  });
+  return steps;
+}
+
+function padTime(n) { return String(n).padStart(2, '0'); }
+function formatCountdown(ms) {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  return padTime(Math.floor(totalSeconds / 60)) + ':' + padTime(totalSeconds % 60);
+}
+function formatElapsed(ms) {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  return padTime(Math.floor(totalSeconds / 60)) + ':' + padTime(totalSeconds % 60);
+}
+
+function playLiveBeep(times, freq) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    for (let i = 0; i < times; i++) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = freq;
+      const start = ctx.currentTime + i * 0.3;
+      gain.gain.setValueAtTime(0.3, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.22);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.22);
+    }
+  } catch (e) { /* audio unavailable */ }
+}
+
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+  } catch (e) { /* wake lock unavailable or denied — not fatal */ }
+}
+function releaseWakeLock() {
+  if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
+}
+
+function startWorkout() {
+  if (currentWorkout.length === 0) {
+    errorEl.textContent = 'Generate a workout first.';
+    return;
+  }
+  errorEl.textContent = '';
+  liveTimerDisplay.className = 'live-timer-display';
+  liveSteps = buildLiveSteps(currentWorkout);
+  liveStepIndex = -1;
+  livePausedAt = null;
+  livePauseBtn.style.display = '';
+  livePauseBtn.textContent = 'Pause';
+  liveSkipBtn.style.display = '';
+  liveStopBtn.textContent = 'Stop';
+  generateBtn.disabled = true;
+  livePanel.style.display = '';
+  livePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  requestWakeLock();
+  advanceLiveStep();
+}
+
+function stopWorkout() {
+  clearInterval(liveTimerInterval);
+  liveTimerInterval = null;
+  livePausedAt = null;
+  livePanel.style.display = 'none';
+  generateBtn.disabled = false;
+  releaseWakeLock();
+}
+
+function advanceLiveStep() {
+  liveStepIndex++;
+  clearInterval(liveTimerInterval);
+  liveTimerInterval = null;
+  liveLastBeepMark = null;
+
+  if (liveStepIndex >= liveSteps.length) {
+    finishWorkout();
+    return;
+  }
+
+  const step = liveSteps[liveStepIndex];
+  liveProgress.textContent = `Exercise ${step.exIdx + 1} of ${currentWorkout.length}`;
+  liveExerciseName.textContent = step.ex.name;
+
+  if (step.kind === 'rest') {
+    const next = liveSteps[liveStepIndex + 1];
+    livePhaseLabel.textContent = 'Rest — next: ' + (next ? next.ex.name : 'finish');
+    liveDoneBtn.style.display = 'none';
+    liveTimerDisplay.classList.remove('work');
+    liveTimerDisplay.classList.add('rest');
+    startLiveCountdown(step.ex.rest * 1000, advanceLiveStep);
+  } else {
+    const setLabel = step.ex.sets > 1 ? ` — set ${step.setIdx + 1} of ${step.ex.sets}` : '';
+    liveTimerDisplay.classList.remove('rest');
+    liveTimerDisplay.classList.add('work');
+    if (step.ex.type === 'strength') {
+      livePhaseLabel.textContent = `Work: ${step.ex.reps} reps${setLabel}`;
+      liveDoneBtn.style.display = '';
+      startLiveStopwatch();
+    } else {
+      livePhaseLabel.textContent = `Work${setLabel}`;
+      liveDoneBtn.style.display = 'none';
+      startLiveCountdown(step.ex.seconds * 1000, advanceLiveStep);
+    }
+  }
+}
+
+function startLiveCountdown(durationMs, onComplete) {
+  livePhaseKind = 'countdown';
+  livePhaseEndAt = Date.now() + durationMs;
+  liveOnPhaseComplete = onComplete;
+  tickLiveCountdown();
+  liveTimerInterval = setInterval(tickLiveCountdown, 200);
+}
+
+function tickLiveCountdown() {
+  if (livePausedAt) return;
+  const remaining = livePhaseEndAt - Date.now();
+  liveTimerDisplay.textContent = formatCountdown(remaining);
+  const remainingSec = Math.ceil(remaining / 1000);
+  if (remainingSec <= 3 && remainingSec >= 1 && liveLastBeepMark !== remainingSec) {
+    liveLastBeepMark = remainingSec;
+    playLiveBeep(1, 660);
+  }
+  if (remaining <= 0) {
+    clearInterval(liveTimerInterval);
+    liveTimerInterval = null;
+    playLiveBeep(2, 880);
+    const cb = liveOnPhaseComplete;
+    liveOnPhaseComplete = null;
+    if (cb) cb();
+  }
+}
+
+function startLiveStopwatch() {
+  livePhaseKind = 'stopwatch';
+  livePhaseStartAt = Date.now();
+  tickLiveStopwatch();
+  liveTimerInterval = setInterval(tickLiveStopwatch, 200);
+}
+
+function tickLiveStopwatch() {
+  if (livePausedAt) return;
+  liveTimerDisplay.textContent = formatElapsed(Date.now() - livePhaseStartAt);
+}
+
+function toggleLivePause() {
+  if (livePanel.style.display === 'none') return;
+  if (livePausedAt) {
+    const pausedDuration = Date.now() - livePausedAt;
+    if (livePhaseKind === 'countdown') livePhaseEndAt += pausedDuration;
+    else livePhaseStartAt += pausedDuration;
+    livePausedAt = null;
+    livePauseBtn.textContent = 'Pause';
+  } else {
+    livePausedAt = Date.now();
+    livePauseBtn.textContent = 'Resume';
+  }
+}
+
+function finishWorkout() {
+  clearInterval(liveTimerInterval);
+  liveTimerInterval = null;
+  releaseWakeLock();
+  generateBtn.disabled = false;
+  liveProgress.textContent = 'Workout complete!';
+  liveExerciseName.textContent = '';
+  liveTimerDisplay.className = 'live-timer-display live-complete';
+  liveTimerDisplay.textContent = '🎉';
+  livePhaseLabel.textContent = 'Nice work.';
+  liveDoneBtn.style.display = 'none';
+  livePauseBtn.style.display = 'none';
+  liveSkipBtn.style.display = 'none';
+  liveStopBtn.textContent = 'Close';
+  playLiveBeep(3, 990);
+}
+
+startWorkoutBtn.addEventListener('click', startWorkout);
+liveDoneBtn.addEventListener('click', () => {
+  if (livePhaseKind !== 'stopwatch') return;
+  clearInterval(liveTimerInterval);
+  liveTimerInterval = null;
+  playLiveBeep(2, 880);
+  advanceLiveStep();
+});
+livePauseBtn.addEventListener('click', toggleLivePause);
+liveSkipBtn.addEventListener('click', () => {
+  clearInterval(liveTimerInterval);
+  liveTimerInterval = null;
+  advanceLiveStep();
+});
+liveStopBtn.addEventListener('click', () => {
+  liveTimerDisplay.className = 'live-timer-display';
+  stopWorkout();
+});
+window.addEventListener('beforeunload', releaseWakeLock);
 
 generateBtn.addEventListener('click', generate);
 printBtn.addEventListener('click', () => window.print());
