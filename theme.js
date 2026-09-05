@@ -25,4 +25,16 @@
       applyTheme(next);
     });
   });
+
+  // Ctrl/Cmd+Enter runs a tool's primary action (its first non-secondary
+  // button), while focused anywhere on the page. No-op on pages without
+  // one, e.g. tools with no explicit submit button, or non-tool pages.
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' || (!e.ctrlKey && !e.metaKey)) return;
+    const btn = document.querySelector('.panel .btn-row button:not(.secondary)');
+    if (btn) {
+      e.preventDefault();
+      btn.click();
+    }
+  });
 })();

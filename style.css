@@ -395,6 +395,18 @@ main {
 .tool-kicker { display: none; }
 .tool-header h1 { margin-bottom: 0.4em; font-size: clamp(1.7rem, 4.5vw, 2.2rem); max-width: none; }
 .tool-header p { color: var(--ink-soft); font-size: 1rem; }
+.share-btn {
+  margin-top: 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+}
+.share-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
 
 .panel {
   background: var(--panel);
