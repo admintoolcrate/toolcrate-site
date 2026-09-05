@@ -123,6 +123,7 @@
     </div>
     <div class="btn-row" style="justify-content:center; margin-top: 1rem;">
       <button type="button" id="newRoundBtn" class="secondary">New round</button>
+      <button type="button" id="undoBtn" class="secondary" disabled>Undo</button>
       <button type="button" id="resetScoreBtn" class="secondary">Reset score</button>
     </div>
   </div>
@@ -166,16 +167,18 @@ const drawsEl = document.getElementById('draws');
 const redLabelEl = document.getElementById('redLabel');
 const blackLabelEl = document.getElementById('blackLabel');
 const newRoundBtn = document.getElementById('newRoundBtn');
+const undoBtn = document.getElementById('undoBtn');
 const resetScoreBtn = document.getElementById('resetScoreBtn');
 const swapSidesRow = document.getElementById('swapSidesRow');
 const swapSidesBtn = document.getElementById('swapSidesBtn');
 
 const SCORE_KEY = 'toolcrate-game-checkers-score';
 const SIZE = 8;
+const MAX_HISTORY = 300;
 
 let mode = 'computer';
 let humanColor = 'R';
-let board, currentColor, forcedFrom, selected, gameOver, scores;
+let board, currentColor, forcedFrom, selected, gameOver, scores, moveHistory;
 
 function computerColor() { return humanColor === 'R' ? 'B' : 'R'; }
 function colorName(color) { return color === 'R' ? 'Red' : 'Black'; }
@@ -344,6 +347,7 @@ function newRound() {
   forcedFrom = null;
   selected = null;
   gameOver = false;
+  moveHistory = [];
   if (mode === 'computer') {
     statusText.textContent = currentColor === humanColor ? 'Your turn (' + colorName(currentColor) + ')' : "Computer's turn...";
   } else {
@@ -365,6 +369,11 @@ function endGameIfOver() {
   const moves = legalMovesFor(board, currentColor, forcedFrom);
   if (moves.length > 0) return false;
   gameOver = true;
+  // render() (and its updateUndoButton() call) already ran this turn with
+  // gameOver still false, so the Undo button would otherwise be left
+  // showing enabled — clickable but silently doing nothing, since undo()
+  // itself checks gameOver. Refresh it now that gameOver is actually set.
+  updateUndoButton();
   const winner = currentColor === 'R' ? 'B' : 'R';
   scores[winner]++;
   saveScores();
@@ -378,6 +387,17 @@ function endGameIfOver() {
 }
 
 function applyPlyAndAdvance(ply) {
+  moveHistory.push({
+    mover: currentColor,
+    state: {
+      board: cloneBoard(board),
+      currentColor,
+      forcedFrom: forcedFrom ? forcedFrom.slice() : null,
+      selected: selected ? selected.slice() : null,
+    },
+  });
+  if (moveHistory.length > MAX_HISTORY) moveHistory.shift();
+
   const continues = applyPly(board, ply);
   if (continues) {
     forcedFrom = ply.to;
@@ -399,6 +419,36 @@ function applyPlyAndAdvance(ply) {
   if (mode === 'computer' && currentColor === computerColor() && !gameOver) {
     setTimeout(computerTurn, 400);
   }
+}
+
+function restoreState(snap) {
+  board = snap.board;
+  currentColor = snap.currentColor;
+  forcedFrom = snap.forcedFrom;
+  selected = snap.selected;
+  gameOver = false;
+  render();
+  if (mode === 'computer') {
+    statusText.textContent = currentColor === humanColor ? 'Your turn (' + colorName(currentColor) + ')' : "Computer's turn...";
+  } else {
+    statusText.textContent = colorName(currentColor) + "'s turn";
+  }
+}
+
+// Undoing takes back the human's last move — in vs-computer mode this
+// also rewinds any computer reply (and the rest of a multi-jump chain,
+// human or computer) that came after it, so the human always lands
+// back on their own turn rather than the computer's.
+function undo() {
+  if (gameOver || moveHistory.length === 0) return;
+  if (mode === 'computer' && currentColor === computerColor()) return;
+  let snap = null;
+  while (moveHistory.length > 0) {
+    const entry = moveHistory.pop();
+    snap = entry.state;
+    if (mode === 'human' || entry.mover === humanColor) break;
+  }
+  if (snap) restoreState(snap);
 }
 
 function computerTurn() {
@@ -457,6 +507,11 @@ function render() {
       boardEl.appendChild(cell);
     }
   }
+  updateUndoButton();
+}
+
+function updateUndoButton() {
+  undoBtn.disabled = gameOver || moveHistory.length === 0 || (mode === 'computer' && currentColor === computerColor());
 }
 
 function handleCellClick(r, c, selectableFroms, destinationsForSelected) {
@@ -477,6 +532,7 @@ function handleCellClick(r, c, selectableFroms, destinationsForSelected) {
 }
 
 newRoundBtn.addEventListener('click', newRound);
+undoBtn.addEventListener('click', undo);
 resetScoreBtn.addEventListener('click', () => {
   scores = { R: 0, B: 0, draw: 0 };
   saveScores();
