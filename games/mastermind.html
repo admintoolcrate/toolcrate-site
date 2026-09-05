@@ -46,16 +46,24 @@
   .mm-feedback-mini {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 3px;
-    width: 26px;
+    gap: 5px;
+    width: 40px;
+    flex: none;
   }
   .mm-feedback-mini span {
-    width: 10px; height: 10px;
+    width: 17px; height: 17px;
     border-radius: 50%;
-    background: var(--line);
+    background: transparent;
+    border: 1.5px dashed var(--ink-soft);
+    opacity: 0.55;
+    box-sizing: border-box;
   }
-  .mm-feedback-mini span.black { background: var(--ink); }
-  .mm-feedback-mini span.white { background: var(--paper); border: 1px solid var(--ink-soft); }
+  /* Black/white pegs need real contrast against the row's own paper-colored
+     background — a plain var(--paper) fill for "white" (as a literal white
+     peg) was invisible here since the row behind it is the same color;
+     these use a filled dark peg and a clearly outlined ring instead. */
+  .mm-feedback-mini span.black { background: var(--ink); border-color: var(--ink); opacity: 1; }
+  .mm-feedback-mini span.white { background: var(--paper); border: 2.5px solid var(--ink-soft); opacity: 1; }
 
   .mm-palette { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
   .mm-palette-swatch {

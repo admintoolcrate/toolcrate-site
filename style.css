@@ -553,6 +553,10 @@ button, .btn {
   border-radius: 6px;
   cursor: pointer;
 }
+button:disabled, .btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 button:hover { opacity: 0.82; }
 button.secondary {
   background: transparent;
