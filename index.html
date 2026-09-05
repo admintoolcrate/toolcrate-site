@@ -19,6 +19,19 @@
 <meta name="twitter:title" content="toolcrate — Fast, free, no-signup utilities">
 <meta name="twitter:description" content="Small, fast browser tools for developers and everyday tasks: JSON formatting, word counting, unit conversion and more. No signup, nothing stored.">
 <meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "toolcrate",
+  "url": "https://toolcrate.cc/",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://toolcrate.cc/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
 </script>
@@ -412,7 +425,7 @@
 
     items.forEach(item => {
       const matchesQuery = query === '' || item.text.includes(query);
-      const matchesTags = activeTags.size === 0 || item.tags.some(t => activeTags.has(t));
+      const matchesTags = activeTags.size === 0 || [...activeTags].every(t => item.tags.includes(t));
       const matches = matchesQuery && matchesTags;
       item.li.hidden = !matches;
       if (matches) visibleTotal++;
@@ -461,6 +474,9 @@
   backToTop.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+
+  const qParam = new URLSearchParams(window.location.search).get('q');
+  if (qParam) searchInput.value = qParam;
 
   applyFilter();
 })();
