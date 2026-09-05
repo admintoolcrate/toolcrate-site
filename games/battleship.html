@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifests/games/battleship.json">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Battleship">
+<title>Battleship | toolcrate</title>
+<meta name="description" content="Play Battleship against the computer or pass-and-play with a friend on the same device. Place your fleet, take turns firing, sink every ship to win.">
+<link rel="canonical" href="https://toolcrate.cc/games/battleship.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/battleship.html">
+<meta property="og:title" content="Battleship | toolcrate">
+<meta property="og:description" content="Play Battleship against the computer or pass-and-play with a friend on the same device. Place your fleet, take turns firing, sink every ship to win.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Battleship | toolcrate">
+<meta name="twitter:description" content="Play Battleship against the computer or pass-and-play with a friend on the same device. Place your fleet, take turns firing, sink every ship to win.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .mode-toggle { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+  .mode-toggle button {
+    flex: 1;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+  .mode-toggle button.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .ttt-status { text-align: center; font-weight: 600; margin: 1rem 0; min-height: 1.4em; }
+
+  .bs-boards { display: flex; flex-direction: column; gap: 1.75rem; align-items: center; }
+  .bs-board-block { width: 100%; max-width: 380px; }
+  .bs-board-label { text-align: center; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--ink-soft); }
+  .bs-board {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    gap: 2px;
+    width: min(340px, 100%);
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+    background: var(--line);
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+  .bs-cell {
+    background: color-mix(in srgb, var(--accent) 8%, var(--paper));
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(0.55rem, 2.4vw, 0.95rem);
+    cursor: default;
+    color: var(--ink);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .bs-cell.own-ship { background: color-mix(in srgb, var(--ink) 35%, var(--paper)); }
+  .bs-cell.own-ship.sunk { background: var(--danger); }
+  .bs-cell.target.clickable { cursor: pointer; }
+  .bs-cell.target.clickable:hover { background: color-mix(in srgb, var(--accent) 20%, var(--paper)); }
+  .bs-cell.hit { background: var(--danger); color: #fff; }
+  .bs-cell.miss::after { content: ''; width: 30%; height: 30%; border-radius: 50%; background: var(--ink-soft); opacity: 0.5; }
+
+  .bs-fleet-list { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin: 0.75rem 0; }
+  .bs-fleet-item {
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    font-size: 0.8rem;
+    background: var(--paper);
+  }
+  .bs-fleet-item.placed { color: var(--muted); text-decoration: line-through; border-color: var(--line-soft); }
+  .bs-fleet-item.current { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+  .bs-pass-screen {
+    text-align: center;
+    padding: 3rem 1.5rem;
+  }
+  .bs-pass-screen h2 { margin-bottom: 0.5rem; }
+  .bs-pass-screen p { color: var(--ink-soft); margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="brand-wrap"><a href="/" class="brand">tool<em>crate</em></a><a href="/games.html" class="brand-offshoot">games</a></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Battleship</h1>
+    <p>Place your fleet, take turns firing, sink every enemy ship to win.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  <p class="last-updated">Last updated <time datetime="2026-09-05">Sep 5, 2026</time></p>
+  </div>
+
+  <div class="panel">
+    <div class="mode-toggle">
+      <button type="button" id="vsComputerBtn" class="active">Vs Computer</button>
+      <button type="button" id="vsHumanBtn">Vs Human (pass and play)</button>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="scoreAVal">0</span><span class="stat-label" id="scoreALabel">You</span></div>
+    <div class="stat"><span class="stat-value" id="scoreBVal">0</span><span class="stat-label" id="scoreBLabel">Computer</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="ttt-status" id="statusText">Place your fleet</div>
+    <div id="gameArea"></div>
+    <div class="btn-row" style="justify-content:center; margin-top: 1rem;">
+      <button type="button" id="newGameBtn" class="secondary">New game</button>
+      <button type="button" id="resetScoreBtn" class="secondary">Reset score</button>
+    </div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>Standard 10&times;10 Battleship with the classic five-ship fleet: Carrier (5), Battleship (4), Cruiser (3), Submarine (3), and Destroyer (2). Place your fleet manually or hit Randomize, then take turns firing one shot each — no bonus shot on a hit. Sink an opponent's entire fleet to win.</p>
+    <p>In pass-and-play mode, a hand-off screen appears between every placement and every turn so whoever currently has the device never sees the other player's board until they've actually handed it over.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const vsComputerBtn = document.getElementById('vsComputerBtn');
+const vsHumanBtn = document.getElementById('vsHumanBtn');
+const statusText = document.getElementById('statusText');
+const gameArea = document.getElementById('gameArea');
+const newGameBtn = document.getElementById('newGameBtn');
+const resetScoreBtn = document.getElementById('resetScoreBtn');
+const scoreAVal = document.getElementById('scoreAVal');
+const scoreBVal = document.getElementById('scoreBVal');
+const scoreALabel = document.getElementById('scoreALabel');
+const scoreBLabel = document.getElementById('scoreBLabel');
+
+const SIZE = 10;
+const FLEET_DEF = [
+  { name: 'Carrier', size: 5 },
+  { name: 'Battleship', size: 4 },
+  { name: 'Cruiser', size: 3 },
+  { name: 'Submarine', size: 3 },
+  { name: 'Destroyer', size: 2 },
+];
+const SCORE_KEY_COMPUTER = 'toolcrate-game-battleship-score-computer';
+const SCORE_KEY_HUMAN = 'toolcrate-game-battleship-score-human';
+
+let mode = 'computer'; // 'computer' | 'human'
+let sides; // { A: {ships, shots}, B: {ships, shots} }
+let phase; // 'placing' | 'pass' | 'battle' | 'gameover'
+let placingSide; // 'A' | 'B'
+let placingShipIdx;
+let placingOrientation; // 'h' | 'v'
+let currentTurn; // 'A' | 'B'
+let winner; // 'A' | 'B' | null
+let pendingAfterPass; // { phase, side } — what to switch to once the pass screen is dismissed
+let scoresComputer, scoresHuman;
+let aiQueue = [];
+let lastShotResult = null; // { text } shown on the acting player's screen before they hand off
+
+function cellKey(r, c) { return r + ',' + c; }
+
+function createEmptySide() { return { ships: [], shots: new Map() }; }
+
+function computeCells(r, c, size, orientation) {
+  const cells = [];
+  for (let i = 0; i < size; i++) {
+    const rr = orientation === 'v' ? r + i : r;
+    const cc = orientation === 'h' ? c + i : c;
+    if (rr < 0 || rr >= SIZE || cc < 0 || cc >= SIZE) return null;
+    cells.push([rr, cc]);
+  }
+  return cells;
+}
+
+function canPlace(side, cells) {
+  const occupied = new Set();
+  side.ships.forEach(s => s.cells.forEach(k => occupied.add(k)));
+  return cells.every(([r, c]) => !occupied.has(cellKey(r, c)));
+}
+
+function randomPlaceAll(side) {
+  side.ships = [];
+  for (const def of FLEET_DEF) {
+    let placed = false;
+    let attempts = 0;
+    while (!placed && attempts < 500) {
+      attempts++;
+      const orientation = Math.random() < 0.5 ? 'h' : 'v';
+      const r = Math.floor(Math.random() * SIZE);
+      const c = Math.floor(Math.random() * SIZE);
+      const cells = computeCells(r, c, def.size, orientation);
+      if (cells && canPlace(side, cells)) {
+        side.ships.push({ name: def.name, size: def.size, cells: cells.map(([rr, cc]) => cellKey(rr, cc)), hits: new Set() });
+        placed = true;
+      }
+    }
+  }
+}
+
+function fireAt(attacker, defender, r, c) {
+  const key = cellKey(r, c);
+  if (attacker.shots.has(key)) return { result: 'already' };
+  const ship = defender.ships.find(s => s.cells.includes(key));
+  if (ship) {
+    ship.hits.add(key);
+    attacker.shots.set(key, 'hit');
+    const sunk = ship.hits.size === ship.cells.length;
+    const allSunk = defender.ships.every(s => s.hits.size === s.cells.length);
+    return { result: 'hit', sunkShip: sunk ? ship : null, allSunk };
+  }
+  attacker.shots.set(key, 'miss');
+  return { result: 'miss' };
+}
+
+function opponentOf(side) { return side === 'A' ? 'B' : 'A'; }
+
+function loadScores() {
+  try {
+    const raw = localStorage.getItem(SCORE_KEY_COMPUTER);
+    scoresComputer = raw ? JSON.parse(raw) : { you: 0, cpu: 0 };
+  } catch (e) { scoresComputer = { you: 0, cpu: 0 }; }
+  try {
+    const raw = localStorage.getItem(SCORE_KEY_HUMAN);
+    scoresHuman = raw ? JSON.parse(raw) : { p1: 0, p2: 0 };
+  } catch (e) { scoresHuman = { p1: 0, p2: 0 }; }
+}
+function saveScores() {
+  try {
+    localStorage.setItem(SCORE_KEY_COMPUTER, JSON.stringify(scoresComputer));
+    localStorage.setItem(SCORE_KEY_HUMAN, JSON.stringify(scoresHuman));
+  } catch (e) { /* storage unavailable */ }
+}
+function updateScoreDisplay() {
+  if (mode === 'computer') {
+    scoreALabel.textContent = 'You';
+    scoreBLabel.textContent = 'Computer';
+    scoreAVal.textContent = scoresComputer.you;
+    scoreBVal.textContent = scoresComputer.cpu;
+  } else {
+    scoreALabel.textContent = 'Player 1';
+    scoreBLabel.textContent = 'Player 2';
+    scoreAVal.textContent = scoresHuman.p1;
+    scoreBVal.textContent = scoresHuman.p2;
+  }
+}
+function recordWin(side) {
+  if (mode === 'computer') {
+    if (side === 'A') scoresComputer.you++; else scoresComputer.cpu++;
+  } else {
+    if (side === 'A') scoresHuman.p1++; else scoresHuman.p2++;
+  }
+  saveScores();
+  updateScoreDisplay();
+}
+
+function setMode(newMode) {
+  mode = newMode;
+  vsComputerBtn.classList.toggle('active', mode === 'computer');
+  vsHumanBtn.classList.toggle('active', mode === 'human');
+  updateScoreDisplay();
+  newGame();
+}
+vsComputerBtn.addEventListener('click', () => setMode('computer'));
+vsHumanBtn.addEventListener('click', () => setMode('human'));
+
+function newGame() {
+  sides = { A: createEmptySide(), B: createEmptySide() };
+  winner = null;
+  aiQueue = [];
+  lastShotResult = null;
+  if (mode === 'computer') {
+    randomPlaceAll(sides.B);
+    startPlacement('A');
+  } else {
+    startPlacement('A');
+  }
+}
+
+function startPlacement(side) {
+  phase = 'placing';
+  placingSide = side;
+  placingShipIdx = 0;
+  placingOrientation = 'h';
+  render();
+}
+
+function sideLabel(side) {
+  if (mode === 'computer') return side === 'A' ? 'You' : 'Computer';
+  return side === 'A' ? 'Player 1' : 'Player 2';
+}
+
+function goToPass(nextPhase, nextSide) {
+  phase = 'pass';
+  pendingAfterPass = { phase: nextPhase, side: nextSide };
+  render();
+}
+
+function dismissPass() {
+  const { phase: nextPhase, side: nextSide } = pendingAfterPass;
+  lastShotResult = null;
+  if (nextPhase === 'placing') {
+    startPlacement(nextSide);
+  } else {
+    phase = 'battle';
+    currentTurn = nextSide;
+    render();
+  }
+}
+
+function finishPlacement(side) {
+  if (mode === 'computer') {
+    phase = 'battle';
+    currentTurn = 'A';
+    render();
+    return;
+  }
+  if (side === 'A') {
+    goToPass('placing', 'B');
+  } else {
+    goToPass('battle', 'A');
+  }
+}
+
+function tryPlaceAt(r, c) {
+  const def = FLEET_DEF[placingShipIdx];
+  if (!def) return;
+  const cells = computeCells(r, c, def.size, placingOrientation);
+  const side = sides[placingSide];
+  if (!cells || !canPlace(side, cells)) {
+    statusText.textContent = "Can't place there — try another spot or rotate.";
+    return;
+  }
+  side.ships.push({ name: def.name, size: def.size, cells: cells.map(([rr, cc]) => cellKey(rr, cc)), hits: new Set() });
+  placingShipIdx++;
+  if (placingShipIdx >= FLEET_DEF.length) {
+    finishPlacement(placingSide);
+  } else {
+    render();
+  }
+}
+
+function undoLastShip() {
+  const side = sides[placingSide];
+  if (side.ships.length === 0) return;
+  side.ships.pop();
+  placingShipIdx = side.ships.length;
+  render();
+}
+
+function fireAsCurrentPlayer(r, c) {
+  if (phase !== 'battle' || gameOverCheck()) return;
+  const attacker = sides[currentTurn];
+  const defender = sides[opponentOf(currentTurn)];
+  const key = cellKey(r, c);
+  if (attacker.shots.has(key)) return;
+  const result = fireAt(attacker, defender, r, c);
+
+  if (mode === 'human') {
+    let text = result.result === 'hit' ? 'Hit!' : 'Miss.';
+    if (result.sunkShip) text = `Hit — you sank their ${result.sunkShip.name}!`;
+    if (result.allSunk) text = `You sank their whole fleet — ${sideLabel(currentTurn)} wins!`;
+    lastShotResult = { text };
+    if (result.allSunk) {
+      winner = currentTurn;
+      phase = 'gameover';
+      recordWin(currentTurn);
+      render();
+      return;
+    }
+    render();
+    return;
+  }
+
+  // vs-computer: human just fired at the computer
+  let text = result.result === 'hit' ? 'Hit!' : 'Miss.';
+  if (result.sunkShip) text = `Hit — you sank their ${result.sunkShip.name}!`;
+  statusText.textContent = text;
+  if (result.allSunk) {
+    winner = 'A';
+    phase = 'gameover';
+    recordWin('A');
+    render();
+    return;
+  }
+  currentTurn = 'B';
+  render();
+  setTimeout(computerTurn, 650);
+}
+
+function aiPickCell() {
+  while (aiQueue.length > 0) {
+    const key = aiQueue.shift();
+    if (!sides.B.shots.has(key)) return key.split(',').map(Number);
+  }
+  let r, c, key;
+  do {
+    r = Math.floor(Math.random() * SIZE);
+    c = Math.floor(Math.random() * SIZE);
+    key = cellKey(r, c);
+  } while (sides.B.shots.has(key));
+  return [r, c];
+}
+function aiEnqueueNeighbors(r, c) {
+  for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+    const nr = r + dr, nc = c + dc;
+    if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
+      const k = cellKey(nr, nc);
+      if (!sides.B.shots.has(k) && !aiQueue.includes(k)) aiQueue.push(k);
+    }
+  }
+}
+
+function computerTurn() {
+  if (phase !== 'battle' || currentTurn !== 'B') return;
+  const [r, c] = aiPickCell();
+  const result = fireAt(sides.B, sides.A, r, c);
+  if (result.result === 'hit') {
+    aiEnqueueNeighbors(r, c);
+    if (result.sunkShip) aiQueue = [];
+  }
+  if (result.allSunk) {
+    winner = 'B';
+    phase = 'gameover';
+    recordWin('B');
+    render();
+    return;
+  }
+  currentTurn = 'A';
+  statusText.textContent = result.result === 'hit'
+    ? (result.sunkShip ? `Computer sank your ${result.sunkShip.name}! Your turn.` : 'Computer hit one of your ships! Your turn.')
+    : 'Computer missed. Your turn.';
+  render();
+}
+
+function gameOverCheck() { return phase === 'gameover'; }
+
+// ---- rendering ----
+
+function renderShipList(side) {
+  const wrap = document.createElement('div');
+  wrap.className = 'bs-fleet-list';
+  FLEET_DEF.forEach((def, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'bs-fleet-item';
+    if (i < sides[side].ships.length) chip.classList.add('placed');
+    else if (i === placingShipIdx) chip.classList.add('current');
+    chip.textContent = def.name + ' (' + def.size + ')';
+    wrap.appendChild(chip);
+  });
+  return wrap;
+}
+
+function renderOwnBoard(side, opponentShotsSource) {
+  const board = document.createElement('div');
+  board.className = 'bs-board';
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'bs-cell';
+      const key = cellKey(r, c);
+      const ship = sides[side].ships.find(s => s.cells.includes(key));
+      if (ship) {
+        cell.classList.add('own-ship');
+        if (ship.hits.size === ship.cells.length) cell.classList.add('sunk');
+      }
+      const shotResult = opponentShotsSource.get(key);
+      if (shotResult === 'hit') { cell.classList.add('hit'); cell.textContent = '✕'; }
+      else if (shotResult === 'miss') { cell.classList.add('miss'); }
+      board.appendChild(cell);
+    }
+  }
+  return board;
+}
+
+function renderTargetBoard(side, clickable) {
+  const board = document.createElement('div');
+  board.className = 'bs-board';
+  const shots = sides[side].shots;
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'bs-cell target';
+      const key = cellKey(r, c);
+      const result = shots.get(key);
+      if (result === 'hit') { cell.classList.add('hit'); cell.textContent = '✕'; }
+      else if (result === 'miss') { cell.classList.add('miss'); }
+      else if (clickable) {
+        cell.classList.add('clickable');
+        cell.addEventListener('click', () => fireAsCurrentPlayer(r, c));
+      }
+      board.appendChild(cell);
+    }
+  }
+  return board;
+}
+
+function renderPlacementUI() {
+  gameArea.innerHTML = '';
+  statusText.textContent = sideLabel(placingSide) + ': place your ' + FLEET_DEF[placingShipIdx].name + ' (' + FLEET_DEF[placingShipIdx].size + ' cells)';
+
+  const block = document.createElement('div');
+  block.className = 'bs-board-block';
+  block.appendChild(renderShipList(placingSide));
+
+  const board = document.createElement('div');
+  board.className = 'bs-board';
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'bs-cell target clickable';
+      const key = cellKey(r, c);
+      const ship = sides[placingSide].ships.find(s => s.cells.includes(key));
+      if (ship) cell.classList.add('own-ship');
+      cell.addEventListener('click', () => tryPlaceAt(r, c));
+      board.appendChild(cell);
+    }
+  }
+  block.appendChild(board);
+
+  const btnRow = document.createElement('div');
+  btnRow.className = 'btn-row';
+  btnRow.style.justifyContent = 'center';
+  btnRow.style.marginTop = '1rem';
+
+  const rotateBtn = document.createElement('button');
+  rotateBtn.type = 'button';
+  rotateBtn.className = 'secondary';
+  rotateBtn.textContent = 'Rotate: ' + (placingOrientation === 'h' ? 'Horizontal' : 'Vertical');
+  rotateBtn.addEventListener('click', () => { placingOrientation = placingOrientation === 'h' ? 'v' : 'h'; render(); });
+  btnRow.appendChild(rotateBtn);
+
+  const undoBtn = document.createElement('button');
+  undoBtn.type = 'button';
+  undoBtn.className = 'secondary';
+  undoBtn.textContent = 'Undo last ship';
+  undoBtn.disabled = sides[placingSide].ships.length === 0;
+  undoBtn.addEventListener('click', undoLastShip);
+  btnRow.appendChild(undoBtn);
+
+  const randomBtn = document.createElement('button');
+  randomBtn.type = 'button';
+  randomBtn.className = 'secondary';
+  randomBtn.textContent = 'Randomize';
+  randomBtn.addEventListener('click', () => {
+    randomPlaceAll(sides[placingSide]);
+    placingShipIdx = FLEET_DEF.length;
+    finishPlacement(placingSide);
+  });
+  btnRow.appendChild(randomBtn);
+
+  block.appendChild(btnRow);
+  gameArea.appendChild(block);
+}
+
+function renderPassScreen() {
+  gameArea.innerHTML = '';
+  statusText.textContent = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'bs-pass-screen';
+  const h2 = document.createElement('h2');
+  h2.textContent = 'Pass the device to ' + sideLabel(pendingAfterPass.side);
+  wrap.appendChild(h2);
+  const p = document.createElement('p');
+  p.textContent = pendingAfterPass.phase === 'placing'
+    ? 'They need to place their fleet without you watching.'
+    : "It's their turn to fire — make sure the other player can't see the screen.";
+  wrap.appendChild(p);
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = "I'm " + sideLabel(pendingAfterPass.side) + ' — ready';
+  btn.addEventListener('click', dismissPass);
+  wrap.appendChild(btn);
+  gameArea.appendChild(wrap);
+}
+
+function renderBattle() {
+  gameArea.innerHTML = '';
+  const isAiTurn = mode === 'computer' && currentTurn === 'B';
+
+  if (mode === 'computer') {
+    statusText.textContent = isAiTurn ? "Computer's turn..." : 'Your turn — fire at the enemy waters';
+  } else {
+    statusText.textContent = lastShotResult ? lastShotResult.text : sideLabel(currentTurn) + "'s turn to fire";
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'bs-boards';
+
+  const targetBlock = document.createElement('div');
+  targetBlock.className = 'bs-board-block';
+  const targetLabel = document.createElement('div');
+  targetLabel.className = 'bs-board-label';
+  targetLabel.textContent = mode === 'computer' ? 'Enemy waters' : sideLabel(currentTurn) + "'s target board";
+  targetBlock.appendChild(targetLabel);
+  targetBlock.appendChild(renderTargetBoard(currentTurn, !isAiTurn));
+  wrap.appendChild(targetBlock);
+
+  if (mode === 'human' && lastShotResult) {
+    const passBtn = document.createElement('button');
+    passBtn.type = 'button';
+    passBtn.style.display = 'block';
+    passBtn.style.margin = '0 auto';
+    passBtn.textContent = 'Pass to ' + sideLabel(opponentOf(currentTurn));
+    passBtn.addEventListener('click', () => goToPass('battle', opponentOf(currentTurn)));
+    wrap.appendChild(passBtn);
+  }
+
+  const ownBlock = document.createElement('div');
+  ownBlock.className = 'bs-board-block';
+  const ownLabel = document.createElement('div');
+  ownLabel.className = 'bs-board-label';
+  ownLabel.textContent = mode === 'computer' ? 'Your fleet' : sideLabel(currentTurn) + "'s fleet";
+  ownBlock.appendChild(ownLabel);
+  ownBlock.appendChild(renderOwnBoard(currentTurn, sides[opponentOf(currentTurn)].shots));
+  wrap.appendChild(ownBlock);
+
+  gameArea.appendChild(wrap);
+}
+
+function renderGameOver() {
+  gameArea.innerHTML = '';
+  statusText.textContent = mode === 'computer'
+    ? (winner === 'A' ? 'You win! You sank the entire enemy fleet.' : 'Computer wins — your fleet was sunk.')
+    : sideLabel(winner) + ' wins!';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'bs-boards';
+  ['A', 'B'].forEach(side => {
+    const block = document.createElement('div');
+    block.className = 'bs-board-block';
+    const label = document.createElement('div');
+    label.className = 'bs-board-label';
+    label.textContent = sideLabel(side) + "'s fleet";
+    block.appendChild(label);
+    block.appendChild(renderOwnBoard(side, sides[opponentOf(side)].shots));
+    wrap.appendChild(block);
+  });
+  gameArea.appendChild(wrap);
+}
+
+function render() {
+  if (phase === 'placing') renderPlacementUI();
+  else if (phase === 'pass') renderPassScreen();
+  else if (phase === 'battle') renderBattle();
+  else if (phase === 'gameover') renderGameOver();
+}
+
+newGameBtn.addEventListener('click', newGame);
+resetScoreBtn.addEventListener('click', () => {
+  if (mode === 'computer') scoresComputer = { you: 0, cpu: 0 };
+  else scoresHuman = { p1: 0, p2: 0 };
+  saveScores();
+  updateScoreDisplay();
+});
+
+loadScores();
+updateScoreDisplay();
+newGame();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>
