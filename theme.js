@@ -93,11 +93,18 @@
       if (banner) { banner.remove(); banner = null; }
     }
 
+    // Each page links its own manifest (its own start_url/scope), so
+    // installing from here installs just this tool or game as its own
+    // home-screen app — not a shortcut to the toolcrate homepage. Name the
+    // banner after the current page for that reason.
+    const titleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+    const appTitle = (titleMeta && titleMeta.content) || 'toolcrate';
+
     // Android / Chrome / Edge: the browser offers a real install prompt.
     window.addEventListener('beforeinstallprompt', function (e) {
       e.preventDefault();
       const deferredPrompt = e;
-      showBanner('Install toolcrate for quick access from your home screen.', 'Install', function () {
+      showBanner('Install ' + appTitle + ' for quick access from your home screen.', 'Install', function () {
         deferredPrompt.prompt();
       });
     });
@@ -108,7 +115,7 @@
     const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
     if (isIOS && isSafari) {
-      showBanner('Add this to your Home Screen: tap Share, then "Add to Home Screen".', null, null);
+      showBanner('Add ' + appTitle + ' to your Home Screen: tap Share, then "Add to Home Screen".', null, null);
     }
   })();
 })();

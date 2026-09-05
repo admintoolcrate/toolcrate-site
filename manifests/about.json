@@ -1,0 +1,43 @@
+{
+  "id": "/about.html",
+  "name": "About \u2013 toolcrate",
+  "short_name": "About",
+  "description": "Toolcrate is a collection of small, fast, browser-based tools \u2014 calculators, converters, and generators that run entirely on your device.",
+  "start_url": "/about.html",
+  "scope": "/about.html",
+  "display": "standalone",
+  "background_color": "#F5F4F2",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

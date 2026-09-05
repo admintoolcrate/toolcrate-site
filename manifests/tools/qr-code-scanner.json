@@ -1,0 +1,43 @@
+{
+  "id": "/tools/qr-code-scanner.html",
+  "name": "QR Code Scanner \u2014 Decode from Image or Camera \u2013 toolcrate",
+  "short_name": "QR Code Scanner \u2014 Decode from Image or Camera",
+  "description": "Decode a QR code from an uploaded image or your camera. No signup, nothing uploaded to a server \u2014 decoding runs entirely in your browser.",
+  "start_url": "/tools/qr-code-scanner.html",
+  "scope": "/tools/qr-code-scanner.html",
+  "display": "standalone",
+  "background_color": "#F5F4F2",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

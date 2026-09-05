@@ -1,0 +1,43 @@
+{
+  "id": "/tools/text-repeater.html",
+  "name": "Text Repeater \u2014 Repeat Text N Times \u2013 toolcrate",
+  "short_name": "Text Repeater \u2014 Repeat Text N Times",
+  "description": "Repeat any text a set number of times, with an optional separator between each copy. No signup, nothing uploaded to a server.",
+  "start_url": "/tools/text-repeater.html",
+  "scope": "/tools/text-repeater.html",
+  "display": "standalone",
+  "background_color": "#F5F4F2",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

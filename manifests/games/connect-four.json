@@ -1,0 +1,43 @@
+{
+  "id": "/games/connect-four.html",
+  "name": "Connect Four \u2013 toolcrate",
+  "short_name": "Connect Four",
+  "description": "Play Connect Four against the computer or a friend on the same device. Free browser game, scores saved on your device.",
+  "start_url": "/games/connect-four.html",
+  "scope": "/games/connect-four.html",
+  "display": "standalone",
+  "background_color": "#F5F4F2",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

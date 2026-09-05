@@ -1,0 +1,43 @@
+{
+  "id": "/tools/one-rep-max-calculator.html",
+  "name": "1-Rep Max Calculator \u2014 Epley & Brzycki \u2013 toolcrate",
+  "short_name": "1-Rep Max Calculator \u2014 Epley & Brzycki",
+  "description": "Estimate your one-rep max from any weight and rep count, using the Epley and Brzycki formulas. Educational tool, not medical advice.",
+  "start_url": "/tools/one-rep-max-calculator.html",
+  "scope": "/tools/one-rep-max-calculator.html",
+  "display": "standalone",
+  "background_color": "#F5F4F2",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

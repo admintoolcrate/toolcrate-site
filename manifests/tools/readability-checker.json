@@ -1,0 +1,43 @@
+{
+  "id": "/tools/readability-checker.html",
+  "name": "Readability Score Checker \u2014 Flesch-Kincaid \u2013 toolcrate",
+  "short_name": "Readability Score Checker \u2014 Flesch-Kincaid",
+  "description": "Check the Flesch Reading Ease, Flesch-Kincaid Grade Level, and Gunning Fog Index of your text. No signup, nothing uploaded to a server.",
+  "start_url": "/tools/readability-checker.html",
+  "scope": "/tools/readability-checker.html",
+  "display": "standalone",
+  "background_color": "#F5F4F2",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

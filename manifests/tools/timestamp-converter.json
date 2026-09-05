@@ -1,0 +1,43 @@
+{
+  "id": "/tools/timestamp-converter.html",
+  "name": "Timestamp / Unix Converter \u2014 Timezone Aware \u2013 toolcrate",
+  "short_name": "Timestamp / Unix Converter \u2014 Timezone Aware",
+  "description": "Convert Unix timestamps to human-readable dates and back, in any IANA timezone. No signup, nothing uploaded to a server.",
+  "start_url": "/tools/timestamp-converter.html",
+  "scope": "/tools/timestamp-converter.html",
+  "display": "standalone",
+  "background_color": "#F5F4F2",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

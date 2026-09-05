@@ -1,0 +1,43 @@
+{
+  "id": "/games/sudoku.html",
+  "name": "Sudoku \u2013 toolcrate",
+  "short_name": "Sudoku",
+  "description": "Play Sudoku in your browser. Three difficulty levels, every puzzle has a unique solution. Free, best times saved on your device.",
+  "start_url": "/games/sudoku.html",
+  "scope": "/games/sudoku.html",
+  "display": "standalone",
+  "background_color": "#F5F4F2",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

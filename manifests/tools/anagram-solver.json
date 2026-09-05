@@ -1,0 +1,43 @@
+{
+  "id": "/tools/anagram-solver.html",
+  "name": "Anagram Solver / Finder \u2013 toolcrate",
+  "short_name": "Anagram Solver / Finder",
+  "description": "Find valid English anagrams of a word, or check whether two phrases are anagrams of each other. No signup, nothing uploaded to a server.",
+  "start_url": "/tools/anagram-solver.html",
+  "scope": "/tools/anagram-solver.html",
+  "display": "standalone",
+  "background_color": "#F5F4F2",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

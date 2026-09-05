@@ -1,0 +1,43 @@
+{
+  "id": "/tools/bed-size-comparison.html",
+  "name": "Bed & Pillow Size Comparison \u2013 toolcrate",
+  "short_name": "Bed & Pillow Size Comparison",
+  "description": "Enter a bed, mattress, or pillow's dimensions and find its closest standard size name (Twin, Full, Queen, King, UK/EU sizes, and more). No signup, nothing uploaded to a server.",
+  "start_url": "/tools/bed-size-comparison.html",
+  "scope": "/tools/bed-size-comparison.html",
+  "display": "standalone",
+  "background_color": "#F5F4F2",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

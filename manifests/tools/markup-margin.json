@@ -1,0 +1,43 @@
+{
+  "id": "/tools/markup-margin.html",
+  "name": "Markup vs Margin Calculator \u2013 toolcrate",
+  "short_name": "Markup vs Margin Calculator",
+  "description": "Calculate selling price from cost and markup or margin percentage, or find markup/margin from cost and selling price. Free, instant, browser-only.",
+  "start_url": "/tools/markup-margin.html",
+  "scope": "/tools/markup-margin.html",
+  "display": "standalone",
+  "background_color": "#F5F4F2",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
