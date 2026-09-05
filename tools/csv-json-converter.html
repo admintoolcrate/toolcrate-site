@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CSV ↔ JSON Converter | Toolcrate</title>
+<title>CSV ↔ JSON Converter | toolcrate</title>
 <meta name="description" content="Convert CSV to JSON or JSON to CSV instantly in your browser. Handles quoted fields, commas, and escaped quotes correctly.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -68,6 +68,12 @@ Ada Lovelace,Mathematician,3
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>CSV parsing follows the common convention: fields containing the delimiter, quotes, or line breaks are wrapped in double quotes, and a doubled quote (<code>""</code>) inside a quoted field represents a literal quote character. With "first row is a header" checked, each row becomes a JSON object keyed by the header names; unchecked, rows become plain arrays.</p>
+    <p>JSON → CSV expects an array of flat objects (or arrays) — nested objects and arrays inside a field are converted to their JSON string form rather than flattened, since there's no single standard way to represent nested data in CSV. Everything runs locally in your browser; nothing is uploaded.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -80,11 +86,6 @@ Ada Lovelace,Mathematician,3
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>CSV parsing follows the common convention: fields containing the delimiter, quotes, or line breaks are wrapped in double quotes, and a doubled quote (<code>""</code>) inside a quoted field represents a literal quote character. With "first row is a header" checked, each row becomes a JSON object keyed by the header names; unchecked, rows become plain arrays.</p>
-    <p>JSON → CSV expects an array of flat objects (or arrays) — nested objects and arrays inside a field are converted to their JSON string form rather than flattened, since there's no single standard way to represent nested data in CSV. Everything runs locally in your browser; nothing is uploaded.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -241,5 +242,6 @@ copyBtn.addEventListener('click', async () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

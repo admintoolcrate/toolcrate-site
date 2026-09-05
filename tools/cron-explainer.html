@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cron Expression Explainer — Free, No Signup | Toolcrate</title>
+<title>Cron Expression Explainer — Free, No Signup | toolcrate</title>
 <meta name="description" content="Explain a cron expression in plain English and see its next run times. No signup, nothing uploaded to a server — everything runs in your browser.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -68,6 +68,12 @@
     <div id="nextOutput" class="output-panel empty">Upcoming run times will appear here.</div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>This tool reads the standard 5-field cron format — <code>minute hour day-of-month month day-of-week</code> — supporting <code>*</code>, single values, ranges (<code>1-5</code>), steps (<code>*/15</code>, <code>1-31/2</code>), comma-separated lists, and month/weekday names (<code>JAN</code>, <code>MON</code>). It also recognizes the common nonstandard shortcuts <code>@yearly</code>, <code>@monthly</code>, <code>@weekly</code>, <code>@daily</code>, <code>@hourly</code>, and <code>@reboot</code>. The 6-field format with a leading seconds column (used by some non-standard schedulers, like Quartz) is not supported.</p>
+    <p>When both day-of-month and day-of-week are restricted (neither is <code>*</code>), standard cron treats them as an <strong>OR</strong>, not an AND — a run happens when either condition matches. The "next 5 run times" list is computed by walking forward minute-by-minute in your browser's own local time zone, so it's the authoritative answer if the plain-English description ever seems ambiguous. Nothing you enter is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -80,11 +86,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>This tool reads the standard 5-field cron format — <code>minute hour day-of-month month day-of-week</code> — supporting <code>*</code>, single values, ranges (<code>1-5</code>), steps (<code>*/15</code>, <code>1-31/2</code>), comma-separated lists, and month/weekday names (<code>JAN</code>, <code>MON</code>). It also recognizes the common nonstandard shortcuts <code>@yearly</code>, <code>@monthly</code>, <code>@weekly</code>, <code>@daily</code>, <code>@hourly</code>, and <code>@reboot</code>. The 6-field format with a leading seconds column (used by some non-standard schedulers, like Quartz) is not supported.</p>
-    <p>When both day-of-month and day-of-week are restricted (neither is <code>*</code>), standard cron treats them as an <strong>OR</strong>, not an AND — a run happens when either condition matches. The "next 5 run times" list is computed by walking forward minute-by-minute in your browser's own local time zone, so it's the authoritative answer if the plain-English description ever seems ambiguous. Nothing you enter is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -336,5 +337,6 @@ document.getElementById('explainBtn').click();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

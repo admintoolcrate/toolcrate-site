@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BPM Tap Tempo | Toolcrate</title>
+<title>BPM Tap Tempo | toolcrate</title>
 <meta name="description" content="Tap along to a beat to find its tempo in BPM. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -47,6 +47,12 @@
     <div class="stat"><span class="stat-value" id="msPerBeat">—</span><span class="stat-label">Ms per beat</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Each tap records a timestamp, and the BPM shown is <code>60,000 ÷ average interval in milliseconds</code> across your last 8 taps — a rolling average so a single mistimed tap doesn't throw off the whole reading. Taps more than 2 seconds apart are treated as the start of a new sequence rather than averaged in, since that long a gap almost always means you paused rather than meant an extremely slow tempo.</p>
+    <p>Nothing tapped here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -59,11 +65,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Each tap records a timestamp, and the BPM shown is <code>60,000 ÷ average interval in milliseconds</code> across your last 8 taps — a rolling average so a single mistimed tap doesn't throw off the whole reading. Taps more than 2 seconds apart are treated as the start of a new sequence rather than averaged in, since that long a gap almost always means you paused rather than meant an extremely slow tempo.</p>
-    <p>Nothing tapped here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -128,5 +129,6 @@ document.addEventListener('keydown', (e) => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

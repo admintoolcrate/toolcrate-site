@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Water Intake Calculator | Toolcrate</title>
+<title>Water Intake Calculator | toolcrate</title>
 <meta name="description" content="Estimate a daily water intake target from your body weight, exercise, and climate. Educational tool, not medical advice.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -61,6 +61,12 @@
     <div class="stat"><span class="stat-value" id="glassesValue">—</span><span class="stat-label">Glasses/day (250 mL)</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>About this estimate</h2>
+    <p>The baseline is a commonly cited rule of thumb — about 35 mL per kg of body weight — plus roughly 12 mL for every minute of exercise (in the range of the 350–700 mL per 30–60 minutes often recommended for moderate activity), plus a flat 500 mL if you're in a hot or humid climate where sweat losses run higher. This includes water from food and other drinks, not just what you drink from a glass, and it's a starting point, not a target to hit exactly every day.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -73,11 +79,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this estimate</h2>
-    <p>The baseline is a commonly cited rule of thumb — about 35 mL per kg of body weight — plus roughly 12 mL for every minute of exercise (in the range of the 350–700 mL per 30–60 minutes often recommended for moderate activity), plus a flat 500 mL if you're in a hot or humid climate where sweat losses run higher. This includes water from food and other drinks, not just what you drink from a glass, and it's a starting point, not a target to hit exactly every day.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -125,5 +126,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

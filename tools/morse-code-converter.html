@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Morse Code Converter — Text to and from Morse | Toolcrate</title>
+<title>Morse Code Converter — Text to and from Morse | toolcrate</title>
 <meta name="description" content="Convert text to Morse code or Morse code back to text, with audio playback. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -49,6 +49,12 @@
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Uses standard International Morse Code: letters within a word are separated by a single space, and words are separated by a forward slash (<code>/</code>). Text input is uppercased automatically, since Morse doesn't distinguish case; any character with no Morse equivalent is skipped. Playback follows standard Morse timing ratios — a dash is 3 units long, the gap between symbols in a letter is 1 unit, between letters is 3 units, and between words is 7 units — generated live with the Web Audio API, not a recorded sound file.</p>
+    <p>Nothing you enter here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -61,11 +67,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Uses standard International Morse Code: letters within a word are separated by a single space, and words are separated by a forward slash (<code>/</code>). Text input is uppercased automatically, since Morse doesn't distinguish case; any character with no Morse equivalent is skipped. Playback follows standard Morse timing ratios — a dash is 3 units long, the gap between symbols in a letter is 1 unit, between letters is 3 units, and between words is 7 units — generated live with the Web Audio API, not a recorded sound file.</p>
-    <p>Nothing you enter here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -193,5 +194,6 @@ playBtn.addEventListener('click', () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Passphrase Generator — Memorable &amp; Secure | Toolcrate</title>
+<title>Passphrase Generator — Memorable &amp; Secure | toolcrate</title>
 <meta name="description" content="Generate a memorable, word-based passphrase with an entropy indicator. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -76,6 +76,12 @@
     <div id="strengthLabel" style="font-size: 0.85rem; color: var(--muted); margin-top: 0.4rem;"></div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Words are drawn from a built-in list of about 240 common English words using <code>crypto.getRandomValues</code>, the same cryptographically secure source the <a href="/tools/password-generator.html">Password Generator</a> uses. The entropy shown is <code>words × log₂(240)</code> plus a bit more if you add a number — a 4-word passphrase from this list has roughly 32 bits, a 6-word one about 47 bits; a real Diceware wordlist (7,776 words) gets nearly twice as many bits per word, so treat the count shown here as this tool's actual figure, not a universal passphrase benchmark.</p>
+    <p>Nothing generated here is sent to a server or stored anywhere — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -88,11 +94,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Words are drawn from a built-in list of about 240 common English words using <code>crypto.getRandomValues</code>, the same cryptographically secure source the <a href="/tools/password-generator.html">Password Generator</a> uses. The entropy shown is <code>words × log₂(240)</code> plus a bit more if you add a number — a 4-word passphrase from this list has roughly 32 bits, a 6-word one about 47 bits; a real Diceware wordlist (7,776 words) gets nearly twice as many bits per word, so treat the count shown here as this tool's actual figure, not a universal passphrase benchmark.</p>
-    <p>Nothing generated here is sent to a server or stored anywhere — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -187,5 +188,6 @@ document.getElementById('generateBtn').click();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

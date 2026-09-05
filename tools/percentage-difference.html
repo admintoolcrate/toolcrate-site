@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Percentage Difference Calculator | Toolcrate</title>
+<title>Percentage Difference Calculator | toolcrate</title>
 <meta name="description" content="Calculate the percentage difference between two values with no 'before/after' direction — useful for comparing two independent measurements.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -44,6 +44,12 @@
     <div id="output" class="output-panel"></div>
   </div>
 
+  <div class="explainer">
+    <h2>Difference vs. change — what's the distinction?</h2>
+    <p><strong>Percentage change</strong> assumes one number is the "before" and one is the "after" — direction matters. <strong>Percentage difference</strong> treats both numbers as equals with no direction, useful when comparing two independent measurements rather than tracking one value over time.</p>
+    <p><code>% difference = (|A − B| ÷ ((A + B) ÷ 2)) × 100</code></p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -56,11 +62,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>Difference vs. change — what's the distinction?</h2>
-    <p><strong>Percentage change</strong> assumes one number is the "before" and one is the "after" — direction matters. <strong>Percentage difference</strong> treats both numbers as equals with no direction, useful when comparing two independent measurements rather than tracking one value over time.</p>
-    <p><code>% difference = (|A − B| ÷ ((A + B) ÷ 2)) × 100</code></p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -105,5 +106,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

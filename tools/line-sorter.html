@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Line Sorter — A–Z, Length, Numeric, Shuffle | Toolcrate</title>
+<title>Line Sorter — A–Z, Length, Numeric, Shuffle | toolcrate</title>
 <meta name="description" content="Sort the lines of a text block alphabetically, by length, numerically, or shuffle them randomly. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -66,6 +66,12 @@
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>A–Z and Z–A use standard locale-aware string comparison; "Numeric" extracts the first number found in each line and sorts by that value, so a list like <code>item 9</code>, <code>item 10</code>, <code>item 2</code> sorts as 2, 9, 10 rather than as plain text (where "10" would sort before "2"). Lines with no number sort to the end. Shuffle uses an unbiased Fisher–Yates shuffle, not a naive sort-by-random-comparator, which can otherwise produce skewed results.</p>
+    <p>Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -78,11 +84,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>A–Z and Z–A use standard locale-aware string comparison; "Numeric" extracts the first number found in each line and sorts by that value, so a list like <code>item 9</code>, <code>item 10</code>, <code>item 2</code> sorts as 2, 9, 10 rather than as plain text (where "10" would sort before "2"). Lines with no number sort to the end. Shuffle uses an unbiased Fisher–Yates shuffle, not a naive sort-by-random-comparator, which can otherwise produce skewed results.</p>
-    <p>Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -175,5 +176,6 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

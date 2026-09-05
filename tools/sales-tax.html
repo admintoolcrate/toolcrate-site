@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sales Tax Calculator — Add or Remove Tax | Toolcrate</title>
+<title>Sales Tax Calculator — Add or Remove Tax | toolcrate</title>
 <meta name="description" content="Calculate sales tax forward (add tax to a price) or backward (find the pre-tax price from a tax-included total). Free, instant, browser-only.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -52,6 +52,12 @@
     <div class="stat"><span class="stat-value" id="total">—</span><span class="stat-label">Total</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>The formulas</h2>
+    <p>Adding tax: <code>total = price × (1 + rate ÷ 100)</code></p>
+    <p>Removing tax: <code>pre-tax price = total ÷ (1 + rate ÷ 100)</code> — this is the reverse calculation, useful when a receipt only shows the final tax-included total.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -64,11 +70,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>The formulas</h2>
-    <p>Adding tax: <code>total = price × (1 + rate ÷ 100)</code></p>
-    <p>Removing tax: <code>pre-tax price = total ÷ (1 + rate ÷ 100)</code> — this is the reverse calculation, useful when a receipt only shows the final tax-included total.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -126,5 +127,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

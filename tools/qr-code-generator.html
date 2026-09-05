@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QR Code Generator | Toolcrate</title>
+<title>QR Code Generator | toolcrate</title>
 <meta name="description" content="Turn any text or URL into a downloadable QR code, generated in your browser with a real ISO/IEC 18004 encoder. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -86,6 +86,12 @@
     <div class="stat"><span class="stat-value" id="statBytes">—</span><span class="stat-label">Data bytes</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>This generates a real, standards-compliant QR code — a from-scratch implementation of ISO/IEC 18004, not a wrapper around a hosted image API. Your text is UTF-8 encoded and placed in Byte mode, the smallest symbol version (1–40) that fits it at your chosen error-correction level is picked automatically, and Reed–Solomon error-correction codewords are computed over GF(256) and interleaved with the data per the standard's block tables. All eight mask patterns are scored with the standard penalty rules and the best one is applied, then finder, timing, alignment, format and version information are placed into the module grid and drawn to a canvas. A higher error-correction level (L through H) lets a scanner still read the code if part of it is damaged, dirty, or covered by a logo, at the cost of packing less usable data into the same-size code.</p>
+    <p>Nothing you type here is sent to a server — the entire encoder runs as JavaScript in your browser tab, and the QR code is drawn locally to a canvas you can download directly.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -98,11 +104,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>This generates a real, standards-compliant QR code — a from-scratch implementation of ISO/IEC 18004, not a wrapper around a hosted image API. Your text is UTF-8 encoded and placed in Byte mode, the smallest symbol version (1–40) that fits it at your chosen error-correction level is picked automatically, and Reed–Solomon error-correction codewords are computed over GF(256) and interleaved with the data per the standard's block tables. All eight mask patterns are scored with the standard penalty rules and the best one is applied, then finder, timing, alignment, format and version information are placed into the module grid and drawn to a canvas. A higher error-correction level (L through H) lets a scanner still read the code if part of it is damaged, dirty, or covered by a logo, at the cost of packing less usable data into the same-size code.</p>
-    <p>Nothing you type here is sent to a server — the entire encoder runs as JavaScript in your browser tab, and the QR code is drawn locally to a canvas you can download directly.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -640,5 +641,6 @@ update();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

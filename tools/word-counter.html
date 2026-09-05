@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Word & Character Counter — Free, Live, No Signup | Toolcrate</title>
+<title>Word & Character Counter — Free, Live, No Signup | toolcrate</title>
 <meta name="description" content="Count words, characters, sentences and estimate reading time as you type. Runs entirely in your browser — nothing is uploaded or stored.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -45,6 +45,12 @@
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>How this counts</h2>
+    <p>Words are counted as whitespace-separated tokens. Sentences are estimated by counting terminal punctuation (., !, ?), so abbreviations may occasionally inflate the count slightly. Reading time assumes 200 words per minute, a common average for adult silent reading.</p>
+    <p>Everything is calculated locally in your browser as you type — nothing is sent anywhere.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -57,11 +63,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>How this counts</h2>
-    <p>Words are counted as whitespace-separated tokens. Sentences are estimated by counting terminal punctuation (., !, ?), so abbreviations may occasionally inflate the count slightly. Reading time assumes 200 words per minute, a common average for adult silent reading.</p>
-    <p>Everything is calculated locally in your browser as you type — nothing is sent anywhere.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -122,5 +123,6 @@ update();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

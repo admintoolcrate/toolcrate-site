@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wi-Fi QR Code Generator | Toolcrate</title>
+<title>Wi-Fi QR Code Generator | toolcrate</title>
 <meta name="description" content="Generate a scan-to-connect QR code for any Wi-Fi network. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -95,6 +95,12 @@
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>The QR code encodes a standard <code>WIFI:T:...;S:...;P:...;;</code> payload that every major phone's camera app recognizes, with special characters in the network name and password (backslashes, semicolons, commas, colons) automatically escaped per the spec so networks with punctuation in their names still scan correctly. It's generated with the same from-scratch ISO/IEC 18004 QR encoder as our <a href="/tools/qr-code-generator.html">QR Code Generator</a> — real Reed-Solomon error correction, not a hosted image API.</p>
+    <p>Your network name and password are only used locally to build the QR code — nothing is sent to a server, and the password never leaves your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -107,11 +113,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>The QR code encodes a standard <code>WIFI:T:...;S:...;P:...;;</code> payload that every major phone's camera app recognizes, with special characters in the network name and password (backslashes, semicolons, commas, colons) automatically escaped per the spec so networks with punctuation in their names still scan correctly. It's generated with the same from-scratch ISO/IEC 18004 QR encoder as our <a href="/tools/qr-code-generator.html">QR Code Generator</a> — real Reed-Solomon error correction, not a hosted image API.</p>
-    <p>Your network name and password are only used locally to build the QR code — nothing is sent to a server, and the password never leaves your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -650,5 +651,6 @@ update();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

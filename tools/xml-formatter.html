@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XML Formatter & Validator — Free, No Signup | Toolcrate</title>
+<title>XML Formatter & Validator — Free, No Signup | toolcrate</title>
 <meta name="description" content="Pretty-print, validate, and minify XML instantly in your browser. No signup, nothing uploaded to a server — your data never leaves your device.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -48,6 +48,12 @@
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>This formatter parses your XML with the browser's native <code>DOMParser</code>, so a malformed document — an unclosed tag, a mismatched end tag, an unescaped <code>&amp;</code> — is caught the same way it would be by any standard XML parser, with the browser's own error description shown below the input. Formatting uses 2-space indentation and preserves attribute order, comments, CDATA sections, and a leading <code>&lt;?xml ?&gt;</code> declaration or <code>&lt;!DOCTYPE&gt;</code> if present; minify strips insignificant whitespace between tags to produce a single compact line.</p>
+    <p>Whitespace-only text between elements is not treated as significant, so formatting will collapse indentation-only whitespace in the source — this is safe for typical data and config XML, but not appropriate for XML where whitespace inside elements is meaningful (like &lt;pre&gt;-style content). External DTD and entity references are never fetched or resolved. Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -60,11 +66,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>This formatter parses your XML with the browser's native <code>DOMParser</code>, so a malformed document — an unclosed tag, a mismatched end tag, an unescaped <code>&amp;</code> — is caught the same way it would be by any standard XML parser, with the browser's own error description shown below the input. Formatting uses 2-space indentation and preserves attribute order, comments, CDATA sections, and a leading <code>&lt;?xml ?&gt;</code> declaration or <code>&lt;!DOCTYPE&gt;</code> if present; minify strips insignificant whitespace between tags to produce a single compact line.</p>
-    <p>Whitespace-only text between elements is not treated as significant, so formatting will collapse indentation-only whitespace in the source — this is safe for typical data and config XML, but not appropriate for XML where whitespace inside elements is meaningful (like &lt;pre&gt;-style content). External DTD and entity references are never fetched or resolved. Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -249,5 +250,6 @@ copyBtn.addEventListener('click', async () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

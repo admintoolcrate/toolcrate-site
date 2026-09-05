@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GPA Calculator — 4.0 Scale | Toolcrate</title>
+<title>GPA Calculator — 4.0 Scale | toolcrate</title>
 <meta name="description" content="Calculate your GPA on a 4.0 scale from any number of courses and credit hours. Free, instant, browser-only.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -51,6 +51,12 @@
     <div class="stat"><span class="stat-value" id="totalPoints">—</span><span class="stat-label">Total grade points</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>The formula</h2>
+    <p>Each grade converts to grade points on the standard 4.0 scale (A = 4.0 down to F = 0.0, with +/- variants at 0.3 intervals). GPA is the credit-weighted average: <code>GPA = Σ(grade points × credit hours) ÷ Σ(credit hours)</code>. Some schools use a slightly different scale (no A+ above 4.0, or different +/- increments) — check your institution's official scale if this needs to match a transcript exactly.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -63,11 +69,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>The formula</h2>
-    <p>Each grade converts to grade points on the standard 4.0 scale (A = 4.0 down to F = 0.0, with +/- variants at 0.3 intervals). GPA is the credit-weighted average: <code>GPA = Σ(grade points × credit hours) ÷ Σ(credit hours)</code>. Some schools use a slightly different scale (no A+ above 4.0, or different +/- increments) — check your institution's official scale if this needs to match a transcript exactly.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -194,5 +195,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

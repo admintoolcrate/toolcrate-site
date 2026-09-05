@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Random Number Generator | Toolcrate</title>
+<title>Random Number Generator | toolcrate</title>
 <meta name="description" content="Generate random numbers in any range, with or without repeats. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -76,6 +76,12 @@
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Both endpoints are inclusive — a range of 1 to 100 can produce either 1 or 100. "Allow duplicates" off draws without replacement (like pulling numbered balls from a bag, each value can appear at most once), which naturally caps how many numbers you can request to the size of the range; with decimals allowed, "no duplicates" is turned off automatically, since real numbers in a range are effectively never exactly equal.</p>
+    <p>Nothing generated here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -88,11 +94,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Both endpoints are inclusive — a range of 1 to 100 can produce either 1 or 100. "Allow duplicates" off draws without replacement (like pulling numbered balls from a bag, each value can appear at most once), which naturally caps how many numbers you can request to the size of the range; with decimals allowed, "no duplicates" is turned off automatically, since real numbers in a range are effectively never exactly equal.</p>
-    <p>Nothing generated here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -187,5 +188,6 @@ document.getElementById('generateBtn').click();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

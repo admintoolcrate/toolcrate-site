@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Toolcrate — Fast, free, no-signup utilities</title>
+<title>toolcrate — Fast, free, no-signup utilities</title>
 <meta name="description" content="Small, fast browser tools for developers and everyday tasks: JSON formatting, word counting, unit conversion and more. No signup, nothing stored.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -50,21 +50,16 @@
     </div>
     <div class="search-meta">
       <span id="resultsSummary"></span>
+      <label class="sort-control">Sort
+        <select id="sortSelect">
+          <option value="default">Category order</option>
+          <option value="name-asc">Name (A–Z)</option>
+          <option value="name-desc">Name (Z–A)</option>
+        </select>
+      </label>
       <span class="search-hint">Press <kbd>/</kbd> to search</span>
     </div>
   </div>
-
-<div class="ad-slot">
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-8879201576445737"
-     data-ad-slot="1489621698"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-</div>
 
   <p id="noResults" class="no-results" hidden></p>
 
@@ -252,6 +247,19 @@
     <h2>Why use these instead of a search snippet</h2>
     <p>Most quick answers arrive wrapped in ads, autoplay video, or a dozen paragraphs before the actual tool. These are built to do one job, load fast, and get out of your way.</p>
   </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
 </main>
 
 <footer class="site-footer">
@@ -276,10 +284,12 @@
   const recentSection = document.getElementById('recentSection');
   const recentList = document.getElementById('recentList');
   const backToTop = document.getElementById('backToTop');
+  const sortSelect = document.getElementById('sortSelect');
 
   const FAVORITES_KEY = 'toolcrate-favorites';
   const RECENT_KEY = 'toolcrate-recent';
   const RECENT_MAX = 6;
+  const SORT_KEY = 'toolcrate-sort';
 
   function loadJSON(key, fallback) {
     try {
@@ -300,18 +310,50 @@
   const items = [];
   groups.forEach(group => {
     const categoryText = group.querySelector('.category-label').textContent.toLowerCase();
-    group.querySelectorAll('.tool-list li').forEach(li => {
+    group.querySelectorAll('.tool-list li').forEach((li, index) => {
       const a = li.querySelector('a');
       const href = a.getAttribute('href');
       const name = li.querySelector('.tool-name').textContent;
       const desc = li.querySelector('.tool-desc').textContent;
       allTools.push({ href, name, desc });
+      li.dataset.originalIndex = index;
       li.insertBefore(makeStarBtn(href), li.firstChild);
       a.addEventListener('click', () => recordRecent(href));
       items.push({ li, group, text: li.textContent.toLowerCase() + ' ' + categoryText });
     });
   });
   const totalCount = items.length;
+
+  function loadSort() {
+    try { return localStorage.getItem(SORT_KEY) || 'default'; } catch (e) { return 'default'; }
+  }
+  function saveSort(value) {
+    try { localStorage.setItem(SORT_KEY, value); } catch (e) { /* storage unavailable */ }
+  }
+
+  function applySort() {
+    const mode = sortSelect.value;
+    groups.forEach(group => {
+      const list = group.querySelector('.tool-list');
+      const lis = Array.from(list.querySelectorAll('li'));
+      if (mode === 'name-asc' || mode === 'name-desc') {
+        lis.sort((a, b) => {
+          const cmp = a.querySelector('.tool-name').textContent.localeCompare(b.querySelector('.tool-name').textContent);
+          return mode === 'name-asc' ? cmp : -cmp;
+        });
+      } else {
+        lis.sort((a, b) => Number(a.dataset.originalIndex) - Number(b.dataset.originalIndex));
+      }
+      lis.forEach(li => list.appendChild(li));
+    });
+  }
+
+  sortSelect.value = loadSort();
+  sortSelect.addEventListener('change', () => {
+    saveSort(sortSelect.value);
+    applySort();
+  });
+  applySort();
 
   function makeStarBtn(href) {
     const btn = document.createElement('button');
@@ -441,5 +483,6 @@
   applyFilter();
 })();
 </script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

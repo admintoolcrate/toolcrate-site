@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BMI Calculator — Metric &amp; Imperial | Toolcrate</title>
+<title>BMI Calculator — Metric &amp; Imperial | toolcrate</title>
 <meta name="description" content="Calculate Body Mass Index in metric or imperial units, with WHO weight category ranges. Educational tool, not medical advice.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -68,6 +68,12 @@
     <div class="stat"><span class="stat-value" id="bmiCategory">—</span><span class="stat-label">WHO category</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>The formula</h2>
+    <p><code>BMI = weight (kg) ÷ height (m)²</code>. The World Health Organization's adult categories are: under 18.5 = underweight, 18.5–24.9 = normal weight, 25–29.9 = overweight, 30 and above = obese. These ranges were developed from population-level data and are a rough screening tool, not a diagnosis — talk to a healthcare provider for an assessment that accounts for your individual body composition.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -80,11 +86,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>The formula</h2>
-    <p><code>BMI = weight (kg) ÷ height (m)²</code>. The World Health Organization's adult categories are: under 18.5 = underweight, 18.5–24.9 = normal weight, 25–29.9 = overweight, 30 and above = obese. These ranges were developed from population-level data and are a rough screening tool, not a diagnosis — talk to a healthcare provider for an assessment that accounts for your individual body composition.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -159,5 +160,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

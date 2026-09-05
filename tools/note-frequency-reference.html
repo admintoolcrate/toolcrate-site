@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Note Frequency Reference | Toolcrate</title>
+<title>Note Frequency Reference | toolcrate</title>
 <meta name="description" content="Frequency in Hz for every musical note and octave, in equal temperament with an adjustable A4 reference pitch. Free, instant, browser-only.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -50,6 +50,12 @@
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>About this reference</h2>
+    <p>Standard 12-tone equal temperament splits every octave into 12 equal ratios, so each semitone's frequency is the one before it times <code>2^(1/12)</code> — that's why frequency exactly doubles one octave up (A5 is exactly 2× A4) but doesn't increase by an equal number of Hz per semitone. A4 = 440 Hz is the modern concert-pitch standard, but some orchestras and eras tune slightly sharp or flat (442 Hz is common in parts of Europe) — adjust the reference pitch above to see every other note shift with it.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -62,11 +68,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this reference</h2>
-    <p>Standard 12-tone equal temperament splits every octave into 12 equal ratios, so each semitone's frequency is the one before it times <code>2^(1/12)</code> — that's why frequency exactly doubles one octave up (A5 is exactly 2× A4) but doesn't increase by an equal number of Hz per semitone. A4 = 440 Hz is the modern concert-pitch standard, but some orchestras and eras tune slightly sharp or flat (442 Hz is common in parts of Europe) — adjust the reference pitch above to see every other note shift with it.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -115,5 +116,6 @@ render();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

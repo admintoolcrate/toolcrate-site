@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Age in Days, Hours &amp; Minutes | Toolcrate</title>
+<title>Age in Days, Hours &amp; Minutes | toolcrate</title>
 <meta name="description" content="See your exact age broken into total days, hours, minutes, and seconds, updating live. Free, instant, browser-only.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -47,6 +47,12 @@
     <div class="stat"><span class="stat-value" id="statSeconds">—</span><span class="stat-label">Total seconds</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Each figure is the same span of time expressed in a different unit — total hours is just total days × 24, and so on — measured against your device's clock and updated every second. Without a birth time, the count starts from midnight on your birth date, so the totals will be off by up to 24 hours from your literal birth moment.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab, and stops updating if you close or leave the page.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -59,11 +65,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Each figure is the same span of time expressed in a different unit — total hours is just total days × 24, and so on — measured against your device's clock and updated every second. Without a birth time, the count starts from midnight on your birth date, so the totals will be off by up to 24 hours from your literal birth moment.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab, and stops updating if you close or leave the page.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -131,5 +132,6 @@ restart();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

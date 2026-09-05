@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simple &amp; Compound Interest Calculator | Toolcrate</title>
+<title>Simple &amp; Compound Interest Calculator | toolcrate</title>
 <meta name="description" content="Calculate simple or compound interest on a principal amount over time. Educational tool, not financial advice. Free, instant, browser-only.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -69,6 +69,13 @@
     <div class="stat"><span class="stat-value" id="interestEarned">—</span><span class="stat-label">Interest earned</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>The formulas</h2>
+    <p>Simple interest: <code>A = P × (1 + r × t)</code></p>
+    <p>Compound interest: <code>A = P × (1 + r/n)^(n×t)</code>, where n is the number of times interest compounds per year.</p>
+    <p>This is a simplified educational model — it doesn't account for taxes, fees, variable rates, or additional contributions over time.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -81,12 +88,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>The formulas</h2>
-    <p>Simple interest: <code>A = P × (1 + r × t)</code></p>
-    <p>Compound interest: <code>A = P × (1 + r/n)^(n×t)</code>, where n is the number of times interest compounds per year.</p>
-    <p>This is a simplified educational model — it doesn't account for taxes, fees, variable rates, or additional contributions over time.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -143,5 +144,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

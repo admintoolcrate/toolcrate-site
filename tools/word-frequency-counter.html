@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Word Frequency Counter | Toolcrate</title>
+<title>Word Frequency Counter | toolcrate</title>
 <meta name="description" content="Find the most common words in a block of text. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -69,6 +69,12 @@
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Words are extracted as runs of letters, digits, and internal apostrophes (so <code>don't</code> counts as one word), then counted. "Hide common stop words" filters out roughly 60 of the most frequent English function words (the, and, is, to, of, and similar) that would otherwise dominate almost any word-frequency list without saying much about the text's actual content.</p>
+    <p>Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -81,11 +87,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Words are extracted as runs of letters, digits, and internal apostrophes (so <code>don't</code> counts as one word), then counted. "Hide common stop words" filters out roughly 60 of the most frequent English function words (the, and, is, to, of, and similar) that would otherwise dominate almost any word-frequency list without saying much about the text's actual content.</p>
-    <p>Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -165,5 +166,6 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Week Number Calculator — ISO 8601 | Toolcrate</title>
+<title>Week Number Calculator — ISO 8601 | toolcrate</title>
 <meta name="description" content="Find the ISO 8601 week number for any date, plus how many weeks are in that year. Free, instant, browser-only.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -40,6 +40,12 @@
     <div class="stat"><span class="stat-value" id="weekdayName">—</span><span class="stat-label">Day of week</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>ISO 8601 weeks run Monday to Sunday, and week 1 of a year is defined as the week containing that year's first Thursday — equivalently, the week containing January 4th. Because of this, the first few days of January can fall in the final week (52 or 53) of the <em>previous</em> ISO year, and the last few days of December can fall in week 1 of the <em>next</em> one — which is why this tool shows an "ISO week-year" separately from the calendar year. Most years have 52 weeks; years where January 1st is a Thursday (or a leap year where it's a Wednesday) have 53.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -52,11 +58,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>ISO 8601 weeks run Monday to Sunday, and week 1 of a year is defined as the week containing that year's first Thursday — equivalently, the week containing January 4th. Because of this, the first few days of January can fall in the final week (52 or 53) of the <em>previous</em> ISO year, and the last few days of December can fall in week 1 of the <em>next</em> one — which is why this tool shows an "ISO week-year" separately from the calendar year. Most years have 52 weeks; years where January 1st is a Thursday (or a leap year where it's a Wednesday) have 53.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -118,5 +119,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

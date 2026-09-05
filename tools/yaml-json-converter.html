@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YAML ↔ JSON Converter | Toolcrate</title>
+<title>YAML ↔ JSON Converter | toolcrate</title>
 <meta name="description" content="Convert YAML to JSON or JSON to YAML instantly in your browser. Handles nested objects, lists, and common scalar types.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -58,6 +58,12 @@ config:
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>What's supported</h2>
+    <p>This covers the YAML most configuration files actually use: nested mappings and sequences via indentation, block-style lists, quoted and unquoted strings, numbers, booleans, and null. It doesn't cover the full YAML spec — flow-style collections like <code>{a: 1}</code> or <code>[1, 2]</code>, anchors/aliases, and multi-document files aren't handled. If a conversion looks wrong, the most common cause is mixed tabs and spaces in the indentation; YAML requires spaces only.</p>
+    <p>JSON → YAML output uses 2-space indentation and quotes strings only when needed (if they contain special characters or could be mistaken for a number or boolean). Nothing you paste here is uploaded — conversion happens locally in your browser.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -70,11 +76,6 @@ config:
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>What's supported</h2>
-    <p>This covers the YAML most configuration files actually use: nested mappings and sequences via indentation, block-style lists, quoted and unquoted strings, numbers, booleans, and null. It doesn't cover the full YAML spec — flow-style collections like <code>{a: 1}</code> or <code>[1, 2]</code>, anchors/aliases, and multi-document files aren't handled. If a conversion looks wrong, the most common cause is mixed tabs and spaces in the indentation; YAML requires spaces only.</p>
-    <p>JSON → YAML output uses 2-space indentation and quotes strings only when needed (if they contain special characters or could be mistaken for a number or boolean). Nothing you paste here is uploaded — conversion happens locally in your browser.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -313,5 +314,6 @@ copyBtn.addEventListener('click', async () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

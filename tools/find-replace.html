@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Find &amp; Replace — With Regex Support | Toolcrate</title>
+<title>Find &amp; Replace — With Regex Support | toolcrate</title>
 <meta name="description" content="Find and replace text, with optional case sensitivity, whole-word matching, and regular expressions. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -78,6 +78,12 @@
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>With "regular expression" off, the find text is matched literally — special characters like <code>.</code> or <code>*</code> have no special meaning. Turn it on to use full JavaScript regex syntax (capture groups, character classes, <code>\d</code>, <code>\s</code>, and so on) in the find field, and reference captured groups in the replacement with <code>$1</code>, <code>$2</code>, etc. "Whole word only" wraps the pattern in word boundaries, so searching for <code>cat</code> won't match inside <code>category</code>.</p>
+    <p>Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -90,11 +96,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>With "regular expression" off, the find text is matched literally — special characters like <code>.</code> or <code>*</code> have no special meaning. Turn it on to use full JavaScript regex syntax (capture groups, character classes, <code>\d</code>, <code>\s</code>, and so on) in the find field, and reference captured groups in the replacement with <code>$1</code>, <code>$2</code>, etc. "Whole word only" wraps the pattern in word boundaries, so searching for <code>cat</code> won't match inside <code>category</code>.</p>
-    <p>Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -171,5 +172,6 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

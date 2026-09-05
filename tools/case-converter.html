@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Case Converter — UPPER, lower, Title, camelCase | Toolcrate</title>
+<title>Case Converter — UPPER, lower, Title, camelCase | toolcrate</title>
 <meta name="description" content="Convert text between UPPERCASE, lowercase, Title Case, Sentence case, camelCase, PascalCase, snake_case, kebab-case, and CONSTANT_CASE. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -54,6 +54,12 @@
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Word-based cases (camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE) split the input on spaces, punctuation, and existing case boundaries — so pasting <code>some-existing_slug</code> or <code>anExistingCamelName</code> still splits into sensible words rather than treating them as one token. Title Case here simply capitalizes every word; it doesn't apply style-guide rules about which short words (like "of" or "the") stay lowercase, since those rules vary by publication.</p>
+    <p>Sentence case capitalizes the first letter after a period, question mark, or exclamation point, in addition to the very first letter of the text. Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -66,11 +72,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Word-based cases (camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE) split the input on spaces, punctuation, and existing case boundaries — so pasting <code>some-existing_slug</code> or <code>anExistingCamelName</code> still splits into sensible words rather than treating them as one token. Title Case here simply capitalizes every word; it doesn't apply style-guide rules about which short words (like "of" or "the") stay lowercase, since those rules vary by publication.</p>
-    <p>Sentence case capitalizes the first letter after a period, question mark, or exclamation point, in addition to the very first letter of the text. Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -162,5 +163,6 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

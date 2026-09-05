@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Markdown Previewer — Live Rendered Preview | Toolcrate</title>
+<title>Markdown Previewer — Live Rendered Preview | toolcrate</title>
 <meta name="description" content="Write Markdown and see it rendered live as formatted HTML side by side. Runs entirely in your browser, no signup.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -94,6 +94,12 @@ Some **bold** and *italic* text, plus `inline code`.
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>What's supported</h2>
+    <p>This covers the common Markdown syntax: headings (<code>#</code> through <code>######</code>), bold and italic, inline code and fenced code blocks, blockquotes, ordered and unordered lists (with any depth of nesting), links, images, horizontal rules, and basic pipe tables. It's a lightweight parser built for quick previews, not a full CommonMark implementation — footnotes, definition lists, and some edge cases in nested formatting aren't covered.</p>
+    <p>Everything renders locally in your browser as you type; nothing is uploaded.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -106,11 +112,6 @@ Some **bold** and *italic* text, plus `inline code`.
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>What's supported</h2>
-    <p>This covers the common Markdown syntax: headings (<code>#</code> through <code>######</code>), bold and italic, inline code and fenced code blocks, blockquotes, ordered and unordered lists (with any depth of nesting), links, images, horizontal rules, and basic pipe tables. It's a lightweight parser built for quick previews, not a full CommonMark implementation — footnotes, definition lists, and some edge cases in nested formatting aren't covered.</p>
-    <p>Everything renders locally in your browser as you type; nothing is uploaded.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -325,5 +326,6 @@ update();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

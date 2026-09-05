@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Regex Tester — Live Match Highlighting | Toolcrate</title>
+<title>Regex Tester — Live Match Highlighting | toolcrate</title>
 <meta name="description" content="Test regular expressions against your own text with live match highlighting, flags, and capture groups. Free, no signup, runs entirely in your browser.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -72,6 +72,12 @@
     <div id="groupOutput" class="output-panel empty">No capture groups in this pattern, or no matches yet.</div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>This tester runs your pattern using JavaScript's native <code>RegExp</code> engine, so behavior matches exactly what you'd get in browser JavaScript or Node.js — flavors like PCRE (used in PHP or many online tools) can differ slightly in edge cases. Common flags: <code>g</code> finds all matches instead of stopping at the first, <code>i</code> ignores case, <code>m</code> makes <code>^</code> and <code>$</code> match line boundaries instead of just the start/end of the whole string, and <code>s</code> lets <code>.</code> match newlines.</p>
+    <p>Everything runs locally in your browser — the pattern and text you enter are never sent anywhere.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -84,11 +90,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>This tester runs your pattern using JavaScript's native <code>RegExp</code> engine, so behavior matches exactly what you'd get in browser JavaScript or Node.js — flavors like PCRE (used in PHP or many online tools) can differ slightly in edge cases. Common flags: <code>g</code> finds all matches instead of stopping at the first, <code>i</code> ignores case, <code>m</code> makes <code>^</code> and <code>$</code> match line boundaries instead of just the start/end of the whole string, and <code>s</code> lets <code>.</code> match newlines.</p>
-    <p>Everything runs locally in your browser — the pattern and text you enter are never sent anywhere.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -188,5 +189,6 @@ run();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

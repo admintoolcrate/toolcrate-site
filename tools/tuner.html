@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guitar / Instrument Tuner | Toolcrate</title>
+<title>Guitar / Instrument Tuner | toolcrate</title>
 <meta name="description" content="Mic-based instrument tuner using real-time autocorrelation pitch detection, right in your browser. No signup, nothing uploaded.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -111,6 +111,12 @@
     <div class="stat"><span class="stat-value" id="statConfidence">—</span><span class="stat-label">Signal</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Pitch is found with autocorrelation: the tool records a short buffer of raw audio from your microphone, then compares that buffer against time-shifted copies of itself to find the shift ("lag") where the waveform lines up best with its own repetition — that lag corresponds to the period of the fundamental frequency. Because a repeating waveform also lines up (a little worse) at every multiple of that lag, the detector takes the first strong match rather than the single best one, which is what keeps it from occasionally locking onto an octave below the real note; that match is then refined with parabolic interpolation for sub-sample accuracy, converted to Hz, and mapped to the nearest note and a cents-off reading against the equal-tempered scale. This needs an actual microphone and permission to use it, which browsers only grant on secure (HTTPS) pages — it won't work if this file is opened locally from disk.</p>
+    <p>Audio never leaves your device — everything is captured and analyzed locally in JavaScript in your browser tab, with nothing recorded, saved, or uploaded to any server.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -123,11 +129,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Pitch is found with autocorrelation: the tool records a short buffer of raw audio from your microphone, then compares that buffer against time-shifted copies of itself to find the shift ("lag") where the waveform lines up best with its own repetition — that lag corresponds to the period of the fundamental frequency. Because a repeating waveform also lines up (a little worse) at every multiple of that lag, the detector takes the first strong match rather than the single best one, which is what keeps it from occasionally locking onto an octave below the real note; that match is then refined with parabolic interpolation for sub-sample accuracy, converted to Hz, and mapped to the nearest note and a cents-off reading against the equal-tempered scale. This needs an actual microphone and permission to use it, which browsers only grant on secure (HTTPS) pages — it won't work if this file is opened locally from disk.</p>
-    <p>Audio never leaves your device — everything is captured and analyzed locally in JavaScript in your browser tab, with nothing recorded, saved, or uploaded to any server.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -372,5 +373,6 @@ startBtn.addEventListener('click', () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

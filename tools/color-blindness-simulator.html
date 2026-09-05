@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Color Blindness Simulator | Toolcrate</title>
+<title>Color Blindness Simulator | toolcrate</title>
 <meta name="description" content="Preview any color as it might appear under common color vision deficiencies. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -52,6 +52,12 @@
 
   <div class="swatch-grid" id="swatchGrid"></div>
 
+  <div class="explainer">
+    <h2>About this simulation</h2>
+    <p>Each variant applies a fixed transformation matrix to the color's red/green/blue channels — a widely used simplified approximation for each deficiency type, not an exact physiological model of any individual's vision (real color vision deficiency varies in severity and exact character from person to person). Protanopia and deuteranopia (red and green cone deficiencies) are the most common forms, affecting roughly 1 in 12 men and a much smaller share of women; tritanopia (blue) and full achromatopsia (no color vision) are far rarer.</p>
+    <p>Nothing entered here is sent to a server — the entire simulation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -64,11 +70,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this simulation</h2>
-    <p>Each variant applies a fixed transformation matrix to the color's red/green/blue channels — a widely used simplified approximation for each deficiency type, not an exact physiological model of any individual's vision (real color vision deficiency varies in severity and exact character from person to person). Protanopia and deuteranopia (red and green cone deficiencies) are the most common forms, affecting roughly 1 in 12 men and a much smaller share of women; tritanopia (blue) and full achromatopsia (no color vision) are far rarer.</p>
-    <p>Nothing entered here is sent to a server — the entire simulation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -197,5 +198,6 @@ render();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

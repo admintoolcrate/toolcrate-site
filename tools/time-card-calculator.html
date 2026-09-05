@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Time Card Calculator — Hours, Overtime &amp; Pay | Toolcrate</title>
+<title>Time Card Calculator — Hours, Overtime &amp; Pay | toolcrate</title>
 <meta name="description" content="Calculate work hours, overtime, and pay from a week of clock-in and clock-out times. Free, instant, browser-only.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -63,6 +63,12 @@
     <div class="stat"><span class="stat-value" id="totalPay">—</span><span class="stat-label">Total pay</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Each day's hours are clock-out minus clock-in, minus any unpaid break, with overnight shifts (clock-out earlier than clock-in) automatically treated as crossing midnight. Overtime is calculated on the week as a whole, past the threshold you set — the default of 40 hours/week and 1.5× pay matches the U.S. federal standard, but adjust both fields to match your own timesheet rules.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -75,11 +81,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Each day's hours are clock-out minus clock-in, minus any unpaid break, with overnight shifts (clock-out earlier than clock-in) automatically treated as crossing midnight. Overtime is calculated on the week as a whole, past the threshold you set — the default of 40 hours/week and 1.5× pay matches the U.S. federal standard, but adjust both fields to match your own timesheet rules.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -223,5 +224,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CSS Clamp() Calculator — Fluid Type &amp; Spacing | Toolcrate</title>
+<title>CSS Clamp() Calculator — Fluid Type &amp; Spacing | toolcrate</title>
 <meta name="description" content="Generate a fluid CSS clamp() value that scales smoothly between a min and max size across a viewport range, with a live resizable preview. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -80,6 +80,12 @@
     <div class="frame-width-label" id="frameWidthLabel">800px viewport</div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>The generated value is a <code>clamp(MIN, PREFERRED, MAX)</code> expression: below the min viewport width it holds at the min size, above the max viewport width it holds at the max size, and in between it scales linearly using a calculated <code>vw</code>-based formula — the same slope-and-intercept method used by most fluid-typography calculators. It works for any size property, not just <code>font-size</code>: padding, margin, gap, and <code>width</code> all accept it.</p>
+    <p>The preview below is a real <code>&lt;iframe&gt;</code>, not a resized <code>div</code> — <code>vw</code> units are always relative to the actual browser viewport, so a container alone can't demonstrate them accurately, but an iframe has its own real viewport that changes as you resize it. Nothing you enter here is sent to a server; the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -92,11 +98,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>The generated value is a <code>clamp(MIN, PREFERRED, MAX)</code> expression: below the min viewport width it holds at the min size, above the max viewport width it holds at the max size, and in between it scales linearly using a calculated <code>vw</code>-based formula — the same slope-and-intercept method used by most fluid-typography calculators. It works for any size property, not just <code>font-size</code>: padding, margin, gap, and <code>width</code> all accept it.</p>
-    <p>The preview below is a real <code>&lt;iframe&gt;</code>, not a resized <code>div</code> — <code>vw</code> units are always relative to the actual browser viewport, so a container alone can't demonstrate them accurately, but an iframe has its own real viewport that changes as you resize it. Nothing you enter here is sent to a server; the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -189,5 +190,6 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

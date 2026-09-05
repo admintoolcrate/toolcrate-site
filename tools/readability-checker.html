@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Readability Score Checker — Flesch-Kincaid | Toolcrate</title>
+<title>Readability Score Checker — Flesch-Kincaid | toolcrate</title>
 <meta name="description" content="Check the Flesch Reading Ease, Flesch-Kincaid Grade Level, and Gunning Fog Index of your text. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -59,6 +59,12 @@
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>All three scores are computed from the same three counts — words, sentences, and syllables per word — using their standard published formulas. Flesch Reading Ease runs roughly 0–100, where higher means easier to read; Flesch-Kincaid Grade Level and the Gunning Fog Index both estimate the US school grade a reader would need to follow the text comfortably. Syllable counts use the same vowel-group estimate as our <a href="/tools/syllable-counter.html">Syllable Counter</a> — a heuristic, not a dictionary lookup, so scores are a close approximation rather than an exact figure.</p>
+    <p>Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -71,11 +77,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>All three scores are computed from the same three counts — words, sentences, and syllables per word — using their standard published formulas. Flesch Reading Ease runs roughly 0–100, where higher means easier to read; Flesch-Kincaid Grade Level and the Gunning Fog Index both estimate the US school grade a reader would need to follow the text comfortably. Syllable counts use the same vowel-group estimate as our <a href="/tools/syllable-counter.html">Syllable Counter</a> — a heuristic, not a dictionary lookup, so scores are a close approximation rather than an exact figure.</p>
-    <p>Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -164,5 +165,6 @@ document.getElementById('analyzeBtn').addEventListener('click', () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

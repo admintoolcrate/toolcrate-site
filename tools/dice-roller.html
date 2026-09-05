@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dice Roller | Toolcrate</title>
+<title>Dice Roller | toolcrate</title>
 <meta name="description" content="Roll any number and size of dice, with a running total and roll history. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -80,6 +80,12 @@
     <div id="historyOutput" class="output-panel empty">Your rolls will appear here.</div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Each die rolls independently using <code>Math.random()</code>, uniformly across every face — a d20 is exactly as likely to land on 1 as on 20. The history keeps your last 20 rolls so you can review a session without writing anything down.</p>
+    <p>Nothing rolled here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -92,11 +98,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Each die rolls independently using <code>Math.random()</code>, uniformly across every face — a d20 is exactly as likely to land on 1 as on 20. The history keeps your last 20 rolls so you can review a session without writing anything down.</p>
-    <p>Nothing rolled here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -184,5 +185,6 @@ document.getElementById('rollBtn').click();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

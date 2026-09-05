@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Age Calculator — Exact Age &amp; Next Birthday | Toolcrate</title>
+<title>Age Calculator — Exact Age &amp; Next Birthday | toolcrate</title>
 <meta name="description" content="Calculate exact age in years, months, and days, plus a countdown to the next birthday. Free, instant, browser-only.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -52,6 +52,12 @@
     <div class="stat"><span class="stat-value" id="weekdayBorn">—</span><span class="stat-label">Born on a</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>The years/months/days breakdown counts a full year only once the birth month and day have both been reached — the same convention used for legal age. Everything is computed from calendar dates only (no time-of-day or time zone involved), so the result is the same no matter where in the world you or the "as of" date are.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -64,11 +70,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>The years/months/days breakdown counts a full year only once the birth month and day have both been reached — the same convention used for legal age. Everything is computed from calendar dates only (no time-of-day or time zone involved), so the result is the same no matter where in the world you or the "as of" date are.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -173,5 +174,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

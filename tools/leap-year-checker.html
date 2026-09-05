@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Leap Year Checker | Toolcrate</title>
+<title>Leap Year Checker | toolcrate</title>
 <meta name="description" content="Check whether any year is a leap year, see the rule applied, and find the nearest leap years. Free, instant, browser-only.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -43,6 +43,12 @@
     <div class="stat"><span class="stat-value" id="nextLeap">—</span><span class="stat-label">Next leap year</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>The rule</h2>
+    <p>A year is a leap year if it's divisible by 4 — <em>unless</em> it's also divisible by 100, in which case it isn't — <em>unless</em> it's also divisible by 400, in which case it is after all. That last exception is why 2000 was a leap year but 1900 and 2100 are not: this three-tier rule keeps the Gregorian calendar's average year length within about 26 seconds of the actual solar year.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -55,11 +61,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>The rule</h2>
-    <p>A year is a leap year if it's divisible by 4 — <em>unless</em> it's also divisible by 100, in which case it isn't — <em>unless</em> it's also divisible by 400, in which case it is after all. That last exception is why 2000 was a leap year but 1900 and 2100 are not: this three-tier rule keeps the Gregorian calendar's average year length within about 26 seconds of the actual solar year.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -116,5 +117,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

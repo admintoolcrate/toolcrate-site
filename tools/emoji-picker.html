@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Emoji Picker / Search | Toolcrate</title>
+<title>Emoji Picker / Search | toolcrate</title>
 <meta name="description" content="Find and copy any emoji by name, browsable by category. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -53,6 +53,12 @@
     <span id="copyFeedback" class="copy-feedback">Copied <span id="copiedChar"></span></span>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>This is a curated set of a few hundred commonly used emoji, searchable by name and keyword and browsable by category — not the full Unicode emoji set of well over a thousand, which would make search noisier for the vast majority of everyday use. Clicking any emoji copies the actual character to your clipboard, ready to paste anywhere that accepts Unicode text.</p>
+    <p>Nothing you search here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -65,11 +71,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>This is a curated set of a few hundred commonly used emoji, searchable by name and keyword and browsable by category — not the full Unicode emoji set of well over a thousand, which would make search noisier for the vast majority of everyday use. Clicking any emoji copies the actual character to your clipboard, ready to paste anywhere that accepts Unicode text.</p>
-    <p>Nothing you search here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -338,5 +339,6 @@ render();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

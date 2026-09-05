@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contrast Checker — WCAG AA/AAA | Toolcrate</title>
+<title>Contrast Checker — WCAG AA/AAA | toolcrate</title>
 <meta name="description" content="Check the WCAG AA/AAA contrast ratio between two colors, with a live preview. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -80,6 +80,12 @@
     <div class="stat"><span class="stat-value" id="aaaLarge">—</span><span class="stat-label">AAA — Large text (4.5:1)</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>The formula</h2>
+    <p>WCAG's contrast ratio compares relative luminance: <code>(L1 + 0.05) ÷ (L2 + 0.05)</code>, where L1 and L2 are the lighter and darker color's luminance and each channel is gamma-corrected before being weighted (0.2126×R + 0.7152×G + 0.0722×B) — this is why the ratio isn't simply "how different the colors look." "Large text" means 18pt+ (24px) regular weight or 14pt+ (~18.7px) bold; everything else counts as normal text and needs the stricter ratio.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -92,11 +98,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>The formula</h2>
-    <p>WCAG's contrast ratio compares relative luminance: <code>(L1 + 0.05) ÷ (L2 + 0.05)</code>, where L1 and L2 are the lighter and darker color's luminance and each channel is gamma-corrected before being weighted (0.2126×R + 0.7152×G + 0.0722×B) — this is why the ratio isn't simply "how different the colors look." "Large text" means 18pt+ (24px) regular weight or 14pt+ (~18.7px) bold; everything else counts as normal text and needs the stricter ratio.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -211,5 +212,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

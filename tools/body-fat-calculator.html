@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Body Fat % Calculator — U.S. Navy Method | Toolcrate</title>
+<title>Body Fat % Calculator — U.S. Navy Method | toolcrate</title>
 <meta name="description" content="Estimate body fat percentage using the U.S. Navy circumference method. Educational tool, not medical advice.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -70,6 +70,12 @@
     <div class="stat"><span class="stat-value" id="bodyFatValue">—</span><span class="stat-label">Estimated body fat</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>The formula</h2>
+    <p>The U.S. Navy method (all measurements in inches, converted automatically if you enter metric) is: for men, <code>495 ÷ (1.0324 − 0.19077×log₁₀(waist−neck) + 0.15456×log₁₀(height)) − 450</code>; for women, <code>495 ÷ (1.29579 − 0.35004×log₁₀(waist+hip−neck) + 0.22100×log₁₀(height)) − 450</code>. Measure the waist at the navel, the neck just below the larynx, and hips (for women) at the widest point — the closer and more consistent your tape measurements, the more useful the estimate.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -82,11 +88,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>The formula</h2>
-    <p>The U.S. Navy method (all measurements in inches, converted automatically if you enter metric) is: for men, <code>495 ÷ (1.0324 − 0.19077×log₁₀(waist−neck) + 0.15456×log₁₀(height)) − 450</code>; for women, <code>495 ÷ (1.29579 − 0.35004×log₁₀(waist+hip−neck) + 0.22100×log₁₀(height)) − 450</code>. Measure the waist at the navel, the neck just below the larynx, and hips (for women) at the widest point — the closer and more consistent your tape measurements, the more useful the estimate.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -163,5 +164,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

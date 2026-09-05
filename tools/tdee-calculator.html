@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calorie / TDEE Calculator — Mifflin-St Jeor | Toolcrate</title>
+<title>Calorie / TDEE Calculator — Mifflin-St Jeor | toolcrate</title>
 <meta name="description" content="Estimate your daily calorie needs (TDEE) using the Mifflin-St Jeor equation. Educational tool, not medical advice.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -93,6 +93,12 @@
     <div class="stat"><span class="stat-value" id="gainValue">—</span><span class="stat-label">Mild gain (+500/day)</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>The formula</h2>
+    <p>BMR (Basal Metabolic Rate) uses the Mifflin-St Jeor equation, generally considered one of the more accurate predictive formulas: <code>men: 10×kg + 6.25×cm − 5×age + 5</code>, <code>women: 10×kg + 6.25×cm − 5×age − 161</code>. TDEE multiplies BMR by an activity factor to estimate total calories burned per day including movement and exercise. A deficit or surplus of roughly 500 calories/day corresponds to about 1 lb (0.45 kg) of body weight change per week, though actual results vary by individual.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -105,11 +111,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>The formula</h2>
-    <p>BMR (Basal Metabolic Rate) uses the Mifflin-St Jeor equation, generally considered one of the more accurate predictive formulas: <code>men: 10×kg + 6.25×cm − 5×age + 5</code>, <code>women: 10×kg + 6.25×cm − 5×age − 161</code>. TDEE multiplies BMR by an activity factor to estimate total calories burned per day including movement and exercise. A deficit or surplus of roughly 500 calories/day corresponds to about 1 lb (0.45 kg) of body weight change per week, though actual results vary by individual.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -180,5 +181,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

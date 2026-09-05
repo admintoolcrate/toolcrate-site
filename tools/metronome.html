@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Metronome | Toolcrate</title>
+<title>Metronome | toolcrate</title>
 <meta name="description" content="An adjustable-tempo metronome with selectable time signature, right in your browser. No signup, no app to install.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -72,6 +72,12 @@
     <div class="stat"><span class="stat-value" id="currentBeat">—</span><span class="stat-label">Current beat</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Clicks are synthesized with the Web Audio API and scheduled slightly ahead of when they play (a standard "lookahead" technique), rather than triggered directly by a JavaScript timer — timers can drift or stutter under browser load, while audio-clock-scheduled events stay locked to sample-accurate timing. Beat 1 of each measure gets a higher-pitched accent click so you can hear where the bar starts.</p>
+    <p>Nothing here is sent to a server — the entire metronome runs as JavaScript in your browser tab, and needs a tab interaction (like pressing Start) before audio can play, per browser autoplay rules.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -84,11 +90,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Clicks are synthesized with the Web Audio API and scheduled slightly ahead of when they play (a standard "lookahead" technique), rather than triggered directly by a JavaScript timer — timers can drift or stutter under browser load, while audio-clock-scheduled events stay locked to sample-accurate timing. Beat 1 of each measure gets a higher-pitched accent click so you can hear where the bar starts.</p>
-    <p>Nothing here is sent to a server — the entire metronome runs as JavaScript in your browser tab, and needs a tab interaction (like pressing Start) before audio can play, per browser autoplay rules.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -206,5 +207,6 @@ renderBeatDots();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

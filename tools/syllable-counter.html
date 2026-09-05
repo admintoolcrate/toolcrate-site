@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Syllable Counter | Toolcrate</title>
+<title>Syllable Counter | toolcrate</title>
 <meta name="description" content="Estimate the number of syllables per word and in total, live as you type. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -44,6 +44,12 @@
     <div id="output" class="output-panel empty">Type something above.</div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>English spelling doesn't map cleanly to syllable count, so this uses the same vowel-group heuristic most readability calculators rely on: count groups of consecutive vowels, then adjust for common patterns like a silent trailing "e" or a word ending in "-le" after a consonant. It's an estimate, not a dictionary lookup — it gets the overwhelming majority of everyday words right, but unusual words and proper nouns can occasionally be off by one.</p>
+    <p>Nothing you type here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -56,11 +62,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>English spelling doesn't map cleanly to syllable count, so this uses the same vowel-group heuristic most readability calculators rely on: count groups of consecutive vowels, then adjust for common patterns like a silent trailing "e" or a word ending in "-le" after a consonant. It's an estimate, not a dictionary lookup — it gets the overwhelming majority of everyday words right, but unusual words and proper nouns can occasionally be off by one.</p>
-    <p>Nothing you type here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -126,5 +127,6 @@ render();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

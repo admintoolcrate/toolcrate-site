@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Acronym Generator | Toolcrate</title>
+<title>Acronym Generator | toolcrate</title>
 <meta name="description" content="Build an acronym from the first letters of a phrase, live as you type. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -62,6 +62,12 @@
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Each word's first letter is taken in order to build the acronym. "Skip small words" leaves out a short list of common articles, conjunctions, and prepositions (a, an, the, of, in, on, at, for, and, or, but, to, with) the way many real-world acronyms do — "As Soon As Possible" becomes ASAP either way here since none of its words are in that list, but a phrase like "State of the Union" would become SU instead of SOTU with it on.</p>
+    <p>Nothing you type here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -74,11 +80,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Each word's first letter is taken in order to build the acronym. "Skip small words" leaves out a short list of common articles, conjunctions, and prepositions (a, an, the, of, in, on, at, for, and, or, but, to, with) the way many real-world acronyms do — "As Soon As Possible" becomes ASAP either way here since none of its words are in that list, but a phrase like "State of the Union" would become SU instead of SOTU with it on.</p>
-    <p>Nothing you type here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -141,5 +142,6 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

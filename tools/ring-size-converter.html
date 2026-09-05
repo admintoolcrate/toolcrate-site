@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ring Size Converter — US, UK, EU, Diameter | Toolcrate</title>
+<title>Ring Size Converter — US, UK, EU, Diameter | toolcrate</title>
 <meta name="description" content="Convert ring sizes between US, UK, EU, and diameter in millimeters. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -51,6 +51,12 @@
     <div class="stat"><span class="stat-value" id="statCirc">—</span><span class="stat-label">Circumference (mm)</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Diameter is the real underlying measurement — circumference is always exactly diameter × π, computed here rather than looked up, so those two numbers are always mathematically exact relative to each other. US and UK size labels come from a standard published reference chart mapping diameter to a size label; the "EU" figure shown here is the ring's circumference in millimeters, which is how the French/Swiss sizing convention actually defines a ring size (other regional systems exist and can differ by a few points, so confirm against the specific system your ring's origin uses if it matters).</p>
+    <p>Nothing you select here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -63,11 +69,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Diameter is the real underlying measurement — circumference is always exactly diameter × π, computed here rather than looked up, so those two numbers are always mathematically exact relative to each other. US and UK size labels come from a standard published reference chart mapping diameter to a size label; the "EU" figure shown here is the ring's circumference in millimeters, which is how the French/Swiss sizing convention actually defines a ring size (other regional systems exist and can differ by a few points, so confirm against the specific system your ring's origin uses if it matters).</p>
-    <p>Nothing you select here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -128,5 +129,6 @@ render();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

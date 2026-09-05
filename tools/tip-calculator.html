@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tip Calculator — Split the Bill | Toolcrate</title>
+<title>Tip Calculator — Split the Bill | toolcrate</title>
 <meta name="description" content="Calculate a tip and split the bill between any number of people. Free, instant, browser-only.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -62,6 +62,12 @@
     <div class="stat"><span class="stat-value" id="perPersonTip">—</span><span class="stat-label">Tip per person</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>The formula</h2>
+    <p><code>tip = bill × (percent ÷ 100)</code>, and <code>total = bill + tip</code>. Splitting divides both the tip and the total evenly by the number of people — it doesn't account for anyone ordering more or less than the group average.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -74,11 +80,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>The formula</h2>
-    <p><code>tip = bill × (percent ÷ 100)</code>, and <code>total = bill + tip</code>. Splitting divides both the tip and the total evenly by the number of people — it doesn't account for anyone ordering more or less than the group average.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -146,5 +147,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

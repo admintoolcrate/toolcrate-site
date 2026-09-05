@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hash Generator — MD5, SHA-1, SHA-256 | Toolcrate</title>
+<title>Hash Generator — MD5, SHA-1, SHA-256 | toolcrate</title>
 <meta name="description" content="Generate MD5, SHA-1, and SHA-256 hashes from text instantly in your browser. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -46,6 +46,13 @@
     <div id="sha256Output" class="output-panel empty">—</div>
   </div>
 
+  <div class="explainer">
+    <h2>About these hashes</h2>
+    <p>A hash function turns input of any length into a fixed-length fingerprint — the same input always produces the same hash, and even a one-character change produces a completely different one. SHA-1 and SHA-256 are computed with the browser's native <code>crypto.subtle.digest</code>, part of the Web Crypto API, so results match any standard implementation exactly.</p>
+    <p>MD5 isn't supported by <code>crypto.subtle</code> — modern browsers dropped it because it's cryptographically broken — so this tool uses a small, well-tested JavaScript implementation for it instead. MD5 and SHA-1 are fine for checksums and cache keys, but neither should be relied on for security purposes like password storage or verifying that a file hasn't been tampered with by an adversary; SHA-256 is the safer choice there.</p>
+    <p>All hashing happens locally in your browser — the text you enter is never sent anywhere.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -58,12 +65,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About these hashes</h2>
-    <p>A hash function turns input of any length into a fixed-length fingerprint — the same input always produces the same hash, and even a one-character change produces a completely different one. SHA-1 and SHA-256 are computed with the browser's native <code>crypto.subtle.digest</code>, part of the Web Crypto API, so results match any standard implementation exactly.</p>
-    <p>MD5 isn't supported by <code>crypto.subtle</code> — modern browsers dropped it because it's cryptographically broken — so this tool uses a small, well-tested JavaScript implementation for it instead. MD5 and SHA-1 are fine for checksums and cache keys, but neither should be relied on for security purposes like password storage or verifying that a file hasn't been tampered with by an adversary; SHA-256 is the safer choice there.</p>
-    <p>All hashing happens locally in your browser — the text you enter is never sent anywhere.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -152,5 +153,6 @@ update();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

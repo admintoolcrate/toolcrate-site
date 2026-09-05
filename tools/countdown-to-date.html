@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Countdown to a Date | Toolcrate</title>
+<title>Countdown to a Date | toolcrate</title>
 <meta name="description" content="Live countdown to any date and time, right down to the second. Free, instant, browser-only.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -44,6 +44,12 @@
     <div id="output" class="output-panel empty">Pick a date and time above.</div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>The target date and time are read in your device's local time zone and compared against the current moment every second — the days/hours/minutes/seconds breakdown shows only the time <em>remaining</em> in each unit (e.g. "2 hours" means 2 full hours left over after the day count, not 2 hours total).</p>
+    <p>Nothing entered here is sent to a server — the entire countdown runs as JavaScript in your browser tab, and stops updating if you close or leave the page.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -56,11 +62,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>The target date and time are read in your device's local time zone and compared against the current moment every second — the days/hours/minutes/seconds breakdown shows only the time <em>remaining</em> in each unit (e.g. "2 hours" means 2 full hours left over after the day count, not 2 hours total).</p>
-    <p>Nothing entered here is sent to a server — the entire countdown runs as JavaScript in your browser tab, and stops updating if you close or leave the page.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -126,5 +127,6 @@ restart();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

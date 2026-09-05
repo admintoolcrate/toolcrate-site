@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pace / Split Calculator | Toolcrate</title>
+<title>Pace / Split Calculator | toolcrate</title>
 <meta name="description" content="Calculate running pace per km and mile from a distance and finish time, with a split table. Free, instant, browser-only.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -72,6 +72,12 @@
     <div id="splitsTable" class="output-panel empty">Enter a distance and time above.</div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Pace is your total time divided evenly across the distance, assuming a steady, even effort — it won't match a real race where pacing varies with terrain and fatigue, but it's a useful target for training runs. The split table shows the cumulative time you'd be at if you hit each kilometer at exactly that even pace.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -84,11 +90,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Pace is your total time divided evenly across the distance, assuming a steady, even effort — it won't match a real race where pacing varies with terrain and fatigue, but it's a useful target for training runs. The split table shows the cumulative time you'd be at if you hit each kilometer at exactly that even pace.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -175,5 +176,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

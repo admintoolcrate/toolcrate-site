@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Binary ↔ Text Converter | Toolcrate</title>
+<title>Binary ↔ Text Converter | toolcrate</title>
 <meta name="description" content="Convert text to binary or binary back to text, using UTF-8 encoding. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -48,6 +48,12 @@
     </div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>Text is encoded as UTF-8 first, then each byte is written as 8 bits, space-separated — so a plain ASCII character like <code>A</code> becomes a single byte (<code>01000001</code>), while an emoji or accented letter becomes multiple bytes, exactly as it would be stored in a UTF-8 text file. Converting binary back to text expects the same format: 8-bit groups separated by spaces or line breaks.</p>
+    <p>Nothing you enter here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -60,11 +66,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>Text is encoded as UTF-8 first, then each byte is written as 8 bits, space-separated — so a plain ASCII character like <code>A</code> becomes a single byte (<code>01000001</code>), while an emoji or accented letter becomes multiple bytes, exactly as it would be stored in a UTF-8 text file. Converting binary back to text expects the same format: 8-bit groups separated by spaces or line breaks.</p>
-    <p>Nothing you enter here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -137,5 +138,6 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

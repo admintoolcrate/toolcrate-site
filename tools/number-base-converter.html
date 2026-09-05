@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Number Base Converter — Binary, Octal, Decimal, Hex | Toolcrate</title>
+<title>Number Base Converter — Binary, Octal, Decimal, Hex | toolcrate</title>
 <meta name="description" content="Convert numbers between binary, octal, decimal, and hexadecimal instantly. Free, no signup, runs entirely in your browser.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -56,6 +56,12 @@
     .stat-value-wrap { font-size: 1.15rem; word-break: break-all; white-space: normal; }
   </style>
 
+  <div class="explainer">
+    <h2>How base conversion works</h2>
+    <p>Every number system represents the same value using a different number of digit symbols: binary uses 2 (0–1), octal uses 8 (0–7), decimal uses 10 (0–9), and hexadecimal uses 16 (0–9 then A–F). Converting between them means re-expressing the same underlying quantity in a different digit count — the value doesn't change, only its written form.</p>
+    <p>This tool parses your input in the selected base and re-renders it in all four, using JavaScript's built-in <code>parseInt</code> and <code>toString(base)</code>. It supports large integers up to what a standard JavaScript number can represent exactly.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -68,11 +74,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>How base conversion works</h2>
-    <p>Every number system represents the same value using a different number of digit symbols: binary uses 2 (0–1), octal uses 8 (0–7), decimal uses 10 (0–9), and hexadecimal uses 16 (0–9 then A–F). Converting between them means re-expressing the same underlying quantity in a different digit count — the value doesn't change, only its written form.</p>
-    <p>This tool parses your input in the selected base and re-renders it in all four, using JavaScript's built-in <code>parseInt</code> and <code>toString(base)</code>. It supports large integers up to what a standard JavaScript number can represent exactly.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -128,5 +129,6 @@ convert();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

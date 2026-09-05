@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Day of the Week Finder | Toolcrate</title>
+<title>Day of the Week Finder | toolcrate</title>
 <meta name="description" content="Find what day of the week any date fell or falls on, plus its day and week number in the year. Free, instant, browser-only.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -44,6 +44,12 @@
     <div class="stat"><span class="stat-value" id="daysAway">—</span><span class="stat-label">From today</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>The Gregorian calendar repeats its weekday pattern on a 400-year cycle, so this works the same way for a date centuries in the past or future as it does for next week — there's no special-casing, just calendar-day arithmetic done consistently with UTC dates so the result doesn't depend on your time zone.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -56,11 +62,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>The Gregorian calendar repeats its weekday pattern on a 400-year cycle, so this works the same way for a date centuries in the past or future as it does for next week — there's no special-casing, just calendar-day arithmetic done consistently with UTC dates so the result doesn't depend on your time zone.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -127,5 +128,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

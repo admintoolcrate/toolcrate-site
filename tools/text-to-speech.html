@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Text-to-Speech Reader | Toolcrate</title>
+<title>Text-to-Speech Reader | toolcrate</title>
 <meta name="description" content="Have any text read aloud using your browser's built-in voices. No signup, nothing uploaded to a server.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -53,6 +53,12 @@
     <div id="error" class="error-text"></div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>This uses the Web Speech API's speech synthesis built into your browser and operating system — the available voices, their quality, and language coverage all depend on what's installed on your device, not on this page, which is why the voice list may look different on a phone, a Mac, or a Windows PC. If no voices are listed, your browser either hasn't loaded them yet or doesn't support speech synthesis.</p>
+    <p>Nothing you type here is sent to a server — the text is read entirely by your device's own speech engine.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -65,11 +71,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>This uses the Web Speech API's speech synthesis built into your browser and operating system — the available voices, their quality, and language coverage all depend on what's installed on your device, not on this page, which is why the voice list may look different on a phone, a Mac, or a Windows PC. If no voices are listed, your browser either hasn't loaded them yet or doesn't support speech synthesis.</p>
-    <p>Nothing you type here is sent to a server — the text is read entirely by your device's own speech engine.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -173,5 +174,6 @@ stopBtn.addEventListener('click', () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

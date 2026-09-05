@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Discount Calculator — Sale Price &amp; Savings | Toolcrate</title>
+<title>Discount Calculator — Sale Price &amp; Savings | toolcrate</title>
 <meta name="description" content="Calculate a sale price and the amount saved, including stacked discounts. Free, instant, browser-only.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -50,6 +50,12 @@
     <div class="stat"><span class="stat-value" id="effectivePct">—</span><span class="stat-label">Effective discount</span></div>
   </div>
 
+  <div class="explainer">
+    <h2>The formula</h2>
+    <p>A single discount: <code>sale price = price × (1 − rate ÷ 100)</code>. A second "extra" discount is applied to the already-discounted price, not the original — this is how "25% off, then an extra 10% off" actually works at checkout, and it's why two discounts never simply add together: 25% + 10% off stacked comes out to a 32.5% effective discount, not 35%.</p>
+    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -62,11 +68,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>The formula</h2>
-    <p>A single discount: <code>sale price = price × (1 − rate ÷ 100)</code>. A second "extra" discount is applied to the already-discounted price, not the original — this is how "25% off, then an extra 10% off" actually works at checkout, and it's why two discounts never simply add together: 25% + 10% off stacked comes out to a 32.5% effective discount, not 35%.</p>
-    <p>Nothing entered here is sent to a server — the entire calculation runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -124,5 +125,6 @@ calc();
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JWT Decoder — Header &amp; Payload | Toolcrate</title>
+<title>JWT Decoder — Header &amp; Payload | toolcrate</title>
 <meta name="description" content="Decode a JSON Web Token's header and payload instantly in your browser. No signup, nothing uploaded to a server. This tool does not verify the signature.">
 <script>
   (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
@@ -53,6 +53,12 @@
     <div id="signatureOutput" class="output-panel empty">—</div>
   </div>
 
+  <div class="explainer">
+    <h2>About this tool</h2>
+    <p>A JWT is three Base64URL-encoded segments — header, payload, and signature — separated by dots. This tool splits the token, decodes the header and payload as JSON, and formats them for reading; the signature segment is shown as-is, in raw Base64URL. Standard timestamp claims (<code>iat</code>, <code>exp</code>, <code>nbf</code>) are annotated with their human-readable date so you don't have to convert them by hand.</p>
+    <p><strong>This tool does not verify the signature</strong> — decoding a JWT tells you what it claims, not whether it's authentic. Anyone can construct a token with an arbitrary header and payload; only checking the signature against the issuer's real secret or public key (something this browser-only tool has no way to know) proves a token hasn't been tampered with. Never trust a decoded JWT's contents for anything security-sensitive without verifying it server-side first. Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
 <div class="ad-slot">
 <ins class="adsbygoogle"
      style="display:block"
@@ -65,11 +71,6 @@
 </script>
 </div>
 
-  <div class="explainer">
-    <h2>About this tool</h2>
-    <p>A JWT is three Base64URL-encoded segments — header, payload, and signature — separated by dots. This tool splits the token, decodes the header and payload as JSON, and formats them for reading; the signature segment is shown as-is, in raw Base64URL. Standard timestamp claims (<code>iat</code>, <code>exp</code>, <code>nbf</code>) are annotated with their human-readable date so you don't have to convert them by hand.</p>
-    <p><strong>This tool does not verify the signature</strong> — decoding a JWT tells you what it claims, not whether it's authentic. Anyone can construct a token with an arbitrary header and payload; only checking the signature against the issuer's real secret or public key (something this browser-only tool has no way to know) proves a token hasn't been tampered with. Never trust a decoded JWT's contents for anything security-sensitive without verifying it server-side first. Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
-  </div>
 </main>
 
 <footer class="site-footer">
@@ -187,5 +188,6 @@ document.getElementById('clearBtn').addEventListener('click', () => {
 </script>
 
 <script src="../theme.js"></script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
 </body>
 </html>
