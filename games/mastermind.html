@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifests/games/mastermind.json">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mastermind">
+<title>Mastermind | toolcrate</title>
+<meta name="description" content="Play Mastermind: crack the secret color code using black/white peg feedback. Configurable code length, colors, and guess limit.">
+<link rel="canonical" href="https://toolcrate.cc/games/mastermind.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/mastermind.html">
+<meta property="og:title" content="Mastermind | toolcrate">
+<meta property="og:description" content="Play Mastermind: crack the secret color code using black/white peg feedback. Configurable code length, colors, and guess limit.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mastermind | toolcrate">
+<meta name="twitter:description" content="Play Mastermind: crack the secret color code using black/white peg feedback. Configurable code length, colors, and guess limit.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .ttt-status { text-align: center; font-weight: 600; margin: 1rem 0; min-height: 1.4em; }
+
+  .mm-current-row { display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .mm-slots { display: flex; gap: 0.5rem; }
+  .mm-slot {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 2px dashed var(--line);
+    background: var(--paper);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mm-slot.filled { border-style: solid; }
+
+  .mm-feedback-mini {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3px;
+    width: 26px;
+  }
+  .mm-feedback-mini span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+  .mm-feedback-mini span.black { background: var(--ink); }
+  .mm-feedback-mini span.white { background: var(--paper); border: 1px solid var(--ink-soft); }
+
+  .mm-palette { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
+  .mm-palette-swatch {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mm-history { display: flex; flex-direction: column; gap: 0.5rem; max-height: 360px; overflow-y: auto; padding: 0.25rem; }
+  .mm-history-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.4rem 0.6rem; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+  .mm-history-row .mm-slots { gap: 0.4rem; }
+  .mm-history-row .mm-slot { width: 30px; height: 30px; cursor: default; }
+  .mm-history-num { font-size: 0.75rem; color: var(--muted); width: 1.6rem; text-align: right; }
+
+  .mm-secret-row { display: flex; justify-content: center; margin: 0.75rem 0; }
+  .mm-secret-row .mm-slot { cursor: default; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="brand-wrap"><a href="/" class="brand">tool<em>crate</em></a><a href="/games.html" class="brand-offshoot">games</a></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Mastermind</h1>
+    <p>Crack the secret color code. Black peg = right color, right spot. White peg = right color, wrong spot.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  <p class="last-updated">Last updated <time datetime="2026-09-05">Sep 5, 2026</time></p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field" style="margin-bottom: 0;">
+        <label for="lengthSelect">Code length</label>
+        <select id="lengthSelect">
+          <option value="4" selected>4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom: 0;">
+        <label for="colorsSelect">Colors</label>
+        <select id="colorsSelect">
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6" selected>6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field" style="margin-bottom: 0;">
+        <label for="guessesSelect">Max guesses</label>
+        <select id="guessesSelect">
+          <option value="8">8</option>
+          <option value="10" selected>10</option>
+          <option value="12">12</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom: 0; display: flex; align-items: flex-end; gap: 0.5rem;">
+        <input type="checkbox" id="duplicatesCheck" checked style="width: auto;">
+        <label for="duplicatesCheck" style="margin: 0;">Allow repeated colors in the code</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="winsVal">0</span><span class="stat-label">Wins</span></div>
+    <div class="stat"><span class="stat-value" id="bestVal">—</span><span class="stat-label">Best (fewest guesses)</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="ttt-status" id="statusText">Guess the secret code</div>
+
+    <div id="secretRow" class="mm-secret-row" hidden></div>
+
+    <div class="mm-palette" id="palette"></div>
+
+    <div class="mm-current-row">
+      <div class="mm-slots" id="currentSlots"></div>
+      <button type="button" id="submitGuessBtn" disabled>Submit guess</button>
+    </div>
+
+    <div class="mm-history" id="history"></div>
+
+    <div class="btn-row" style="justify-content:center; margin-top: 1rem;">
+      <button type="button" id="newGameBtn" class="secondary">New game</button>
+      <button type="button" id="giveUpBtn" class="secondary">Reveal code</button>
+    </div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>The computer picks a hidden sequence of colors. Each guess gets scored with two kinds of pegs: a black peg for every color you placed in exactly the right position, and a white peg for every color you guessed that's in the code but in the wrong spot — counted so each secret and guessed peg contributes to at most one feedback peg, the standard Mastermind scoring rule. Position of the feedback pegs doesn't correspond to position in your guess; only the counts of black and white matter.</p>
+    <p>Click a slot to cycle through colors (or tap a palette swatch, then a slot). Everything runs locally in your browser — the code is generated and checked in JavaScript, nothing is sent anywhere.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const lengthSelect = document.getElementById('lengthSelect');
+const colorsSelect = document.getElementById('colorsSelect');
+const guessesSelect = document.getElementById('guessesSelect');
+const duplicatesCheck = document.getElementById('duplicatesCheck');
+const statusText = document.getElementById('statusText');
+const secretRow = document.getElementById('secretRow');
+const paletteEl = document.getElementById('palette');
+const currentSlotsEl = document.getElementById('currentSlots');
+const submitGuessBtn = document.getElementById('submitGuessBtn');
+const historyEl = document.getElementById('history');
+const newGameBtn = document.getElementById('newGameBtn');
+const giveUpBtn = document.getElementById('giveUpBtn');
+const winsVal = document.getElementById('winsVal');
+const bestVal = document.getElementById('bestVal');
+
+const PALETTE = [
+  '#C0392B', '#2E5EAA', '#2E8B57', '#D4AC0D',
+  '#D35400', '#8E44AD', '#17A2B8', '#D6336C',
+];
+const STATS_KEY = 'toolcrate-game-mastermind-stats';
+
+let codeLength, colorCount, maxGuesses, allowDuplicates;
+let secret, currentGuess, guesses, gameOver, won;
+let stats;
+
+function loadStats() {
+  try {
+    const raw = localStorage.getItem(STATS_KEY);
+    stats = raw ? JSON.parse(raw) : { wins: 0, best: null };
+  } catch (e) { stats = { wins: 0, best: null }; }
+}
+function saveStats() {
+  try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch (e) { /* storage unavailable */ }
+}
+function updateStatsDisplay() {
+  winsVal.textContent = stats.wins;
+  bestVal.textContent = stats.best === null ? '—' : stats.best;
+}
+
+function randomSecret() {
+  const code = [];
+  const available = Array.from({ length: colorCount }, (_, i) => i);
+  for (let i = 0; i < codeLength; i++) {
+    if (allowDuplicates) {
+      code.push(Math.floor(Math.random() * colorCount));
+    } else {
+      const idx = Math.floor(Math.random() * available.length);
+      code.push(available[idx]);
+      available.splice(idx, 1);
+    }
+  }
+  return code;
+}
+
+function computeFeedback(secretCode, guess) {
+  let black = 0;
+  const secretRemain = [];
+  const guessRemain = [];
+  for (let i = 0; i < secretCode.length; i++) {
+    if (secretCode[i] === guess[i]) black++;
+    else { secretRemain.push(secretCode[i]); guessRemain.push(guess[i]); }
+  }
+  let white = 0;
+  const counts = {};
+  secretRemain.forEach(c => { counts[c] = (counts[c] || 0) + 1; });
+  guessRemain.forEach(c => { if (counts[c] > 0) { white++; counts[c]--; } });
+  return { black, white };
+}
+
+function newGame() {
+  codeLength = parseInt(lengthSelect.value, 10);
+  colorCount = parseInt(colorsSelect.value, 10);
+  maxGuesses = parseInt(guessesSelect.value, 10);
+  allowDuplicates = duplicatesCheck.checked;
+  if (!allowDuplicates && codeLength > colorCount) {
+    lengthSelect.value = String(colorCount);
+    codeLength = colorCount;
+  }
+  secret = randomSecret();
+  currentGuess = Array(codeLength).fill(null);
+  guesses = [];
+  gameOver = false;
+  won = false;
+  secretRow.hidden = true;
+  statusText.textContent = 'Guess the secret code';
+  renderPalette();
+  renderCurrentRow();
+  renderHistory();
+}
+
+function renderPalette() {
+  paletteEl.innerHTML = '';
+  for (let i = 0; i < colorCount; i++) {
+    const sw = document.createElement('button');
+    sw.type = 'button';
+    sw.className = 'mm-palette-swatch';
+    sw.style.background = PALETTE[i];
+    sw.title = 'Color ' + (i + 1);
+    sw.addEventListener('click', () => fillNextEmptySlot(i));
+    paletteEl.appendChild(sw);
+  }
+}
+
+function fillNextEmptySlot(colorIdx) {
+  if (gameOver) return;
+  const idx = currentGuess.indexOf(null);
+  if (idx === -1) return;
+  currentGuess[idx] = colorIdx;
+  renderCurrentRow();
+}
+
+function renderCurrentRow() {
+  currentSlotsEl.innerHTML = '';
+  currentGuess.forEach((val, i) => {
+    const slot = document.createElement('button');
+    slot.type = 'button';
+    slot.className = 'mm-slot' + (val !== null ? ' filled' : '');
+    if (val !== null) slot.style.background = PALETTE[val];
+    slot.disabled = gameOver;
+    slot.addEventListener('click', () => cycleSlot(i));
+    currentSlotsEl.appendChild(slot);
+  });
+  submitGuessBtn.disabled = gameOver || currentGuess.includes(null);
+}
+
+function cycleSlot(i) {
+  if (gameOver) return;
+  const cur = currentGuess[i];
+  currentGuess[i] = cur === null ? 0 : (cur + 1 >= colorCount ? null : cur + 1);
+  renderCurrentRow();
+}
+
+function renderPegRow(container, values) {
+  const slots = document.createElement('div');
+  slots.className = 'mm-slots';
+  values.forEach(v => {
+    const slot = document.createElement('div');
+    slot.className = 'mm-slot filled';
+    slot.style.background = PALETTE[v];
+    slots.appendChild(slot);
+  });
+  container.appendChild(slots);
+}
+
+function renderFeedbackMini(container, feedback, length) {
+  const mini = document.createElement('div');
+  mini.className = 'mm-feedback-mini';
+  const pegs = [];
+  for (let i = 0; i < feedback.black; i++) pegs.push('black');
+  for (let i = 0; i < feedback.white; i++) pegs.push('white');
+  while (pegs.length < length) pegs.push('');
+  pegs.forEach(cls => {
+    const span = document.createElement('span');
+    if (cls) span.className = cls;
+    mini.appendChild(span);
+  });
+  container.appendChild(mini);
+}
+
+function renderHistory() {
+  historyEl.innerHTML = '';
+  guesses.forEach((g, i) => {
+    const row = document.createElement('div');
+    row.className = 'mm-history-row';
+    const num = document.createElement('span');
+    num.className = 'mm-history-num';
+    num.textContent = '#' + (i + 1);
+    row.appendChild(num);
+    renderPegRow(row, g.guess);
+    renderFeedbackMini(row, g.feedback, codeLength);
+    historyEl.appendChild(row);
+  });
+  historyEl.scrollTop = historyEl.scrollHeight;
+}
+
+function submitGuess() {
+  if (gameOver || currentGuess.includes(null)) return;
+  const feedback = computeFeedback(secret, currentGuess);
+  guesses.push({ guess: currentGuess.slice(), feedback });
+  renderHistory();
+
+  if (feedback.black === codeLength) {
+    gameOver = true;
+    won = true;
+    stats.wins++;
+    if (stats.best === null || guesses.length < stats.best) stats.best = guesses.length;
+    saveStats();
+    updateStatsDisplay();
+    statusText.textContent = `You cracked the code in ${guesses.length} guess${guesses.length === 1 ? '' : 'es'}!`;
+    revealSecret();
+    renderCurrentRow();
+    return;
+  }
+
+  if (guesses.length >= maxGuesses) {
+    gameOver = true;
+    statusText.textContent = 'Out of guesses — better luck next time.';
+    revealSecret();
+    renderCurrentRow();
+    return;
+  }
+
+  currentGuess = Array(codeLength).fill(null);
+  statusText.textContent = `${maxGuesses - guesses.length} guess${maxGuesses - guesses.length === 1 ? '' : 'es'} left`;
+  renderCurrentRow();
+}
+
+function revealSecret() {
+  secretRow.hidden = false;
+  secretRow.innerHTML = '';
+  renderPegRow(secretRow, secret);
+}
+
+submitGuessBtn.addEventListener('click', submitGuess);
+newGameBtn.addEventListener('click', newGame);
+giveUpBtn.addEventListener('click', () => {
+  if (gameOver) return;
+  gameOver = true;
+  statusText.textContent = 'Code revealed.';
+  revealSecret();
+  renderCurrentRow();
+});
+[lengthSelect, colorsSelect, guessesSelect, duplicatesCheck].forEach(el => el.addEventListener('change', newGame));
+
+loadStats();
+updateStatsDisplay();
+newGame();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>
