@@ -41,6 +41,10 @@
 
   .bs-boards { display: flex; flex-direction: column; gap: 1.75rem; align-items: center; }
   .bs-board-block { width: 100%; max-width: 380px; }
+  @media (min-width: 700px) {
+    .bs-boards { flex-direction: row; align-items: flex-start; justify-content: center; gap: 1.5rem; }
+    .bs-board-block { max-width: 340px; }
+  }
   .bs-board-label { text-align: center; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--ink-soft); }
   .bs-board {
     display: grid;
@@ -75,6 +79,8 @@
   .bs-cell.target.clickable:hover { background: color-mix(in srgb, var(--accent) 20%, var(--paper)); }
   .bs-cell.hit { background: var(--danger); color: #fff; }
   .bs-cell.miss::after { content: ''; width: 30%; height: 30%; border-radius: 50%; background: var(--ink-soft); opacity: 0.5; }
+  .bs-cell.preview-valid { background: color-mix(in srgb, var(--ok) 45%, var(--paper)); }
+  .bs-cell.preview-invalid { background: color-mix(in srgb, var(--danger) 35%, var(--paper)); }
 
   .bs-fleet-list { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin: 0.75rem 0; }
   .bs-fleet-item {
@@ -550,6 +556,28 @@ function renderTargetBoard(side, clickable) {
   return board;
 }
 
+let placementCellEls = [];
+
+// Hovering a cell previews exactly where the current ship would land
+// before it's committed — placement used to be entirely blind (click and
+// hope), which is disorienting when you can't yet see a ship's footprint
+// or whether it overlaps another ship.
+function previewPlacement(r, c) {
+  clearPlacementPreview();
+  const def = FLEET_DEF[placingShipIdx];
+  if (!def) return;
+  const cells = computeCells(r, c, def.size, placingOrientation);
+  if (!cells) return;
+  const valid = canPlace(sides[placingSide], cells);
+  cells.forEach(([rr, cc]) => {
+    const el = placementCellEls[rr] && placementCellEls[rr][cc];
+    if (el && !el.classList.contains('own-ship')) el.classList.add(valid ? 'preview-valid' : 'preview-invalid');
+  });
+}
+function clearPlacementPreview() {
+  placementCellEls.forEach(row => row.forEach(el => el.classList.remove('preview-valid', 'preview-invalid')));
+}
+
 function renderPlacementUI() {
   gameArea.innerHTML = '';
   statusText.textContent = sideLabel(placingSide) + ': place your ' + FLEET_DEF[placingShipIdx].name + ' (' + FLEET_DEF[placingShipIdx].size + ' cells)';
@@ -560,6 +588,7 @@ function renderPlacementUI() {
 
   const board = document.createElement('div');
   board.className = 'bs-board';
+  placementCellEls = Array.from({ length: SIZE }, () => new Array(SIZE));
   for (let r = 0; r < SIZE; r++) {
     for (let c = 0; c < SIZE; c++) {
       const cell = document.createElement('button');
@@ -573,6 +602,9 @@ function renderPlacementUI() {
         cell.style.background = SHIP_COLORS[shipIdx % SHIP_COLORS.length];
       }
       cell.addEventListener('click', () => tryPlaceAt(r, c));
+      cell.addEventListener('mouseenter', () => previewPlacement(r, c));
+      cell.addEventListener('mouseleave', clearPlacementPreview);
+      placementCellEls[r][c] = cell;
       board.appendChild(cell);
     }
   }
@@ -665,16 +697,6 @@ function renderBattle() {
   targetBlock.appendChild(renderTargetBoard(viewerSide, !isAiTurn));
   wrap.appendChild(targetBlock);
 
-  if (mode === 'human' && lastShotResult) {
-    const passBtn = document.createElement('button');
-    passBtn.type = 'button';
-    passBtn.style.display = 'block';
-    passBtn.style.margin = '0 auto';
-    passBtn.textContent = 'Pass to ' + sideLabel(opponentOf(currentTurn));
-    passBtn.addEventListener('click', () => goToPass('battle', opponentOf(currentTurn)));
-    wrap.appendChild(passBtn);
-  }
-
   const ownBlock = document.createElement('div');
   ownBlock.className = 'bs-board-block';
   const ownLabel = document.createElement('div');
@@ -685,6 +707,16 @@ function renderBattle() {
   wrap.appendChild(ownBlock);
 
   gameArea.appendChild(wrap);
+
+  if (mode === 'human' && lastShotResult) {
+    const passBtn = document.createElement('button');
+    passBtn.type = 'button';
+    passBtn.style.display = 'block';
+    passBtn.style.margin = '1.25rem auto 0';
+    passBtn.textContent = 'Pass to ' + sideLabel(opponentOf(currentTurn));
+    passBtn.addEventListener('click', () => goToPass('battle', opponentOf(currentTurn)));
+    gameArea.appendChild(passBtn);
+  }
 }
 
 function renderGameOver() {
