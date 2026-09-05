@@ -569,6 +569,14 @@ button.secondary:hover { border-color: var(--ink); opacity: 1; background: var(-
   overflow: hidden;
 }
 
+.related-tools {
+  margin-top: 3rem;
+  padding-top: 1.85rem;
+  border-top: 1px solid var(--line);
+}
+.related-tools h2 { color: var(--ink); font-size: 1.05rem; margin-bottom: 0.6rem; }
+.related-tools .tool-list li:first-child { border-top: none; }
+
 .explainer {
   margin-top: 3rem;
   padding-top: 1.85rem;

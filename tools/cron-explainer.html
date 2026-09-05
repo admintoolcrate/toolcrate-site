@@ -46,7 +46,7 @@
 <header class="site-header">
   <div class="site-header-inner">
     <a href="/" class="brand">tool<em>crate</em></a>
-    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
   </div>
 </header>
 
@@ -104,6 +104,16 @@
     <h2>About this tool</h2>
     <p>This tool reads the standard 5-field cron format — <code>minute hour day-of-month month day-of-week</code> — supporting <code>*</code>, single values, ranges (<code>1-5</code>), steps (<code>*/15</code>, <code>1-31/2</code>), comma-separated lists, and month/weekday names (<code>JAN</code>, <code>MON</code>). It also recognizes the common nonstandard shortcuts <code>@yearly</code>, <code>@monthly</code>, <code>@weekly</code>, <code>@daily</code>, <code>@hourly</code>, and <code>@reboot</code>. The 6-field format with a leading seconds column (used by some non-standard schedulers, like Quartz) is not supported.</p>
     <p>When both day-of-month and day-of-week are restricted (neither is <code>*</code>), standard cron treats them as an <strong>OR</strong>, not an AND — a run happens when either condition matches. The "next 5 run times" list is computed by walking forward minute-by-minute in your browser's own local time zone, so it's the authoritative answer if the plain-English description ever seems ambiguous. Nothing you enter is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
+  <div class="related-tools">
+    <h2>Related tools</h2>
+    <ul class="tool-list">
+      <li><a href="/tools/base64.html"><span class="tool-name">Base64 Encoder / Decoder</span><span class="tool-desc">Text to and from Base64</span></a></li>
+      <li><a href="/tools/box-shadow-generator.html"><span class="tool-name">Box Shadow Generator</span><span class="tool-desc">Layered shadows with live preview</span></a></li>
+      <li><a href="/tools/color-blindness-simulator.html"><span class="tool-name">Color Blindness Simulator</span><span class="tool-desc">Preview a color under common deficiencies</span></a></li>
+      <li><a href="/tools/color-converter.html"><span class="tool-name">Color Picker / Converter</span><span class="tool-desc">HEX, RGB, HSL</span></a></li>
+    </ul>
   </div>
 
 <div class="ad-slot">

@@ -71,7 +71,7 @@
 <header class="site-header">
   <div class="site-header-inner">
     <a href="/" class="brand">tool<em>crate</em></a>
-    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
   </div>
 </header>
 
@@ -131,6 +131,16 @@
     <h2>About this tool</h2>
     <p>The QR code encodes a standard <code>WIFI:T:...;S:...;P:...;;</code> payload that every major phone's camera app recognizes, with special characters in the network name and password (backslashes, semicolons, commas, colons) automatically escaped per the spec so networks with punctuation in their names still scan correctly. It's generated with the same from-scratch ISO/IEC 18004 QR encoder as our <a href="/tools/qr-code-generator.html">QR Code Generator</a> — real Reed-Solomon error correction, not a hosted image API.</p>
     <p>Your network name and password are only used locally to build the QR code — nothing is sent to a server, and the password never leaves your browser tab.</p>
+  </div>
+
+  <div class="related-tools">
+    <h2>Related tools</h2>
+    <ul class="tool-list">
+      <li><a href="/tools/barcode-generator.html"><span class="tool-name">Barcode Generator</span><span class="tool-desc">Common 1D barcode formats</span></a></li>
+      <li><a href="/tools/qr-code-generator.html"><span class="tool-name">QR Code Generator</span><span class="tool-desc">Text or URL, downloadable</span></a></li>
+      <li><a href="/tools/coin-flip.html"><span class="tool-name">Coin Flip</span><span class="tool-desc">Heads or tails, with a running tally</span></a></li>
+      <li><a href="/tools/color-blindness-simulator.html"><span class="tool-name">Color Blindness Simulator</span><span class="tool-desc">Preview a color under common deficiencies</span></a></li>
+    </ul>
   </div>
 
 <div class="ad-slot">

@@ -46,7 +46,7 @@
 <header class="site-header">
   <div class="site-header-inner">
     <a href="/" class="brand">tool<em>crate</em></a>
-    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
   </div>
 </header>
 
@@ -89,6 +89,16 @@
     <h2>About this tool</h2>
     <p>A JWT is three Base64URL-encoded segments — header, payload, and signature — separated by dots. This tool splits the token, decodes the header and payload as JSON, and formats them for reading; the signature segment is shown as-is, in raw Base64URL. Standard timestamp claims (<code>iat</code>, <code>exp</code>, <code>nbf</code>) are annotated with their human-readable date so you don't have to convert them by hand.</p>
     <p><strong>This tool does not verify the signature</strong> — decoding a JWT tells you what it claims, not whether it's authentic. Anyone can construct a token with an arbitrary header and payload; only checking the signature against the issuer's real secret or public key (something this browser-only tool has no way to know) proves a token hasn't been tampered with. Never trust a decoded JWT's contents for anything security-sensitive without verifying it server-side first. Nothing you paste here is sent to a server — the entire tool runs as JavaScript in your browser tab.</p>
+  </div>
+
+  <div class="related-tools">
+    <h2>Related tools</h2>
+    <ul class="tool-list">
+      <li><a href="/tools/base64.html"><span class="tool-name">Base64 Encoder / Decoder</span><span class="tool-desc">Text to and from Base64</span></a></li>
+      <li><a href="/tools/box-shadow-generator.html"><span class="tool-name">Box Shadow Generator</span><span class="tool-desc">Layered shadows with live preview</span></a></li>
+      <li><a href="/tools/color-blindness-simulator.html"><span class="tool-name">Color Blindness Simulator</span><span class="tool-desc">Preview a color under common deficiencies</span></a></li>
+      <li><a href="/tools/color-converter.html"><span class="tool-name">Color Picker / Converter</span><span class="tool-desc">HEX, RGB, HSL</span></a></li>
+    </ul>
   </div>
 
 <div class="ad-slot">

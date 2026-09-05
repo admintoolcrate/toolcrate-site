@@ -46,7 +46,7 @@
 <header class="site-header">
   <div class="site-header-inner">
     <a href="/" class="brand">tool<em>crate</em></a>
-    <div class="header-right"><nav class="site-nav"><a href="/">All tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
   </div>
 </header>
 
@@ -118,6 +118,16 @@
     <h2>How these conversions work</h2>
     <p>The decibel is a logarithmic ratio, not an absolute unit — it always compares two quantities. For <strong>power-like</strong> quantities (acoustic power, electrical power, sound intensity), dB = 10·log₁₀(P2/P1). For <strong>amplitude-like</strong> quantities (voltage, sound pressure, pressure amplitude), dB = 20·log₁₀(A2/A1) — the factor of 20 instead of 10 accounts for power being proportional to amplitude squared.</p>
     <p>Combining sound sources isn't simple addition because decibels are logarithmic: two equally loud 70 dB sources together produce about 73 dB, not 140 dB. This tool converts each level back to linear intensity, sums them, and converts the total back to dB using L = 10·log₁₀(Σ 10^(Li/10)). Nothing entered here is sent to a server — the calculation runs as JavaScript in your browser tab.</p>
+  </div>
+
+  <div class="related-tools">
+    <h2>Related tools</h2>
+    <ul class="tool-list">
+      <li><a href="/tools/bpm-tap-tempo.html"><span class="tool-name">BPM Tap Tempo</span><span class="tool-desc">Tap along to find a song's tempo</span></a></li>
+      <li><a href="/tools/chord-interval-calculator.html"><span class="tool-name">Chord &amp; Interval Calculator</span><span class="tool-desc">Build chords from a root note</span></a></li>
+      <li><a href="/tools/combinations-permutations.html"><span class="tool-name">Combinations &amp; Permutations Calculator</span><span class="tool-desc">nCr and nPr, with the working shown</span></a></li>
+      <li><a href="/tools/discount-calculator.html"><span class="tool-name">Discount Calculator</span><span class="tool-desc">Sale price and amount saved</span></a></li>
+    </ul>
   </div>
 
 <div class="ad-slot">
