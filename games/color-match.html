@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifests/games/color-match.json">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Color Match">
+<title>Color Match | toolcrate</title>
+<meta name="description" content="A gentle color-matching game for babies and toddlers. Hear a color, tap the matching blob. No score, no losing.">
+<link rel="canonical" href="https://toolcrate.cc/games/color-match.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/color-match.html">
+<meta property="og:title" content="Color Match | toolcrate">
+<meta property="og:description" content="A gentle color-matching game for babies and toddlers. Hear a color, tap the matching blob. No score, no losing.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Color Match | toolcrate">
+<meta name="twitter:description" content="A gentle color-matching game for babies and toddlers. Hear a color, tap the matching blob. No score, no losing.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .cm-callout { text-align: center; font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0 1.25rem; min-height: 2.2em; color: var(--ink); }
+  .cm-target-wrap { display: flex; justify-content: center; margin-bottom: 1.5rem; }
+  .cm-target {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    border: 4px solid var(--ink);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+  }
+  .cm-replay-btn { display: block; margin: 0 auto 1.5rem; }
+  .cm-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.9rem;
+  }
+  @media (max-width: 480px) { .cm-grid { grid-template-columns: repeat(2, 1fr); } }
+  .cm-swatch {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s ease;
+  }
+  .cm-swatch.correct { animation: cmPop 0.4s ease; }
+  .cm-swatch.wrong { animation: cmShake 0.35s ease; }
+  @keyframes cmPop { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+  @keyframes cmShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="brand-wrap"><a href="/" class="brand">tool<em>crate</em></a><a href="/games.html" class="brand-offshoot">games</a></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Color Match</h1>
+    <p>Hear a color name, tap the matching blob below. No score, no losing — just colors.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  <p class="last-updated">Last updated <time datetime="2026-09-05">Sep 5, 2026</time></p>
+  </div>
+
+  <div class="panel">
+    <div class="cm-callout" id="callout">Find the color!</div>
+    <div class="cm-target-wrap"><div class="cm-target" id="target"></div></div>
+    <button type="button" class="secondary cm-replay-btn" id="replayBtn">🔊 Say it again</button>
+    <div class="cm-grid" id="grid"></div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>Made for babies and toddlers (with a grown-up nearby): a target color is named out loud (and shown as a circle), and the child taps the matching color among the options below. A correct match pops and celebrates; a miss just gently shakes so they can try again — nothing is ever wrong for long. Uses your browser's built-in speech synthesis, with the color name shown on screen either way.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const callout = document.getElementById('callout');
+const target = document.getElementById('target');
+const grid = document.getElementById('grid');
+const replayBtn = document.getElementById('replayBtn');
+
+const COLORS = [
+  { name: 'Red', hex: '#E03131' },
+  { name: 'Blue', hex: '#1971C2' },
+  { name: 'Yellow', hex: '#F1C40F' },
+  { name: 'Green', hex: '#2F9E44' },
+  { name: 'Orange', hex: '#E8590C' },
+  { name: 'Purple', hex: '#9C36B5' },
+];
+
+let currentTarget = null;
+let swatchButtons = [];
+
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playChime(rising) {
+  ensureAudio();
+  const now = audioCtx.currentTime;
+  const notes = rising ? [523.25, 659.25, 783.99] : [392, 329.63];
+  notes.forEach((freq, i) => {
+    const start = now + i * 0.09;
+    const osc = audioCtx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.linearRampToValueAtTime(0.2, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0005, start + 0.3);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(start);
+    osc.stop(start + 0.31);
+  });
+}
+
+function speak(text) {
+  if (typeof speechSynthesis === 'undefined') return;
+  try {
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 0.9;
+    utter.pitch = 1.1;
+    speechSynthesis.speak(utter);
+  } catch (e) { /* speech unavailable */ }
+}
+
+function buildGrid() {
+  grid.innerHTML = '';
+  swatchButtons = COLORS.map((color) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cm-swatch';
+    btn.style.background = color.hex;
+    btn.setAttribute('aria-label', color.name);
+    btn.addEventListener('pointerdown', () => tapSwatch(color, btn));
+    grid.appendChild(btn);
+    return { color, btn };
+  });
+}
+
+function newRound() {
+  currentTarget = COLORS[Math.floor(Math.random() * COLORS.length)];
+  target.style.background = currentTarget.hex;
+  callout.textContent = 'Find the ' + currentTarget.name + '!';
+  speak(currentTarget.name);
+}
+
+function tapSwatch(color, btn) {
+  if (color.name === currentTarget.name) {
+    btn.classList.remove('correct');
+    void btn.offsetWidth;
+    btn.classList.add('correct');
+    playChime(true);
+    callout.textContent = 'Yes! That’s ' + color.name + '!';
+    speak('Yes! ' + color.name + '!');
+    setTimeout(newRound, 1400);
+  } else {
+    btn.classList.remove('wrong');
+    void btn.offsetWidth;
+    btn.classList.add('wrong');
+    playChime(false);
+  }
+}
+
+replayBtn.addEventListener('click', () => speak(currentTarget.name));
+
+buildGrid();
+newRound();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>

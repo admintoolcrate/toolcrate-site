@@ -156,4 +156,7 @@
   <url><loc>https://toolcrate.cc/games/star-sky.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/games/battleship.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/games/mastermind.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/color-match.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/animal-sounds.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/counting-balloons.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>

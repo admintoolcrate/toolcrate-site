@@ -1,0 +1,18 @@
+{
+  "id": "/games/counting-balloons.html",
+  "name": "Counting Balloons – toolcrate",
+  "short_name": "Counting Balloons",
+  "description": "A gentle counting game for toddlers. Pop the balloons in order from 1 to 5. No score, no losing.",
+  "start_url": "/games/counting-balloons.html",
+  "scope": "/games/counting-balloons.html",
+  "display": "standalone",
+  "background_color": "#F5F4F2",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

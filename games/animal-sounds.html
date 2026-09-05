@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifests/games/animal-sounds.json">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Animal Sounds">
+<title>Animal Sounds | toolcrate</title>
+<meta name="description" content="A gentle listen-and-match game for babies and toddlers. Hear an animal sound, tap the matching animal. No score, no losing.">
+<link rel="canonical" href="https://toolcrate.cc/games/animal-sounds.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/animal-sounds.html">
+<meta property="og:title" content="Animal Sounds | toolcrate">
+<meta property="og:description" content="A gentle listen-and-match game for babies and toddlers. Hear an animal sound, tap the matching animal. No score, no losing.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Animal Sounds | toolcrate">
+<meta name="twitter:description" content="A gentle listen-and-match game for babies and toddlers. Hear an animal sound, tap the matching animal. No score, no losing.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .as-callout { text-align: center; font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0 1.25rem; min-height: 2.2em; color: var(--ink); }
+  .as-replay-btn { display: block; margin: 0 auto 1.5rem; }
+  .as-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.8rem;
+  }
+  @media (max-width: 480px) { .as-grid { grid-template-columns: repeat(2, 1fr); } }
+  .as-tile {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    transition: transform 0.15s ease;
+  }
+  .as-tile.correct { animation: asPop 0.4s ease; }
+  .as-tile.wrong { animation: asShake 0.35s ease; }
+  @keyframes asPop { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+  @keyframes asShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="brand-wrap"><a href="/" class="brand">tool<em>crate</em></a><a href="/games.html" class="brand-offshoot">games</a></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Animal Sounds</h1>
+    <p>Listen to the sound, tap the animal that makes it. No score, no losing — just listening.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  <p class="last-updated">Last updated <time datetime="2026-09-05">Sep 5, 2026</time></p>
+  </div>
+
+  <div class="panel">
+    <div class="as-callout" id="callout">Listen, then tap!</div>
+    <button type="button" class="secondary as-replay-btn" id="replayBtn">🔊 Play it again</button>
+    <div class="as-grid" id="grid"></div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>Made for babies and toddlers (with a grown-up nearby): an animal sound plays out loud, and the child taps the animal that makes it among six options. A correct match pops and celebrates with the animal's name; a miss just gently shakes so they can try again — nothing is ever wrong for long. Uses your browser's built-in speech synthesis to say each sound word.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const callout = document.getElementById('callout');
+const grid = document.getElementById('grid');
+const replayBtn = document.getElementById('replayBtn');
+
+const ANIMALS = [
+  { emoji: '🐶', name: 'Dog', sound: 'Woof woof!' },
+  { emoji: '🐱', name: 'Cat', sound: 'Meow!' },
+  { emoji: '🐮', name: 'Cow', sound: 'Moo!' },
+  { emoji: '🐑', name: 'Sheep', sound: 'Baa!' },
+  { emoji: '🦆', name: 'Duck', sound: 'Quack quack!' },
+  { emoji: '🐴', name: 'Horse', sound: 'Neigh!' },
+];
+const COLORS = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#FF922B', '#C77DFF'];
+
+let currentTarget = null;
+
+function speak(text) {
+  if (typeof speechSynthesis === 'undefined') return;
+  try {
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 0.85;
+    utter.pitch = 1.1;
+    speechSynthesis.speak(utter);
+  } catch (e) { /* speech unavailable */ }
+}
+
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playChime(rising) {
+  ensureAudio();
+  const now = audioCtx.currentTime;
+  const notes = rising ? [523.25, 659.25, 783.99] : [392, 329.63];
+  notes.forEach((freq, i) => {
+    const start = now + i * 0.09;
+    const osc = audioCtx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.linearRampToValueAtTime(0.2, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0005, start + 0.3);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(start);
+    osc.stop(start + 0.31);
+  });
+}
+
+function buildGrid() {
+  grid.innerHTML = '';
+  ANIMALS.forEach((animal, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'as-tile';
+    btn.style.background = COLORS[i];
+    btn.textContent = animal.emoji;
+    btn.setAttribute('aria-label', animal.name);
+    btn.addEventListener('pointerdown', () => tapTile(animal, btn));
+    grid.appendChild(btn);
+  });
+}
+
+function newRound() {
+  currentTarget = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+  callout.textContent = 'Which one says this?';
+  speak(currentTarget.sound);
+}
+
+function tapTile(animal, btn) {
+  if (animal.name === currentTarget.name) {
+    btn.classList.remove('correct');
+    void btn.offsetWidth;
+    btn.classList.add('correct');
+    playChime(true);
+    callout.textContent = 'Yes! The ' + animal.name + ' says ' + animal.sound;
+    speak('Yes! ' + animal.name + '!');
+    setTimeout(newRound, 1600);
+  } else {
+    btn.classList.remove('wrong');
+    void btn.offsetWidth;
+    btn.classList.add('wrong');
+    playChime(false);
+  }
+}
+
+replayBtn.addEventListener('click', () => speak(currentTarget.sound));
+
+buildGrid();
+newRound();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>

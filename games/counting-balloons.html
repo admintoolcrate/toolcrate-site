@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifests/games/counting-balloons.json">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Counting Balloons">
+<title>Counting Balloons | toolcrate</title>
+<meta name="description" content="A gentle counting game for toddlers. Pop the balloons in order from 1 to 5. No score, no losing.">
+<link rel="canonical" href="https://toolcrate.cc/games/counting-balloons.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/counting-balloons.html">
+<meta property="og:title" content="Counting Balloons | toolcrate">
+<meta property="og:description" content="A gentle counting game for toddlers. Pop the balloons in order from 1 to 5. No score, no losing.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Counting Balloons | toolcrate">
+<meta name="twitter:description" content="A gentle counting game for toddlers. Pop the balloons in order from 1 to 5. No score, no losing.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .cb-callout { text-align: center; font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0 1.25rem; min-height: 2.2em; color: var(--ink); }
+  .cb-stage {
+    position: relative;
+    height: 420px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: linear-gradient(to bottom, #BEE3F8 0%, #E8F4FD 100%);
+    touch-action: manipulation;
+  }
+  .cb-balloon {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(3rem, 10vw, 4.5rem);
+    line-height: 1;
+  }
+  .cb-num {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    pointer-events: none;
+  }
+  .cb-balloon.pop { animation: cbPop 0.35s ease forwards; }
+  .cb-balloon.wrong { animation: cbShake 0.3s ease; }
+  @keyframes cbPop { 0% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.7); opacity: 0; } }
+  @keyframes cbShake { 0%, 100% { transform: translate(-50%, -50%); } 25% { transform: translate(calc(-50% - 8px), -50%); } 75% { transform: translate(calc(-50% + 8px), -50%); } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="brand-wrap"><a href="/" class="brand">tool<em>crate</em></a><a href="/games.html" class="brand-offshoot">games</a></div>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Counting Balloons</h1>
+    <p>Pop the balloons in order, 1 through 5. No score, no losing — just counting.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  <p class="last-updated">Last updated <time datetime="2026-09-05">Sep 5, 2026</time></p>
+  </div>
+
+  <div class="panel">
+    <div class="cb-callout" id="callout">Find balloon 1!</div>
+    <div class="cb-stage" id="stage"></div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>Made for toddlers (with a grown-up nearby): five numbered balloons are scattered around the screen in a new arrangement each round. Tapping the next number in sequence pops it with a cheerful chime and says the number out loud; tapping out of order just gives the balloon a gentle wobble, no penalty, no losing. Popping all five starts a fresh round with the balloons shuffled to new spots. Uses your browser's built-in speech synthesis to say each number.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const callout = document.getElementById('callout');
+const stage = document.getElementById('stage');
+
+const COUNT = 5;
+const SLOTS = [
+  { left: '15%', top: '68%' },
+  { left: '32%', top: '28%' },
+  { left: '52%', top: '62%' },
+  { left: '70%', top: '25%' },
+  { left: '87%', top: '65%' },
+];
+
+let nextExpected = 1;
+
+function speak(text) {
+  if (typeof speechSynthesis === 'undefined') return;
+  try {
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 0.85;
+    utter.pitch = 1.1;
+    speechSynthesis.speak(utter);
+  } catch (e) { /* speech unavailable */ }
+}
+
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playChime(rising) {
+  ensureAudio();
+  const now = audioCtx.currentTime;
+  const notes = rising ? [523.25, 659.25, 783.99] : [392, 329.63];
+  notes.forEach((freq, i) => {
+    const start = now + i * 0.08;
+    const osc = audioCtx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.linearRampToValueAtTime(0.22, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0005, start + 0.3);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(start);
+    osc.stop(start + 0.31);
+  });
+}
+
+function spawnBalloons() {
+  stage.innerHTML = '';
+  nextExpected = 1;
+  const numbers = Array.from({ length: COUNT }, (_, i) => i + 1);
+  for (let i = numbers.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+  }
+  SLOTS.forEach((slot, i) => {
+    const num = numbers[i];
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cb-balloon';
+    btn.style.left = slot.left;
+    btn.style.top = slot.top;
+    btn.innerHTML = '🎈<span class="cb-num">' + num + '</span>';
+    btn.dataset.num = num;
+    btn.addEventListener('pointerdown', () => tapBalloon(num, btn));
+    stage.appendChild(btn);
+  });
+  callout.textContent = 'Find balloon 1!';
+  speak('Find balloon 1');
+}
+
+function tapBalloon(num, btn) {
+  if (num === nextExpected) {
+    playChime(true);
+    speak(String(num));
+    btn.classList.add('pop');
+    btn.disabled = true;
+    setTimeout(() => btn.remove(), 350);
+    nextExpected++;
+    if (nextExpected > COUNT) {
+      callout.textContent = 'You counted to 5! 🎉';
+      speak('You counted to 5!');
+      setTimeout(spawnBalloons, 1800);
+    } else {
+      callout.textContent = 'Find balloon ' + nextExpected + '!';
+      setTimeout(() => speak('Find balloon ' + nextExpected), 350);
+    }
+  } else {
+    btn.classList.remove('wrong');
+    void btn.offsetWidth;
+    btn.classList.add('wrong');
+    playChime(false);
+  }
+}
+
+spawnBalloons();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>
