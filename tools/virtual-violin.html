@@ -80,7 +80,7 @@
 
   <div class="explainer">
     <h2>About this tool</h2>
-    <p>Standard violin tuning (low to high: G D A E), synthesized as a sustained tone with a light vibrato while held, rather than a plucked or percussive sound — a real violin has no frets, so this is a simplified 12-position layout for playability rather than a literal fingerboard.</p>
+    <p>Standard violin tuning (low to high: G D A E), synthesized as a sustained tone — two slightly detuned oscillators, body-resonance filtering, faint bow noise, and a light vibrato while held — rather than a plucked or percussive sound. A real violin has no frets, so this is a simplified 12-position layout for playability rather than a literal fingerboard.</p>
     <p>Nothing here is recorded or uploaded — sound is generated and played entirely in your browser.</p>
   </div>
 
@@ -143,6 +143,18 @@ function midiToFreq(midi) {
 
 const activeVoices = {};
 
+let noiseBuffer = null;
+function getNoiseBuffer() {
+  if (noiseBuffer) return noiseBuffer;
+  const sr = audioCtx.sampleRate;
+  const len = sr * 2;
+  const buf = audioCtx.createBuffer(1, len, sr);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+  noiseBuffer = buf;
+  return buf;
+}
+
 function startNote(midi) {
   ensureAudio();
   if (activeVoices[midi]) return;
@@ -151,26 +163,75 @@ function startNote(midi) {
 
   const gain = audioCtx.createGain();
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.22, now + 0.18);
+  gain.gain.linearRampToValueAtTime(0.2, now + 0.15);
   gain.connect(audioCtx.destination);
 
-  const osc = audioCtx.createOscillator();
-  osc.type = 'sawtooth';
-  osc.frequency.value = freq;
+  // Two slightly detuned sawtooths for a richer, less synthetic tone, then
+  // a couple of peaking filters standing in for the violin body's formants
+  // (the frequency bands its resonances naturally emphasize).
+  const lowpass = audioCtx.createBiquadFilter();
+  lowpass.type = 'lowpass';
+  lowpass.frequency.value = 6500;
+  lowpass.connect(gain);
+
+  const formant2 = audioCtx.createBiquadFilter();
+  formant2.type = 'peaking';
+  formant2.frequency.value = 2600;
+  formant2.Q.value = 1.4;
+  formant2.gain.value = 4;
+  formant2.connect(lowpass);
+
+  const formant1 = audioCtx.createBiquadFilter();
+  formant1.type = 'peaking';
+  formant1.frequency.value = 1200;
+  formant1.Q.value = 1.2;
+  formant1.gain.value = 6;
+  formant1.connect(formant2);
+
+  const osc1 = audioCtx.createOscillator();
+  osc1.type = 'sawtooth';
+  osc1.frequency.value = freq;
+  const osc2 = audioCtx.createOscillator();
+  osc2.type = 'sawtooth';
+  osc2.frequency.value = freq;
+  osc2.detune.value = 7;
+
+  const oscMix = audioCtx.createGain();
+  oscMix.gain.value = 0.5;
+  osc1.connect(oscMix);
+  osc2.connect(oscMix);
+  oscMix.connect(formant1);
+
+  // Bow noise: quiet, bandpass-filtered noise under the tone, for the
+  // faint breathiness of a bow dragging across a string.
+  const noiseSrc = audioCtx.createBufferSource();
+  noiseSrc.buffer = getNoiseBuffer();
+  noiseSrc.loop = true;
+  const noiseFilter = audioCtx.createBiquadFilter();
+  noiseFilter.type = 'bandpass';
+  noiseFilter.frequency.value = freq * 2;
+  noiseFilter.Q.value = 0.7;
+  const noiseGain = audioCtx.createGain();
+  noiseGain.gain.value = 0.015;
+  noiseSrc.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(formant1);
 
   // Light vibrato: a slow LFO gently modulating pitch, like a held bow stroke.
   const vibrato = audioCtx.createOscillator();
-  vibrato.frequency.value = 5.5;
+  vibrato.frequency.value = 5.3;
   const vibratoGain = audioCtx.createGain();
   vibratoGain.gain.value = freq * 0.006;
   vibrato.connect(vibratoGain);
-  vibratoGain.connect(osc.frequency);
+  vibratoGain.connect(osc1.frequency);
+  vibratoGain.connect(osc2.frequency);
   vibrato.start(now);
 
-  osc.connect(gain);
-  osc.start(now);
+  osc1.start(now);
+  osc2.start(now);
+  noiseSrc.start(now);
 
-  activeVoices[midi] = { osc, vibrato, gain };
+  activeVoices[midi] = { osc1, osc2, vibrato, noiseSrc, gain };
 }
 
 function stopNote(midi) {
@@ -179,9 +240,11 @@ function stopNote(midi) {
   const now = audioCtx.currentTime;
   active.gain.gain.cancelScheduledValues(now);
   active.gain.gain.setValueAtTime(active.gain.gain.value, now);
-  active.gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
-  active.osc.stop(now + 0.26);
-  active.vibrato.stop(now + 0.26);
+  active.gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+  active.osc1.stop(now + 0.3);
+  active.osc2.stop(now + 0.3);
+  active.vibrato.stop(now + 0.3);
+  active.noiseSrc.stop(now + 0.3);
   delete activeVoices[midi];
 }
 

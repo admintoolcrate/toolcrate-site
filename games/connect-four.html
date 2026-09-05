@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Connect Four | toolcrate</title>
+<meta name="description" content="Play Connect Four against the computer or a friend on the same device. Free browser game, scores saved on your device.">
+<link rel="canonical" href="https://toolcrate.cc/games/connect-four.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/connect-four.html">
+<meta property="og:title" content="Connect Four | toolcrate">
+<meta property="og:description" content="Play Connect Four against the computer or a friend on the same device. Free browser game, scores saved on your device.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Connect Four | toolcrate">
+<meta name="twitter:description" content="Play Connect Four against the computer or a friend on the same device. Free browser game, scores saved on your device.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .mode-toggle { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+  .mode-toggle button {
+    flex: 1;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+  .mode-toggle button.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .c4-wrap { overflow-x: auto; }
+  .c4-board {
+    display: grid;
+    grid-template-columns: repeat(7, 44px);
+    grid-template-rows: repeat(6, 44px);
+    gap: 5px;
+    background: var(--line);
+    padding: 6px;
+    border-radius: 10px;
+    margin: 0 auto;
+    width: max-content;
+  }
+  .c4-cell {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+  }
+  .c4-cell:disabled { cursor: default; }
+  .c4-cell.red::after, .c4-cell.yellow::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+  }
+  .c4-cell.red::after { background: #C0392B; }
+  .c4-cell.yellow::after { background: #E1A82D; }
+  .c4-cell.win::after { outline: 3px solid var(--ok); outline-offset: -3px; }
+  .c4-cols { display: flex; gap: 5px; justify-content: center; margin: 0 auto 0.6rem; width: max-content; padding: 0 6px; }
+  .c4-col-btn {
+    width: 44px;
+    height: 32px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--ink-soft);
+  }
+  .c4-col-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .c4-col-btn:disabled { opacity: 0.35; cursor: default; }
+  .ttt-status { text-align: center; font-weight: 600; margin: 1rem 0; min-height: 1.4em; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Connect Four</h1>
+    <p>Drop discs to get four in a row — against the computer or a friend.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="panel">
+    <div class="mode-toggle">
+      <button type="button" id="vsComputerBtn" class="active">Vs Computer</button>
+      <button type="button" id="vsHumanBtn">Vs Human (pass and play)</button>
+    </div>
+    <div class="row" id="difficultyRow">
+      <div class="field" style="margin-bottom: 0;">
+        <label for="difficultySelect">Computer difficulty</label>
+        <select id="difficultySelect">
+          <option value="hard">Hard</option>
+          <option value="easy">Easy</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="redWins">0</span><span class="stat-label" id="redLabel">Red wins</span></div>
+    <div class="stat"><span class="stat-value" id="draws">0</span><span class="stat-label">Draws</span></div>
+    <div class="stat"><span class="stat-value" id="yellowWins">0</span><span class="stat-label" id="yellowLabel">Yellow wins</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="ttt-status" id="statusText">Red's turn</div>
+    <div class="c4-wrap">
+      <div class="c4-cols" id="colButtons"></div>
+      <div class="c4-board" id="board"></div>
+    </div>
+    <div class="btn-row" style="justify-content:center; margin-top: 1rem;">
+      <button type="button" id="newRoundBtn" class="secondary">New round</button>
+      <button type="button" id="resetScoreBtn" class="secondary">Reset score</button>
+    </div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>Click a column to drop a disc. First to line up four in a row — horizontally, vertically, or diagonally — wins. "Hard" looks several moves ahead; "Easy" plays mostly at random. Scores are saved on this device.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const vsComputerBtn = document.getElementById('vsComputerBtn');
+const vsHumanBtn = document.getElementById('vsHumanBtn');
+const difficultyRow = document.getElementById('difficultyRow');
+const difficultySelect = document.getElementById('difficultySelect');
+const boardEl = document.getElementById('board');
+const colButtonsEl = document.getElementById('colButtons');
+const statusText = document.getElementById('statusText');
+const redWinsEl = document.getElementById('redWins');
+const yellowWinsEl = document.getElementById('yellowWins');
+const drawsEl = document.getElementById('draws');
+const redLabelEl = document.getElementById('redLabel');
+const yellowLabelEl = document.getElementById('yellowLabel');
+const newRoundBtn = document.getElementById('newRoundBtn');
+const resetScoreBtn = document.getElementById('resetScoreBtn');
+
+const SCORE_KEY = 'toolcrate-game-connectfour-score';
+const ROWS = 6, COLS = 7;
+
+let mode = 'computer';
+let board = [];
+let currentPlayer = 'R'; // R (red) moves first
+let gameOver = false;
+let scores = { R: 0, Y: 0, draw: 0 };
+
+function loadScores() {
+  try {
+    const raw = localStorage.getItem(SCORE_KEY);
+    if (raw) scores = JSON.parse(raw);
+  } catch (e) { /* storage unavailable */ }
+}
+function saveScores() {
+  try { localStorage.setItem(SCORE_KEY, JSON.stringify(scores)); } catch (e) { /* storage unavailable */ }
+}
+function updateScoreDisplay() {
+  redWinsEl.textContent = scores.R;
+  yellowWinsEl.textContent = scores.Y;
+  drawsEl.textContent = scores.draw;
+  redLabelEl.textContent = mode === 'computer' ? 'You (Red)' : 'Red wins';
+  yellowLabelEl.textContent = mode === 'computer' ? 'Computer (Yellow)' : 'Yellow wins';
+}
+
+function setMode(newMode) {
+  mode = newMode;
+  vsComputerBtn.classList.toggle('active', mode === 'computer');
+  vsHumanBtn.classList.toggle('active', mode === 'human');
+  difficultyRow.style.display = mode === 'computer' ? '' : 'none';
+  updateScoreDisplay();
+  newRound();
+}
+vsComputerBtn.addEventListener('click', () => setMode('computer'));
+vsHumanBtn.addEventListener('click', () => setMode('human'));
+
+function emptyBoard() {
+  const b = [];
+  for (let r = 0; r < ROWS; r++) b.push(Array(COLS).fill(null));
+  return b;
+}
+
+function lowestEmptyRow(b, col) {
+  for (let r = ROWS - 1; r >= 0; r--) {
+    if (!b[r][col]) return r;
+  }
+  return -1;
+}
+
+function checkWinner(b) {
+  const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const piece = b[r][c];
+      if (!piece) continue;
+      for (const [dr, dc] of dirs) {
+        const cells = [[r,c]];
+        for (let i = 1; i < 4; i++) {
+          const nr = r + dr * i, nc = c + dc * i;
+          if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS || b[nr][nc] !== piece) break;
+          cells.push([nr, nc]);
+        }
+        if (cells.length === 4) return { winner: piece, cells };
+      }
+    }
+  }
+  if (b.every(row => row.every(cell => cell))) return { winner: 'draw', cells: [] };
+  return null;
+}
+
+function validCols(b) {
+  const cols = [];
+  for (let c = 0; c < COLS; c++) if (lowestEmptyRow(b, c) !== -1) cols.push(c);
+  return cols;
+}
+
+function scoreWindow(cells, piece) {
+  const opp = piece === 'R' ? 'Y' : 'R';
+  const countPiece = cells.filter(c => c === piece).length;
+  const countEmpty = cells.filter(c => c === null).length;
+  const countOpp = cells.filter(c => c === opp).length;
+  if (countOpp > 0 && countPiece > 0) return 0;
+  if (countPiece === 4) return 1000;
+  if (countPiece === 3 && countEmpty === 1) return 20;
+  if (countPiece === 2 && countEmpty === 2) return 3;
+  if (countOpp === 4) return -1000;
+  if (countOpp === 3 && countEmpty === 1) return -25;
+  if (countOpp === 2 && countEmpty === 2) return -3;
+  return 0;
+}
+
+function evaluateBoard(b, piece) {
+  let score = 0;
+  for (let r = 0; r < ROWS; r++) score += (b[r][3] === piece ? 3 : 0);
+  const lines = [];
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c <= COLS - 4; c++)
+      lines.push([b[r][c], b[r][c+1], b[r][c+2], b[r][c+3]]);
+  for (let c = 0; c < COLS; c++)
+    for (let r = 0; r <= ROWS - 4; r++)
+      lines.push([b[r][c], b[r+1][c], b[r+2][c], b[r+3][c]]);
+  for (let r = 0; r <= ROWS - 4; r++)
+    for (let c = 0; c <= COLS - 4; c++)
+      lines.push([b[r][c], b[r+1][c+1], b[r+2][c+2], b[r+3][c+3]]);
+  for (let r = 3; r < ROWS; r++)
+    for (let c = 0; c <= COLS - 4; c++)
+      lines.push([b[r][c], b[r-1][c+1], b[r-2][c+2], b[r-3][c+3]]);
+  for (const line of lines) score += scoreWindow(line, piece);
+  return score;
+}
+
+function minimax(b, depth, alpha, beta, maximizing, aiPiece) {
+  const result = checkWinner(b);
+  const humanPiece = aiPiece === 'R' ? 'Y' : 'R';
+  if (result) {
+    if (result.winner === aiPiece) return { score: 1000000 + depth };
+    if (result.winner === humanPiece) return { score: -1000000 - depth };
+    return { score: 0 };
+  }
+  if (depth === 0) return { score: evaluateBoard(b, aiPiece) };
+
+  const cols = validCols(b);
+  let bestCol = cols[Math.floor(cols.length / 2)] ?? cols[0];
+
+  if (maximizing) {
+    let best = -Infinity;
+    for (const c of cols) {
+      const r = lowestEmptyRow(b, c);
+      b[r][c] = aiPiece;
+      const { score } = minimax(b, depth - 1, alpha, beta, false, aiPiece);
+      b[r][c] = null;
+      if (score > best) { best = score; bestCol = c; }
+      alpha = Math.max(alpha, best);
+      if (alpha >= beta) break;
+    }
+    return { score: best, col: bestCol };
+  } else {
+    let best = Infinity;
+    for (const c of cols) {
+      const r = lowestEmptyRow(b, c);
+      b[r][c] = humanPiece;
+      const { score } = minimax(b, depth - 1, alpha, beta, true, aiPiece);
+      b[r][c] = null;
+      if (score < best) { best = score; bestCol = c; }
+      beta = Math.min(beta, best);
+      if (alpha >= beta) break;
+    }
+    return { score: best, col: bestCol };
+  }
+}
+
+function computerMove() {
+  const cols = validCols(board);
+  if (cols.length === 0) return;
+  let col;
+  if (difficultySelect.value === 'easy') {
+    // mostly random, but still takes an immediate win or blocks an immediate loss
+    const immediateWin = cols.find(c => {
+      const r = lowestEmptyRow(board, c);
+      board[r][c] = 'Y';
+      const win = checkWinner(board)?.winner === 'Y';
+      board[r][c] = null;
+      return win;
+    });
+    if (immediateWin !== undefined && Math.random() < 0.7) {
+      col = immediateWin;
+    } else {
+      col = cols[Math.floor(Math.random() * cols.length)];
+    }
+  } else {
+    col = minimax(board.map(row => row.slice()), 5, -Infinity, Infinity, true, 'Y').col;
+  }
+  drop(col);
+}
+
+function drop(col) {
+  if (gameOver) return;
+  const row = lowestEmptyRow(board, col);
+  if (row === -1) return;
+  board[row][col] = currentPlayer;
+  render();
+  const result = checkWinner(board);
+  if (result) {
+    endRound(result);
+    return;
+  }
+  currentPlayer = currentPlayer === 'R' ? 'Y' : 'R';
+  updateStatus();
+  updateColButtons();
+  if (mode === 'computer' && currentPlayer === 'Y' && !gameOver) {
+    setColButtonsEnabled(false);
+    setTimeout(computerMove, 350);
+  }
+}
+
+function endRound(result) {
+  gameOver = true;
+  if (result.winner === 'draw') {
+    scores.draw++;
+    statusText.textContent = "It's a draw!";
+  } else {
+    scores[result.winner]++;
+    if (mode === 'computer') {
+      statusText.textContent = result.winner === 'R' ? 'You win!' : 'Computer wins!';
+    } else {
+      statusText.textContent = (result.winner === 'R' ? 'Red' : 'Yellow') + ' wins!';
+    }
+    for (const [r, c] of result.cells) {
+      boardEl.children[r * COLS + c].classList.add('win');
+    }
+  }
+  saveScores();
+  updateScoreDisplay();
+  setColButtonsEnabled(false);
+}
+
+function updateStatus() {
+  if (gameOver) return;
+  if (mode === 'computer') {
+    statusText.textContent = currentPlayer === 'R' ? 'Your turn (Red)' : "Computer's turn...";
+  } else {
+    statusText.textContent = (currentPlayer === 'R' ? 'Red' : 'Yellow') + "'s turn";
+  }
+}
+
+function setColButtonsEnabled(enabled) {
+  Array.from(colButtonsEl.children).forEach((btn, c) => {
+    btn.disabled = !enabled || gameOver || lowestEmptyRow(board, c) === -1;
+  });
+}
+function updateColButtons() {
+  setColButtonsEnabled(!(mode === 'computer' && currentPlayer === 'Y'));
+}
+
+function render() {
+  Array.from(boardEl.children).forEach((cell, i) => {
+    const r = Math.floor(i / COLS), c = i % COLS;
+    cell.className = 'c4-cell';
+    if (board[r][c] === 'R') cell.classList.add('red');
+    else if (board[r][c] === 'Y') cell.classList.add('yellow');
+  });
+}
+
+function buildBoard() {
+  boardEl.innerHTML = '';
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'c4-cell';
+      cell.disabled = true;
+      boardEl.appendChild(cell);
+    }
+  }
+  colButtonsEl.innerHTML = '';
+  for (let c = 0; c < COLS; c++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'c4-col-btn';
+    btn.textContent = '↓';
+    btn.addEventListener('click', () => {
+      if (mode === 'computer' && currentPlayer !== 'R') return;
+      drop(c);
+    });
+    colButtonsEl.appendChild(btn);
+  }
+}
+
+function newRound() {
+  board = emptyBoard();
+  currentPlayer = 'R';
+  gameOver = false;
+  buildBoard();
+  render();
+  updateStatus();
+  updateColButtons();
+}
+
+newRoundBtn.addEventListener('click', newRound);
+resetScoreBtn.addEventListener('click', () => {
+  scores = { R: 0, Y: 0, draw: 0 };
+  saveScores();
+  updateScoreDisplay();
+});
+difficultySelect.addEventListener('change', newRound);
+
+loadScores();
+updateScoreDisplay();
+newRound();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>

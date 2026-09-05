@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Hangman | toolcrate</title>
+<meta name="description" content="Classic Hangman in your browser. Pick a category, guess letters, six wrong guesses allowed. Free, streak saved on your device.">
+<link rel="canonical" href="https://toolcrate.cc/games/hangman.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/hangman.html">
+<meta property="og:title" content="Hangman | toolcrate">
+<meta property="og:description" content="Classic Hangman in your browser. Pick a category, guess letters, six wrong guesses allowed. Free, streak saved on your device.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Hangman | toolcrate">
+<meta name="twitter:description" content="Classic Hangman in your browser. Pick a category, guess letters, six wrong guesses allowed. Free, streak saved on your device.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .hm-figure { display: flex; justify-content: center; margin-bottom: 0.5rem; }
+  .hm-figure svg { stroke: var(--ink); stroke-width: 3; fill: none; stroke-linecap: round; }
+  .hm-word { text-align: center; font-size: 1.7rem; font-weight: 700; letter-spacing: 0.25em; margin: 0.6rem 0; word-break: break-all; }
+  .hm-keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; max-width: 480px; margin: 0.8rem auto 0; }
+  .hm-key {
+    width: 34px; height: 38px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    color: var(--ink);
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .hm-key:disabled { cursor: default; opacity: 0.4; }
+  .hm-key.correct { background: color-mix(in srgb, var(--ok) 25%, var(--paper)); border-color: var(--ok); }
+  .hm-key.wrong { background: color-mix(in srgb, #C0392B 20%, var(--paper)); border-color: #C0392B; }
+  .ttt-status { text-align: center; font-weight: 600; margin: 1rem 0; min-height: 1.4em; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Hangman</h1>
+    <p>Guess the word one letter at a time before you run out of tries.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field" style="margin-bottom: 0;">
+        <label for="categorySelect">Category</label>
+        <select id="categorySelect">
+          <option value="animals">Animals</option>
+          <option value="countries">Countries</option>
+          <option value="food">Food &amp; Drink</option>
+          <option value="science">Science &amp; Tech</option>
+          <option value="sports">Sports</option>
+          <option value="everyday" selected>Everyday (mixed)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="winsVal">0</span><span class="stat-label">Wins</span></div>
+    <div class="stat"><span class="stat-value" id="lossesVal">0</span><span class="stat-label">Losses</span></div>
+    <div class="stat"><span class="stat-value" id="streakVal">0</span><span class="stat-label">Win streak</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="hm-figure">
+      <svg width="140" height="150" viewBox="0 0 140 150">
+        <line x1="10" y1="145" x2="90" y2="145" />
+        <line x1="30" y1="145" x2="30" y2="10" />
+        <line x1="30" y1="10" x2="95" y2="10" />
+        <line x1="95" y1="10" x2="95" y2="28" />
+        <circle id="hmHead" cx="95" cy="42" r="14" style="display:none" />
+        <line id="hmBody" x1="95" y1="56" x2="95" y2="95" style="display:none" />
+        <line id="hmArmL" x1="95" y1="65" x2="78" y2="85" style="display:none" />
+        <line id="hmArmR" x1="95" y1="65" x2="112" y2="85" style="display:none" />
+        <line id="hmLegL" x1="95" y1="95" x2="80" y2="125" style="display:none" />
+        <line id="hmLegR" x1="95" y1="95" x2="110" y2="125" style="display:none" />
+      </svg>
+    </div>
+    <div class="ttt-status" id="statusText">Guesses left: 6</div>
+    <div class="hm-word" id="wordDisplay"></div>
+    <div class="hm-keyboard" id="keyboard"></div>
+    <div class="btn-row" style="justify-content:center; margin-top: 1rem;">
+      <button type="button" id="newRoundBtn" class="secondary">New word</button>
+      <button type="button" id="resetStatsBtn" class="secondary">Reset stats</button>
+    </div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>Click a letter or use your keyboard. Six wrong guesses and the round is lost. Wins, losses, and your current streak are saved on this device.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const categorySelect = document.getElementById('categorySelect');
+const statusText = document.getElementById('statusText');
+const wordDisplay = document.getElementById('wordDisplay');
+const keyboard = document.getElementById('keyboard');
+const newRoundBtn = document.getElementById('newRoundBtn');
+const resetStatsBtn = document.getElementById('resetStatsBtn');
+const winsVal = document.getElementById('winsVal');
+const lossesVal = document.getElementById('lossesVal');
+const streakVal = document.getElementById('streakVal');
+
+const STATS_KEY = 'toolcrate-game-hangman-stats';
+const MAX_WRONG = 6;
+const PARTS = ['hmHead', 'hmBody', 'hmArmL', 'hmArmR', 'hmLegL', 'hmLegR'];
+
+const WORD_LISTS = {
+  animals: ['elephant','giraffe','dolphin','penguin','kangaroo','octopus','crocodile','cheetah','platypus','hedgehog','flamingo','otter','peacock','walrus','armadillo','koala','panther','raccoon','squirrel','tortoise'],
+  countries: ['brazil','canada','egypt','france','germany','iceland','japan','kenya','mexico','norway','portugal','sweden','thailand','vietnam','argentina','morocco','nigeria','poland','peru','turkey'],
+  food: ['avocado','burrito','croissant','dumpling','falafel','hummus','lasagna','omelette','pancake','risotto','sandwich','sushi','taco','waffle','pretzel','noodle','pistachio','cinnamon','asparagus','artichoke'],
+  science: ['gravity','molecule','neuron','photon','vaccine','algorithm','bandwidth','circuit','satellite','telescope','bacteria','enzyme','magnetic','asteroid','chemistry','genome','quantum','synapse','velocity','oxygen'],
+  sports: ['basketball','cricket','marathon','badminton','wrestling','snowboard','volleyball','triathlon','gymnastics','lacrosse','rowing','fencing','archery','skateboard','surfing','curling','rugby','hockey','boxing','cycling'],
+  everyday: ['umbrella','keyboard','blanket','calendar','backpack','mirror','candle','notebook','bicycle','wallet','pillow','scissors','envelope','ladder','whistle','compass','lantern','magnet','puzzle','anchor'],
+};
+
+let category, word, guessed, wrongCount, gameOver;
+
+function loadStats() {
+  try {
+    const raw = localStorage.getItem(STATS_KEY);
+    return raw ? JSON.parse(raw) : { wins: 0, losses: 0, streak: 0 };
+  } catch (e) { return { wins: 0, losses: 0, streak: 0 }; }
+}
+function saveStats(stats) {
+  try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch (e) { /* storage unavailable */ }
+}
+let stats = loadStats();
+function renderStats() {
+  winsVal.textContent = stats.wins;
+  lossesVal.textContent = stats.losses;
+  streakVal.textContent = stats.streak;
+}
+
+function pickWord() {
+  const list = WORD_LISTS[categorySelect.value];
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function newRound() {
+  word = pickWord();
+  guessed = new Set();
+  wrongCount = 0;
+  gameOver = false;
+  PARTS.forEach(id => document.getElementById(id).style.display = 'none');
+  statusText.textContent = 'Guesses left: ' + MAX_WRONG;
+  buildKeyboard();
+  render();
+}
+
+function buildKeyboard() {
+  keyboard.innerHTML = '';
+  for (let i = 97; i <= 122; i++) {
+    const letter = String.fromCharCode(i);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'hm-key';
+    btn.textContent = letter.toUpperCase();
+    btn.dataset.letter = letter;
+    btn.addEventListener('click', () => guess(letter));
+    keyboard.appendChild(btn);
+  }
+}
+
+function guess(letter) {
+  if (gameOver || guessed.has(letter)) return;
+  guessed.add(letter);
+  const btn = keyboard.querySelector(`[data-letter="${letter}"]`);
+  if (word.includes(letter)) {
+    if (btn) { btn.classList.add('correct'); btn.disabled = true; }
+  } else {
+    wrongCount++;
+    if (btn) { btn.classList.add('wrong'); btn.disabled = true; }
+    if (wrongCount <= PARTS.length) document.getElementById(PARTS[wrongCount - 1]).style.display = '';
+  }
+  render();
+  checkEnd();
+}
+
+function render() {
+  wordDisplay.textContent = word.split('').map(ch => guessed.has(ch) ? ch.toUpperCase() : '_').join(' ');
+  if (!gameOver) statusText.textContent = 'Guesses left: ' + (MAX_WRONG - wrongCount);
+}
+
+function checkEnd() {
+  const solved = word.split('').every(ch => guessed.has(ch));
+  if (solved) {
+    gameOver = true;
+    stats.wins++;
+    stats.streak++;
+    saveStats(stats);
+    renderStats();
+    statusText.textContent = 'You got it — "' + word + '"!';
+    disableKeyboard();
+  } else if (wrongCount >= MAX_WRONG) {
+    gameOver = true;
+    stats.losses++;
+    stats.streak = 0;
+    saveStats(stats);
+    renderStats();
+    statusText.textContent = 'Out of guesses — the word was "' + word + '".';
+    disableKeyboard();
+  }
+}
+
+function disableKeyboard() {
+  Array.from(keyboard.children).forEach(btn => btn.disabled = true);
+}
+
+document.addEventListener('keydown', (e) => {
+  const letter = e.key.toLowerCase();
+  if (letter.length === 1 && letter >= 'a' && letter <= 'z') guess(letter);
+});
+
+categorySelect.addEventListener('change', newRound);
+newRoundBtn.addEventListener('click', newRound);
+resetStatsBtn.addEventListener('click', () => {
+  stats = { wins: 0, losses: 0, streak: 0 };
+  saveStats(stats);
+  renderStats();
+});
+
+renderStats();
+newRound();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>

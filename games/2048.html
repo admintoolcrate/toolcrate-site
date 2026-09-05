@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>2048 | toolcrate</title>
+<meta name="description" content="Play 2048 in your browser. Slide tiles, combine matching numbers, reach 2048. Free, high score saved on your device.">
+<link rel="canonical" href="https://toolcrate.cc/games/2048.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/2048.html">
+<meta property="og:title" content="2048 | toolcrate">
+<meta property="og:description" content="Play 2048 in your browser. Slide tiles, combine matching numbers, reach 2048. Free, high score saved on your device.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="2048 | toolcrate">
+<meta name="twitter:description" content="Play 2048 in your browser. Slide tiles, combine matching numbers, reach 2048. Free, high score saved on your device.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .g2048-wrap { display: flex; justify-content: center; touch-action: none; }
+  .g2048-board {
+    display: grid;
+    grid-template-columns: repeat(4, 72px);
+    grid-template-rows: repeat(4, 72px);
+    gap: 8px;
+    background: var(--line);
+    padding: 8px;
+    border-radius: 10px;
+  }
+  .g2048-cell {
+    border-radius: 6px;
+    background: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--ink);
+  }
+  .g2048-cell[data-v="0"] { background: var(--paper); }
+  .g2048-cell[data-v="2"] { background: color-mix(in srgb, var(--accent) 8%, var(--paper)); }
+  .g2048-cell[data-v="4"] { background: color-mix(in srgb, var(--accent) 16%, var(--paper)); }
+  .g2048-cell[data-v="8"] { background: color-mix(in srgb, var(--accent) 28%, var(--paper)); color: #fff; }
+  .g2048-cell[data-v="16"] { background: color-mix(in srgb, var(--accent) 40%, var(--paper)); color: #fff; }
+  .g2048-cell[data-v="32"] { background: color-mix(in srgb, var(--accent) 52%, var(--paper)); color: #fff; }
+  .g2048-cell[data-v="64"] { background: color-mix(in srgb, var(--accent) 64%, var(--paper)); color: #fff; }
+  .g2048-cell[data-v="128"], .g2048-cell[data-v="256"], .g2048-cell[data-v="512"] { background: color-mix(in srgb, var(--ok) 55%, var(--paper)); color: #fff; font-size: 1.15rem; }
+  .g2048-cell[data-v="1024"], .g2048-cell[data-v="2048"] { background: var(--ink); color: var(--paper); font-size: 1.05rem; }
+  .ttt-status { text-align: center; font-weight: 600; margin: 1rem 0; min-height: 1.4em; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>2048</h1>
+    <p>Arrow keys, WASD, or swipe. Combine matching tiles to reach 2048.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="scoreVal">0</span><span class="stat-label">Score</span></div>
+    <div class="stat"><span class="stat-value" id="bestVal">0</span><span class="stat-label">Best</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="ttt-status" id="statusText">Slide tiles to combine them</div>
+    <div class="g2048-wrap">
+      <div class="g2048-board" id="board"></div>
+    </div>
+    <div class="btn-row" style="justify-content:center; margin-top: 1rem;">
+      <button type="button" id="newGameBtn" class="secondary">New game</button>
+    </div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>Every move slides all tiles in one direction; two tiles with the same number merge into one when they collide. Reach a 2048 tile to win, or keep going for a higher score. Your best score is saved on this device.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const boardEl = document.getElementById('board');
+const statusText = document.getElementById('statusText');
+const scoreVal = document.getElementById('scoreVal');
+const bestVal = document.getElementById('bestVal');
+const newGameBtn = document.getElementById('newGameBtn');
+
+const BEST_KEY = 'toolcrate-game-2048-best';
+const SIZE = 4;
+let grid, score, best, wonAnnounced, gameOver;
+
+function loadBest() {
+  try { return Number(localStorage.getItem(BEST_KEY)) || 0; } catch (e) { return 0; }
+}
+function saveBest(v) {
+  try { localStorage.setItem(BEST_KEY, String(v)); } catch (e) { /* storage unavailable */ }
+}
+
+function emptyGrid() {
+  return Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
+}
+
+function emptyCells() {
+  const cells = [];
+  for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) if (grid[r][c] === 0) cells.push([r, c]);
+  return cells;
+}
+
+function addRandomTile() {
+  const cells = emptyCells();
+  if (cells.length === 0) return;
+  const [r, c] = cells[Math.floor(Math.random() * cells.length)];
+  grid[r][c] = Math.random() < 0.9 ? 2 : 4;
+}
+
+function newGame() {
+  grid = emptyGrid();
+  score = 0;
+  wonAnnounced = false;
+  gameOver = false;
+  addRandomTile();
+  addRandomTile();
+  scoreVal.textContent = '0';
+  statusText.textContent = 'Slide tiles to combine them';
+  render();
+}
+
+// Slides + merges a single row (array of SIZE numbers, zeros = empty)
+// to the left, returning the new row and points scored.
+function slideRowLeft(row) {
+  const vals = row.filter(v => v !== 0);
+  const result = [];
+  let points = 0;
+  for (let i = 0; i < vals.length; i++) {
+    if (vals[i] === vals[i + 1]) {
+      const merged = vals[i] * 2;
+      result.push(merged);
+      points += merged;
+      i++;
+    } else {
+      result.push(vals[i]);
+    }
+  }
+  while (result.length < SIZE) result.push(0);
+  return { row: result, points };
+}
+
+function rotateGridClockwise(g) {
+  const n = g.length;
+  const out = emptyGrid();
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) out[c][n - 1 - r] = g[r][c];
+  return out;
+}
+
+function move(direction) {
+  if (gameOver) return;
+  // Normalize every direction to a "slide left" by rotating the grid,
+  // sliding, then rotating back.
+  let rotations = 0;
+  if (direction === 'up') rotations = 3;
+  else if (direction === 'right') rotations = 2;
+  else if (direction === 'down') rotations = 1;
+
+  let working = grid;
+  for (let i = 0; i < rotations; i++) working = rotateGridClockwise(working);
+
+  let moved = false;
+  let gained = 0;
+  const newRows = working.map(row => {
+    const before = row.join(',');
+    const { row: newRow, points } = slideRowLeft(row);
+    if (newRow.join(',') !== before) moved = true;
+    gained += points;
+    return newRow;
+  });
+
+  let result = newRows;
+  for (let i = 0; i < (4 - rotations) % 4; i++) result = rotateGridClockwise(result);
+
+  if (!moved) return;
+  grid = result;
+  score += gained;
+  scoreVal.textContent = String(score);
+  if (score > best) {
+    best = score;
+    saveBest(best);
+    bestVal.textContent = String(best);
+  }
+  addRandomTile();
+  render();
+
+  if (!wonAnnounced && grid.some(row => row.some(v => v === 2048))) {
+    wonAnnounced = true;
+    statusText.textContent = 'You reached 2048! Keep going for a higher score.';
+  }
+  if (!canMove()) {
+    gameOver = true;
+    statusText.textContent = 'Game over — final score: ' + score + '.';
+  }
+}
+
+function canMove() {
+  if (emptyCells().length > 0) return true;
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      const v = grid[r][c];
+      if (c + 1 < SIZE && grid[r][c + 1] === v) return true;
+      if (r + 1 < SIZE && grid[r + 1][c] === v) return true;
+    }
+  }
+  return false;
+}
+
+function render() {
+  boardEl.innerHTML = '';
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'g2048-cell';
+      cell.dataset.v = String(grid[r][c]);
+      cell.textContent = grid[r][c] === 0 ? '' : String(grid[r][c]);
+      boardEl.appendChild(cell);
+    }
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  const map = {
+    ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+    w: 'up', s: 'down', a: 'left', d: 'right',
+    W: 'up', S: 'down', A: 'left', D: 'right',
+  };
+  if (map[e.key]) {
+    e.preventDefault();
+    move(map[e.key]);
+  }
+});
+
+let touchStart = null;
+boardEl.addEventListener('touchstart', (e) => {
+  const t = e.changedTouches[0];
+  touchStart = { x: t.clientX, y: t.clientY };
+}, { passive: true });
+boardEl.addEventListener('touchend', (e) => {
+  if (!touchStart) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStart.x;
+  const dy = t.clientY - touchStart.y;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) > 15) {
+    if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? 'right' : 'left');
+    else move(dy > 0 ? 'down' : 'up');
+  }
+  touchStart = null;
+}, { passive: true });
+
+newGameBtn.addEventListener('click', newGame);
+
+best = loadBest();
+bestVal.textContent = String(best);
+newGame();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>

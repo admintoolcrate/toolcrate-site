@@ -139,4 +139,12 @@
   <url><loc>https://toolcrate.cc/games/reaction-time.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/games/word-scramble.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolcrate.cc/games/tic-tac-toe.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/connect-four.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/snake.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/2048.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/minesweeper.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/hangman.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/simon-says.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/rock-paper-scissors.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolcrate.cc/games/whack-a-mole.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>

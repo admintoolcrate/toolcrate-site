@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Whack-a-Mole | toolcrate</title>
+<meta name="description" content="Click the moles before they duck back down. 30-second rounds, speeds up as you go. Free browser game, high score saved on your device.">
+<link rel="canonical" href="https://toolcrate.cc/games/whack-a-mole.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/whack-a-mole.html">
+<meta property="og:title" content="Whack-a-Mole | toolcrate">
+<meta property="og:description" content="Click the moles before they duck back down. 30-second rounds, speeds up as you go. Free browser game, high score saved on your device.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Whack-a-Mole | toolcrate">
+<meta name="twitter:description" content="Click the moles before they duck back down. 30-second rounds, speeds up as you go. Free browser game, high score saved on your device.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .wam-board {
+    display: grid;
+    grid-template-columns: repeat(3, 90px);
+    grid-template-rows: repeat(3, 90px);
+    gap: 10px;
+    margin: 0 auto;
+    width: max-content;
+  }
+  .wam-hole {
+    background: color-mix(in srgb, var(--ink) 8%, var(--paper));
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 2.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .wam-hole.up { background: color-mix(in srgb, var(--ok) 15%, var(--paper)); }
+  .ttt-status { text-align: center; font-weight: 600; margin: 1rem 0; min-height: 1.4em; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Whack-a-Mole</h1>
+    <p>Click the moles the instant they pop up. 30 seconds, gets faster as you go.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="scoreVal">0</span><span class="stat-label">Score</span></div>
+    <div class="stat"><span class="stat-value" id="timeVal">30</span><span class="stat-label">Seconds left</span></div>
+    <div class="stat"><span class="stat-value" id="bestVal">0</span><span class="stat-label">Best</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="ttt-status" id="statusText">Press Start</div>
+    <div class="wam-board" id="board"></div>
+    <div class="btn-row" style="justify-content:center; margin-top: 1rem;">
+      <button type="button" id="startBtn" class="secondary">Start</button>
+    </div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>A random hole pops up briefly — click it before it ducks back down. The pace picks up as the clock runs out. Your best score is saved on this device.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const boardEl = document.getElementById('board');
+const statusText = document.getElementById('statusText');
+const scoreVal = document.getElementById('scoreVal');
+const timeVal = document.getElementById('timeVal');
+const bestVal = document.getElementById('bestVal');
+const startBtn = document.getElementById('startBtn');
+
+const BEST_KEY = 'toolcrate-game-whackamole-best';
+const HOLE_COUNT = 9;
+const ROUND_SECONDS = 30;
+
+let score, best, timeLeft, running, popTimer, countdownTimer, currentUpIndex, holes;
+
+function loadBest() {
+  try { return Number(localStorage.getItem(BEST_KEY)) || 0; } catch (e) { return 0; }
+}
+function saveBest(v) {
+  try { localStorage.setItem(BEST_KEY, String(v)); } catch (e) { /* storage unavailable */ }
+}
+
+function buildBoard() {
+  boardEl.innerHTML = '';
+  holes = [];
+  for (let i = 0; i < HOLE_COUNT; i++) {
+    const hole = document.createElement('button');
+    hole.type = 'button';
+    hole.className = 'wam-hole';
+    hole.addEventListener('click', () => whack(i));
+    boardEl.appendChild(hole);
+    holes.push(hole);
+  }
+}
+
+function whack(i) {
+  if (!running || i !== currentUpIndex) return;
+  score++;
+  scoreVal.textContent = String(score);
+  holes[i].classList.remove('up');
+  holes[i].textContent = '';
+  currentUpIndex = -1;
+}
+
+function popRandomMole() {
+  if (!running) return;
+  if (currentUpIndex !== -1) {
+    holes[currentUpIndex].classList.remove('up');
+    holes[currentUpIndex].textContent = '';
+  }
+  currentUpIndex = Math.floor(Math.random() * HOLE_COUNT);
+  holes[currentUpIndex].classList.add('up');
+  holes[currentUpIndex].textContent = '🐹';
+
+  const elapsed = ROUND_SECONDS - timeLeft;
+  const upTime = Math.max(380, 900 - elapsed * 18);
+  popTimer = setTimeout(() => {
+    if (!running) return;
+    if (currentUpIndex !== -1) {
+      holes[currentUpIndex].classList.remove('up');
+      holes[currentUpIndex].textContent = '';
+      currentUpIndex = -1;
+    }
+    const gap = Math.max(150, 400 - elapsed * 8);
+    popTimer = setTimeout(popRandomMole, gap);
+  }, upTime);
+}
+
+function startGame() {
+  score = 0;
+  timeLeft = ROUND_SECONDS;
+  running = true;
+  currentUpIndex = -1;
+  scoreVal.textContent = '0';
+  timeVal.textContent = String(timeLeft);
+  statusText.textContent = 'Go!';
+  clearTimeout(popTimer);
+  clearInterval(countdownTimer);
+  popRandomMole();
+  countdownTimer = setInterval(() => {
+    timeLeft--;
+    timeVal.textContent = String(timeLeft);
+    if (timeLeft <= 0) endGame();
+  }, 1000);
+}
+
+function endGame() {
+  running = false;
+  clearTimeout(popTimer);
+  clearInterval(countdownTimer);
+  if (currentUpIndex !== -1) {
+    holes[currentUpIndex].classList.remove('up');
+    holes[currentUpIndex].textContent = '';
+    currentUpIndex = -1;
+  }
+  if (score > best) {
+    best = score;
+    saveBest(best);
+    bestVal.textContent = String(best);
+    statusText.textContent = 'Time! New best: ' + score + '.';
+  } else {
+    statusText.textContent = 'Time! Final score: ' + score + '.';
+  }
+}
+
+startBtn.addEventListener('click', startGame);
+
+best = loadBest();
+bestVal.textContent = String(best);
+running = false;
+buildBoard();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Snake | toolcrate</title>
+<meta name="description" content="Classic Snake in your browser. Arrow keys or swipe, eat to grow, don't hit yourself or the wall. Free, high score saved on your device.">
+<link rel="canonical" href="https://toolcrate.cc/games/snake.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="toolcrate">
+<meta property="og:url" content="https://toolcrate.cc/games/snake.html">
+<meta property="og:title" content="Snake | toolcrate">
+<meta property="og:description" content="Classic Snake in your browser. Arrow keys or swipe, eat to grow, don't hit yourself or the wall. Free, high score saved on your device.">
+<meta property="og:image" content="https://toolcrate.cc/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Snake | toolcrate">
+<meta name="twitter:description" content="Classic Snake in your browser. Arrow keys or swipe, eat to grow, don't hit yourself or the wall. Free, high score saved on your device.">
+<meta name="twitter:image" content="https://toolcrate.cc/og-image.png">
+<script>
+  (function(){var t=localStorage.getItem('toolcrate-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="stylesheet" href="../style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8879201576445737" crossorigin="anonymous"></script>
+<style>
+  .snake-wrap { display: flex; justify-content: center; }
+  #snakeCanvas {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    touch-action: none;
+    max-width: 100%;
+  }
+  .ttt-status { text-align: center; font-weight: 600; margin: 1rem 0; min-height: 1.4em; }
+  .snake-controls { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 1rem; }
+  .snake-controls .row-btns { display: flex; gap: 4px; }
+  .snake-controls button {
+    width: 46px; height: 40px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="brand">tool<em>crate</em></a>
+    <div class="header-right"><nav class="site-nav"><a href="/">Tools</a><a href="/games.html">Games</a><a href="/donate.html">Donate</a><a href="/contact.html">Contact</a></nav><button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="tool-header">
+    <h1>Snake</h1>
+    <p>Arrow keys, WASD, swipe, or the on-screen buttons. Eat the dot, don't hit yourself or the wall.</p>
+    <button type="button" class="share-btn" id="shareBtn">Share / Copy link</button>
+  <span class="copy-feedback" id="shareFeedback">Copied</span>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-value" id="scoreVal">0</span><span class="stat-label">Score</span></div>
+    <div class="stat"><span class="stat-value" id="bestVal">0</span><span class="stat-label">Best</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="ttt-status" id="statusText">Press an arrow key or Start to begin</div>
+    <div class="snake-wrap">
+      <canvas id="snakeCanvas" width="360" height="360"></canvas>
+    </div>
+    <div class="snake-controls">
+      <button type="button" id="upBtn" aria-label="Up">↑</button>
+      <div class="row-btns">
+        <button type="button" id="leftBtn" aria-label="Left">←</button>
+        <button type="button" id="downBtn" aria-label="Down">↓</button>
+        <button type="button" id="rightBtn" aria-label="Right">→</button>
+      </div>
+    </div>
+    <div class="btn-row" style="justify-content:center; margin-top: 1rem;">
+      <button type="button" id="startBtn" class="secondary">Start / Restart</button>
+    </div>
+  </div>
+
+  <div class="explainer">
+    <h2>About this game</h2>
+    <p>Grid-based classic Snake — steer with arrow keys, WASD, swipe, or the buttons above. Speed picks up slightly as you grow. Your best score is saved on this device.</p>
+  </div>
+
+<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8879201576445737"
+     data-ad-slot="1489621698"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© 2026 toolcrate</span>
+    <span class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/donate.html">Donate</a></span>
+  </div>
+</footer>
+
+<script>
+const canvas = document.getElementById('snakeCanvas');
+const ctx = canvas.getContext('2d');
+const statusText = document.getElementById('statusText');
+const scoreVal = document.getElementById('scoreVal');
+const bestVal = document.getElementById('bestVal');
+const startBtn = document.getElementById('startBtn');
+
+const BEST_KEY = 'toolcrate-game-snake-best';
+const GRID = 18;
+const CELL = canvas.width / GRID;
+
+let snake, dir, nextDir, food, score, best, running, timer, speedMs;
+
+function loadBest() {
+  try { return Number(localStorage.getItem(BEST_KEY)) || 0; } catch (e) { return 0; }
+}
+function saveBest(v) {
+  try { localStorage.setItem(BEST_KEY, String(v)); } catch (e) { /* storage unavailable */ }
+}
+
+function randCell(exclude) {
+  let cell;
+  do {
+    cell = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) };
+  } while (exclude.some(c => c.x === cell.x && c.y === cell.y));
+  return cell;
+}
+
+function resetGame() {
+  snake = [{ x: 8, y: 9 }, { x: 7, y: 9 }, { x: 6, y: 9 }];
+  dir = { x: 1, y: 0 };
+  nextDir = { x: 1, y: 0 };
+  food = randCell(snake);
+  score = 0;
+  speedMs = 130;
+  running = true;
+  scoreVal.textContent = '0';
+  statusText.textContent = 'Go!';
+  if (timer) clearInterval(timer);
+  timer = setInterval(tick, speedMs);
+  draw();
+}
+
+function setSpeed(ms) {
+  speedMs = ms;
+  if (timer) clearInterval(timer);
+  if (running) timer = setInterval(tick, speedMs);
+}
+
+function tick() {
+  if (!running) return;
+  dir = nextDir;
+  const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+  if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID || snake.some(s => s.x === head.x && s.y === head.y)) {
+    endGame();
+    return;
+  }
+
+  snake.unshift(head);
+  if (head.x === food.x && head.y === food.y) {
+    score++;
+    scoreVal.textContent = String(score);
+    food = randCell(snake);
+    if (score % 5 === 0 && speedMs > 60) setSpeed(speedMs - 10);
+  } else {
+    snake.pop();
+  }
+  draw();
+}
+
+function endGame() {
+  running = false;
+  clearInterval(timer);
+  if (score > best) {
+    best = score;
+    saveBest(best);
+    bestVal.textContent = String(best);
+    statusText.textContent = 'Game over — new best: ' + best + '!';
+  } else {
+    statusText.textContent = 'Game over — score: ' + score + '.';
+  }
+}
+
+function draw() {
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#F5F4F2';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2255DD';
+  ctx.beginPath();
+  ctx.arc(food.x * CELL + CELL / 2, food.y * CELL + CELL / 2, CELL * 0.35, 0, Math.PI * 2);
+  ctx.fill();
+
+  const inkColor = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#141414';
+  snake.forEach((seg, i) => {
+    ctx.fillStyle = inkColor;
+    ctx.globalAlpha = i === 0 ? 1 : 0.85;
+    ctx.fillRect(seg.x * CELL + 1, seg.y * CELL + 1, CELL - 2, CELL - 2);
+  });
+  ctx.globalAlpha = 1;
+}
+
+function setDir(x, y) {
+  if (!running) return;
+  if (dir.x === -x && dir.y === -y) return; // no reversing into yourself
+  nextDir = { x, y };
+}
+
+document.addEventListener('keydown', (e) => {
+  const map = {
+    ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0],
+    w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0],
+    W: [0, -1], S: [0, 1], A: [-1, 0], D: [1, 0],
+  };
+  if (map[e.key]) {
+    e.preventDefault();
+    setDir(map[e.key][0], map[e.key][1]);
+  }
+});
+
+document.getElementById('upBtn').addEventListener('click', () => setDir(0, -1));
+document.getElementById('downBtn').addEventListener('click', () => setDir(0, 1));
+document.getElementById('leftBtn').addEventListener('click', () => setDir(-1, 0));
+document.getElementById('rightBtn').addEventListener('click', () => setDir(1, 0));
+startBtn.addEventListener('click', resetGame);
+
+let touchStart = null;
+canvas.addEventListener('touchstart', (e) => {
+  const t = e.changedTouches[0];
+  touchStart = { x: t.clientX, y: t.clientY };
+}, { passive: true });
+canvas.addEventListener('touchend', (e) => {
+  if (!touchStart) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStart.x;
+  const dy = t.clientY - touchStart.y;
+  if (Math.abs(dx) > Math.abs(dy)) {
+    setDir(dx > 0 ? 1 : -1, 0);
+  } else if (Math.abs(dy) > 10) {
+    setDir(0, dy > 0 ? 1 : -1);
+  }
+  touchStart = null;
+}, { passive: true });
+
+best = loadBest();
+bestVal.textContent = String(best);
+snake = [{ x: 8, y: 9 }, { x: 7, y: 9 }, { x: 6, y: 9 }];
+dir = { x: 1, y: 0 };
+food = randCell(snake);
+running = false;
+score = 0;
+draw();
+</script>
+
+<script src="../theme.js"></script>
+<script>
+(function() {
+  var shareBtn = document.getElementById('shareBtn');
+  var shareFeedback = document.getElementById('shareFeedback');
+  if (!shareBtn) return;
+  shareBtn.addEventListener('click', function() {
+    var url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: url }).catch(function() {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        shareFeedback.classList.add('show');
+        setTimeout(function() { shareFeedback.classList.remove('show'); }, 1500);
+      }).catch(function() {});
+    }
+  });
+})();
+</script>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support toolcrate', '#000000', 'Z4W426ELT1');kofiwidget2.draw();</script>
+</body>
+</html>
