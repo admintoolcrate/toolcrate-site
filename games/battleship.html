@@ -70,7 +70,7 @@
     -webkit-tap-highlight-color: transparent;
   }
   .bs-cell.own-ship { background: color-mix(in srgb, var(--ink) 35%, var(--paper)); }
-  .bs-cell.own-ship.sunk { background: var(--danger); }
+  .bs-cell.own-ship.sunk { background: var(--danger) !important; }
   .bs-cell.target.clickable { cursor: pointer; }
   .bs-cell.target.clickable:hover { background: color-mix(in srgb, var(--accent) 20%, var(--paper)); }
   .bs-cell.hit { background: var(--danger); color: #fff; }
@@ -180,6 +180,19 @@ const FLEET_DEF = [
   { name: 'Cruiser', size: 3 },
   { name: 'Submarine', size: 3 },
   { name: 'Destroyer', size: 2 },
+];
+// Ships are always pushed onto side.ships in FLEET_DEF order (placement
+// order), so a ship's index into that array reliably matches its type —
+// used to give each of the 5 ships a distinct color. Without this, ships
+// that happen to land adjacent to each other (common with only 17 of 100
+// cells filled) visually fused into one shapeless blob instead of reading
+// as separate straight-line ships.
+const SHIP_COLORS = [
+  'color-mix(in srgb, #4C6EF5 45%, var(--paper))',
+  'color-mix(in srgb, #12B886 45%, var(--paper))',
+  'color-mix(in srgb, #F59F00 45%, var(--paper))',
+  'color-mix(in srgb, #E64980 45%, var(--paper))',
+  'color-mix(in srgb, #7048E8 45%, var(--paper))',
 ];
 const SCORE_KEY_COMPUTER = 'toolcrate-game-battleship-score-computer';
 const SCORE_KEY_HUMAN = 'toolcrate-game-battleship-score-human';
@@ -501,6 +514,8 @@ function renderOwnBoard(side, opponentShotsSource) {
       const ship = sides[side].ships.find(s => s.cells.includes(key));
       if (ship) {
         cell.classList.add('own-ship');
+        const shipIdx = sides[side].ships.indexOf(ship);
+        cell.style.background = SHIP_COLORS[shipIdx % SHIP_COLORS.length];
         if (ship.hits.size === ship.cells.length) cell.classList.add('sunk');
       }
       const shotResult = opponentShotsSource.get(key);
@@ -552,7 +567,11 @@ function renderPlacementUI() {
       cell.className = 'bs-cell target clickable';
       const key = cellKey(r, c);
       const ship = sides[placingSide].ships.find(s => s.cells.includes(key));
-      if (ship) cell.classList.add('own-ship');
+      if (ship) {
+        cell.classList.add('own-ship');
+        const shipIdx = sides[placingSide].ships.indexOf(ship);
+        cell.style.background = SHIP_COLORS[shipIdx % SHIP_COLORS.length];
+      }
       cell.addEventListener('click', () => tryPlaceAt(r, c));
       board.appendChild(cell);
     }
@@ -618,6 +637,15 @@ function renderPassScreen() {
 function renderBattle() {
   gameArea.innerHTML = '';
   const isAiTurn = mode === 'computer' && currentTurn === 'B';
+  // In vs-computer mode the board perspective must always stay on the
+  // human (side A) — the computer never gets a "turn screen" of its own,
+  // it just fires in the background. Using currentTurn directly here used
+  // to flip the whole view to the computer's perspective for the ~650ms
+  // the AI is "thinking" (currentTurn === 'B'), which very briefly
+  // rendered "Your fleet" as the computer's own fleet instead of the
+  // human's. In vs-human pass-and-play, perspective legitimately follows
+  // currentTurn — that's the entire point of the hand-off flow.
+  const viewerSide = mode === 'computer' ? 'A' : currentTurn;
 
   if (mode === 'computer') {
     statusText.textContent = isAiTurn ? "Computer's turn..." : 'Your turn — fire at the enemy waters';
@@ -632,9 +660,9 @@ function renderBattle() {
   targetBlock.className = 'bs-board-block';
   const targetLabel = document.createElement('div');
   targetLabel.className = 'bs-board-label';
-  targetLabel.textContent = mode === 'computer' ? 'Enemy waters' : sideLabel(currentTurn) + "'s target board";
+  targetLabel.textContent = mode === 'computer' ? 'Enemy waters' : sideLabel(viewerSide) + "'s target board";
   targetBlock.appendChild(targetLabel);
-  targetBlock.appendChild(renderTargetBoard(currentTurn, !isAiTurn));
+  targetBlock.appendChild(renderTargetBoard(viewerSide, !isAiTurn));
   wrap.appendChild(targetBlock);
 
   if (mode === 'human' && lastShotResult) {
@@ -651,9 +679,9 @@ function renderBattle() {
   ownBlock.className = 'bs-board-block';
   const ownLabel = document.createElement('div');
   ownLabel.className = 'bs-board-label';
-  ownLabel.textContent = mode === 'computer' ? 'Your fleet' : sideLabel(currentTurn) + "'s fleet";
+  ownLabel.textContent = mode === 'computer' ? 'Your fleet' : sideLabel(viewerSide) + "'s fleet";
   ownBlock.appendChild(ownLabel);
-  ownBlock.appendChild(renderOwnBoard(currentTurn, sides[opponentOf(currentTurn)].shots));
+  ownBlock.appendChild(renderOwnBoard(viewerSide, sides[opponentOf(viewerSide)].shots));
   wrap.appendChild(ownBlock);
 
   gameArea.appendChild(wrap);
